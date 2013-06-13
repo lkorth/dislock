@@ -2,4 +2,7 @@
 
     <string name="app_name">Pebble Locker</string>
 
+    <string name="reset_password_warning">
+        You have just reset your screen lock password to \"%1$s\""</string>
+        
 </resources>

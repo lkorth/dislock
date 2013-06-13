@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <PreferenceCategory
+        android:title="Device Admin" >
+
+        <CheckBoxPreference
+            android:key="key_enable_admin"
+            android:title="Enable Device Admin" />
+    </PreferenceCategory>
+    
+    <PreferenceCategory
+        android:title="Options" >
+        
+        <EditTextPreference
+            android:key="key_password"
+            android:title="Pin/Password"
+            android:dialogTitle="Set your pin or password" />
+        
+        <CheckBoxPreference
+            android:key="key_force_lock"
+            android:title="Force lock on disconnect"
+            android:summary="Force your device to lock when your Pebble disconnects" />
+    </PreferenceCategory>
+</PreferenceScreen>
