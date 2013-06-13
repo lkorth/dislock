@@ -142,7 +142,7 @@ public class PebbleLocker extends PreferenceActivity {
 
         @Override
         public void onPasswordChanged(Context context, Intent intent) {
-        	Toast.makeText(context, "Password changed", Toast.LENGTH_SHORT).show();
+        	// intentionally left blank
         }
 
         @Override
@@ -152,7 +152,7 @@ public class PebbleLocker extends PreferenceActivity {
 
         @Override
         public void onPasswordSucceeded(Context context, Intent intent) {
-        	Toast.makeText(context, "Password change successful", Toast.LENGTH_SHORT).show();
+        	// intentionally left blank
         }
 
         @Override
