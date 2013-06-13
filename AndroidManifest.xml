@@ -32,6 +32,14 @@
             </intent-filter>
         </receiver>
         
+        <receiver android:name=".PebbleConnectionReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.getpebble.action.PEBBLE_CONNECTED" />
+                <action android:name="com.getpebble.action.PEBBLE_DISCONNECTED" />
+            </intent-filter>
+        </receiver>
+        
     </application>
 
 </manifest>
