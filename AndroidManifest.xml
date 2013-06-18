@@ -1,11 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.lukekorth.pebblelocker"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionCode="2"
+    android:versionName="1.1" >
 
-    <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="17" />
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="17" />
+    
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -32,12 +32,17 @@
             </intent-filter>
         </receiver>
         
-        <receiver android:name=".PebbleConnectionReceiver"
-            android:exported="true">
+        <receiver android:name=".PebbleConnectionReceiver">
             <intent-filter>
                 <action android:name="com.getpebble.action.PEBBLE_CONNECTED" />
                 <action android:name="com.getpebble.action.PEBBLE_DISCONNECTED" />
             </intent-filter>
+        </receiver>
+        
+        <receiver android:name=".BootReceiver">
+          <intent-filter>
+              <action android:name="android.intent.action.BOOT_COMPLETED" />
+          </intent-filter>
         </receiver>
         
     </application>
