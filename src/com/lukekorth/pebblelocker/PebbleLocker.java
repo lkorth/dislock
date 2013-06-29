@@ -1,5 +1,7 @@
 package com.lukekorth.pebblelocker;
 
+import com.getpebble.android.kit.PebbleKit;
+
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.admin.DeviceAdminReceiver;
@@ -89,7 +91,9 @@ public class PebbleLocker extends PreferenceActivity {
             return;
         }
         
-        mDPM.resetPassword(newPassword, DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+        if(!PebbleKit.isWatchConnected(this))
+        	mDPM.resetPassword(newPassword, DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+        
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         String message = getString(R.string.reset_password_warning, newPassword);
         builder.setMessage(message);
