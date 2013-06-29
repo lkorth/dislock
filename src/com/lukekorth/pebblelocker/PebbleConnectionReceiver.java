@@ -19,8 +19,7 @@ public class PebbleConnectionReceiver extends BroadcastReceiver {
 		ComponentName deviceAdmin = new ComponentName(context, CustomDeviceAdminReceiver.class);
 		
 		if(dpm.isAdminActive(deviceAdmin) && action.equals("com.getpebble.action.PEBBLE_CONNECTED")) {
-			((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE))
-				.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+			dpm.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
 		} else if (dpm.isAdminActive(deviceAdmin) && action.equals("com.getpebble.action.PEBBLE_DISCONNECTED")) {
 			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 			
