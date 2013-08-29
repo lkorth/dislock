@@ -45,6 +45,12 @@
           </intent-filter>
         </receiver>
         
+        <receiver android:name=".ShutDownReceiver">
+          <intent-filter>
+              <action android:name="android.intent.action.ACTION_SHUTDOWN" />
+          </intent-filter>
+        </receiver>
+        
     </application>
 
 </manifest>
