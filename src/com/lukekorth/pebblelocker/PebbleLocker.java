@@ -75,6 +75,18 @@ public class PebbleLocker extends PreferenceActivity {
 			}
 		});
 		
+		mEnable.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+			@Override
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
+				if(Boolean.parseBoolean(newValue.toString()))
+					showAlert("Pebble Locker is enabled, please set your password");
+				else
+					mPrefs.edit().putString("key_password", "");
+				
+				return true;
+			}
+		});
+		
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 	}
 	
@@ -115,16 +127,20 @@ public class PebbleLocker extends PreferenceActivity {
 		mForceLock.setEnabled(isEnabled);
 	}
 	
+	private void showAlert(String string) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(string);
+        builder.setPositiveButton("Ok", null);
+        builder.show();
+	}
+	
 	 /**
      * If the "user" is a monkey, post an alert and notify the caller.  This prevents automated
      * test frameworks from stumbling into annoying or dangerous operations.
      */
-    private static boolean alertIfMonkey(Context context, String string) {
+    private boolean alertIfMonkey(Context context, String string) {
         if (ActivityManager.isUserAMonkey()) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setMessage(string);
-            builder.setPositiveButton("Ok", null);
-            builder.show();
+            showAlert(string);
             return true;
         } else {
             return false;
