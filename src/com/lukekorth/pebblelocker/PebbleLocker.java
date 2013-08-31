@@ -43,7 +43,7 @@ public class PebbleLocker extends PreferenceActivity {
 		
 		mAdmin = (CheckBoxPreference) findPreference("key_enable_admin");
 		mPassword = (EditTextPreference) findPreference("key_password");
-		mEnable = (CheckBoxPreference) findPreference("key_locker_enable");
+		mEnable = (CheckBoxPreference) findPreference("key_enable_locker");
 		mForceLock = (CheckBoxPreference) findPreference("key_force_lock");
 		
 		mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
