@@ -9,10 +9,12 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.widget.Toast;
@@ -28,6 +30,8 @@ public class PebbleLocker extends PreferenceActivity {
 	private EditTextPreference mPassword;
 	private CheckBoxPreference mEnable;
 	private CheckBoxPreference mForceLock;
+	
+	private SharedPreferences mPrefs;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -70,6 +74,8 @@ public class PebbleLocker extends PreferenceActivity {
 				return true;
 			}
 		});
+		
+		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 	}
 	
 	public void onResume() {
@@ -93,7 +99,7 @@ public class PebbleLocker extends PreferenceActivity {
             return;
         }
         
-        if(!PebbleKit.isWatchConnected(this))
+        if(!PebbleKit.isWatchConnected(this) && mPrefs.getBoolean("key_locker_enable", false))
         	mDPM.resetPassword(newPassword, DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
         
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
