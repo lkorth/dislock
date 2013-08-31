@@ -18,6 +18,10 @@
             android:dialogTitle="Set your pin or password" />
         
         <CheckBoxPreference
+            android:key="key_enable_locker"
+            android:title="Enable Pebble Locker" />
+        
+        <CheckBoxPreference
             android:key="key_force_lock"
             android:title="Force lock on disconnect"
             android:summary="Force your device to lock when your Pebble disconnects" />
