@@ -1,23 +1,27 @@
 package com.lukekorth.pebblelocker;
 
-import com.getpebble.android.kit.PebbleKit;
-
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.admin.DeviceAdminReceiver;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
-import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
+
+import com.getpebble.android.kit.PebbleKit;
 
 public class PebbleLocker extends PreferenceActivity {
 	
@@ -100,6 +104,9 @@ public class PebbleLocker extends PreferenceActivity {
 			mAdmin.setChecked(false);
 			enableOptions(false);
 		}
+		
+		if(!mPrefs.getString("key_password", "").equals(""))
+            requestPassword();
 	}
 	
 	/**
@@ -125,6 +132,32 @@ public class PebbleLocker extends PreferenceActivity {
 		mPassword.setEnabled(isEnabled);
 		mEnable.setEnabled(isEnabled);
 		mForceLock.setEnabled(isEnabled);
+	}
+	
+	private void requestPassword() {
+		LayoutInflater factory = LayoutInflater.from(this);
+        final View textEntryView = factory.inflate(R.layout.password_prompt, null);
+        
+        new AlertDialog.Builder(PebbleLocker.this)
+            .setTitle("Enter your pin/password to continue")
+            .setView(textEntryView)
+            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                	String password = ((EditText) textEntryView.findViewById(R.id.password_edit)).getText().toString();
+                	
+                	dialog.cancel();
+                	
+                	if(!mPrefs.getString("key_password", "").equals(password))
+                		requestPassword();
+                }
+            })
+            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                	dialog.cancel();
+                	requestPassword();
+                }
+            })
+            .create();
 	}
 	
 	private void showAlert(String string) {
