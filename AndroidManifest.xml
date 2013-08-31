@@ -39,14 +39,9 @@
             </intent-filter>
         </receiver>
         
-        <receiver android:name=".BootReceiver">
+        <receiver android:name=".PhoneStateReceiver">
           <intent-filter>
               <action android:name="android.intent.action.BOOT_COMPLETED" />
-          </intent-filter>
-        </receiver>
-        
-        <receiver android:name=".ShutDownReceiver">
-          <intent-filter>
               <action android:name="android.intent.action.ACTION_SHUTDOWN" />
           </intent-filter>
         </receiver>
