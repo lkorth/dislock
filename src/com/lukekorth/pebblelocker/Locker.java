@@ -27,4 +27,12 @@ public class Locker {
 			}
 		}
 	}
+	
+	public static void unlock(Context context) {
+		DevicePolicyManager dpm = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
+		
+		if (dpm.isAdminActive(new ComponentName(context, CustomDeviceAdminReceiver.class)))
+			dpm.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+	}
+
 }
