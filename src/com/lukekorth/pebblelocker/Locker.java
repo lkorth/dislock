@@ -4,15 +4,16 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 
-import com.getpebble.android.kit.PebbleKit;
 import com.lukekorth.pebblelocker.PebbleLocker.CustomDeviceAdminReceiver;
 
 public class Locker {
 	
 	public static void lockIfEnabled(Context context) {
-		if(!PebbleKit.isWatchConnected(context)) {		
+		if(!Locker.isWatchConnected(context)) {		
 			DevicePolicyManager dpm = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
 			
 			if (dpm.isAdminActive(new ComponentName(context, CustomDeviceAdminReceiver.class))) {
@@ -36,5 +37,27 @@ public class Locker {
 				dpm.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
 		}
 	}
+	
+	 /**
+	 * Copied from PebbleKit https://github.com/pebble/pebblekit
+	 *  
+     * Synchronously query the Pebble application to see if an active Bluetooth connection to a watch currently exists.
+     *
+     * @param context
+     *         The Android context used to perform the query.
+     *         <p/>
+     *         <em>Protip:</em> You probably want to use your ApplicationContext here.
+     *
+     * @return true if an active connection to the watch currently exists, otherwise false. This method will also return
+     *         false if the Pebble application is not installed on the user's handset.
+     */
+    public static boolean isWatchConnected(final Context context) {
+        Cursor c = context.getContentResolver().query(Uri.parse("content://com.getpebble.android.provider/state"),
+                null, null, null, null);
+        if (c == null || !c.moveToNext()) {
+            return false;
+        }
+        return c.getInt(0) == 1;
+    }
 
 }

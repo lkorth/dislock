@@ -21,8 +21,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.getpebble.android.kit.PebbleKit;
-
 public class PebbleLocker extends PreferenceActivity {
 	
 	private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
@@ -118,7 +116,7 @@ public class PebbleLocker extends PreferenceActivity {
             return;
         }
         
-        if(!PebbleKit.isWatchConnected(this) && mPrefs.getBoolean("key_locker_enable", false))
+        if(!Locker.isWatchConnected(this) && mPrefs.getBoolean("key_locker_enable", false))
         	mDPM.resetPassword(newPassword, DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
         
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
