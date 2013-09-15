@@ -29,7 +29,7 @@ public class Locker {
 		}
 	}
 	
-	public static void unlock(Context context) {
+	public static void unlockIfEnabled(Context context) {
 		if(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("key_enable_locker", false)) {		
 			DevicePolicyManager dpm = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
 			
