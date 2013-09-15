@@ -116,8 +116,7 @@ public class PebbleLocker extends PreferenceActivity {
             return;
         }
         
-        if(!Locker.isWatchConnected(this) && mPrefs.getBoolean("key_locker_enable", false))
-        	mDPM.resetPassword(newPassword, DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+        Locker.lockIfEnabled(this, false);
         
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         String message = getString(R.string.reset_password_warning, newPassword);

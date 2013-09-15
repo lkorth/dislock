@@ -13,6 +13,10 @@ import com.lukekorth.pebblelocker.PebbleLocker.CustomDeviceAdminReceiver;
 public class Locker {
 	
 	public static void lockIfEnabled(Context context) {
+		Locker.lockIfEnabled(context, true);
+	}
+	
+	public static void lockIfEnabled(Context context, boolean forceLock) {
 		if(!Locker.isWatchConnected(context)) {		
 			DevicePolicyManager dpm = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
 			
@@ -22,7 +26,7 @@ public class Locker {
 				if(prefs.getBoolean("key_enable_locker", false)) {			
 					dpm.resetPassword(prefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
 					
-					if(prefs.getBoolean("key_force_lock", false))
+					if(forceLock && prefs.getBoolean("key_force_lock", false))
 						dpm.lockNow();
 				}
 			}
