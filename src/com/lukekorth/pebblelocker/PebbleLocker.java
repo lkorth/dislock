@@ -38,6 +38,8 @@ public class PebbleLocker extends PreferenceActivity {
 	
 	private SharedPreferences mPrefs;
 	
+	private AlertDialog requirePassword;
+	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.layout.main);
@@ -144,31 +146,34 @@ public class PebbleLocker extends PreferenceActivity {
 	}
 	
 	private void requestPassword() {
-		LayoutInflater factory = LayoutInflater.from(this);
-        final View textEntryView = factory.inflate(R.layout.password_prompt, null);
-        
-        new AlertDialog.Builder(PebbleLocker.this)
-            .setTitle("Enter your pin/password to continue")
-            .setView(textEntryView)
-            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                	String password = ((EditText) textEntryView.findViewById(R.id.password_edit)).getText().toString();
-                	
-                	dialog.cancel();
-                	
-                	if(!mPrefs.getString("key_password", "").equals(password))
-                		requestPassword();
-                }
-            })
-            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                	dialog.cancel();
-                	requestPassword();
-                }
-            })
-            .setCancelable(false)
-            .create()
-            .show();
+		if(requirePassword == null || !requirePassword.isShowing()) {
+			LayoutInflater factory = LayoutInflater.from(this);
+	        final View textEntryView = factory.inflate(R.layout.password_prompt, null);
+	        
+	        requirePassword = new AlertDialog.Builder(PebbleLocker.this)
+	            .setTitle("Enter your pin/password to continue")
+	            .setView(textEntryView)
+	            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+	                public void onClick(DialogInterface dialog, int whichButton) {
+	                	String password = ((EditText) textEntryView.findViewById(R.id.password_edit)).getText().toString();
+	                	
+	                	dialog.cancel();
+	                	
+	                	if(!mPrefs.getString("key_password", "").equals(password))
+	                		requestPassword();
+	                }
+	            })
+	            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+	                public void onClick(DialogInterface dialog, int whichButton) {
+	                	dialog.cancel();
+	                	requestPassword();
+	                }
+	            })
+	            .setCancelable(false)
+	            .create();
+	        
+	        requirePassword.show();
+		}
 	}
 	
 	private void showAlert(String string) {
