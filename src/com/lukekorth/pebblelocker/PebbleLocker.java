@@ -155,7 +155,9 @@ public class PebbleLocker extends PreferenceActivity {
                 	requestPassword();
                 }
             })
-            .create();
+            .setCancelable(false)
+            .create()
+            .show();
 	}
 	
 	private void showAlert(String string) {
