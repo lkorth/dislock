@@ -86,6 +86,10 @@ public class PebbleLocker extends PreferenceActivity {
 		mPassword.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 			@Override
 			public boolean onPreferenceChange(Preference preference, Object newValue) {
+				// hack because we need the new password to be 
+				// sent in shared prefs before this method returns
+				mPrefs.edit().putString("key_password", newValue.toString()).commit();
+				
 				doResetPassword((String) newValue);
 				return true;
 			}
