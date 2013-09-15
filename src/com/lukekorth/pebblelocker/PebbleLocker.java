@@ -1,5 +1,7 @@
 package com.lukekorth.pebblelocker;
 
+import org.donations.DonationsActivity;
+
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.admin.DeviceAdminReceiver;
@@ -14,6 +16,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -46,6 +49,15 @@ public class PebbleLocker extends PreferenceActivity {
 		
 		mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 		mDeviceAdmin = new ComponentName(this, CustomDeviceAdminReceiver.class);
+		
+		((Preference) findPreference("donate")).setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				PebbleLocker.this
+					.startActivity(new Intent(PebbleLocker.this, DonationsActivity.class));
+				return true;
+			}
+        });
 		
 		mAdmin.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 			@Override
