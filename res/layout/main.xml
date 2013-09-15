@@ -6,7 +6,8 @@
 
         <CheckBoxPreference
             android:key="key_enable_admin"
-            android:title="Enable Device Admin" />
+            android:title="Enable Device Admin"
+            android:summary="Must be enabled for Pebble Locker to function" />
     </PreferenceCategory>
     
     <PreferenceCategory
@@ -19,7 +20,8 @@
         
         <CheckBoxPreference
             android:key="key_enable_locker"
-            android:title="Enable Pebble Locker" />
+            android:title="Enable Pebble Locker"
+            android:summary="Lock or unlock your phone based on Pebble connection status" />
         
         <CheckBoxPreference
             android:key="key_force_lock"
