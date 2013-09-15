@@ -24,6 +24,6 @@
         <CheckBoxPreference
             android:key="key_force_lock"
             android:title="Force lock on disconnect"
-            android:summary="Force your device to lock when your Pebble disconnects" />
+            android:summary="Force your device to lock as soon as your Pebble disconnects" />
     </PreferenceCategory>
 </PreferenceScreen>
