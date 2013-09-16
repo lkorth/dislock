@@ -11,7 +11,7 @@
     <item name="donations__google_enabled" type="bool">true</item>
 
     <!-- your public key from the google play publisher account -->
-    <item name="donations__google_pubkey" format="string" type="string">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmKCACsyFRONCbAFoNV+e1h+o9AXUTgiEZPDV24aaWyhTAixwK+sEHtcjlmElYHSO/9a6HBXa03JCsSNWc9Ngqpj3fTiZ+IZQ9HRLUt4mDWVh0/fKSiTfS9bEjGx8oHnteHTe+BvsTkkM5OR00n0zG+++a+948P8pv1B6f/QvJ1y9mgGyy5LR0CXVEnZrQJonqofPxBDaPvbNYNTGFkNSEepDk5xRfIfDpbftvgnDBtJya1BWc1aGksJURUyFZntj7fin3i05PbIiTztGWOKCGubegcJt+HIl304nvBZCbUVZpiSaOqWDQZO6kmloMoy5vC1GP1/WaN554XKNcDZ0rwIDAQAB</item>
+    <item name="donations__google_pubkey" format="string" type="string">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnhf5yhhSIUQe31YuT7G2DjmtNcTiC1dte+4RXFN514XGT10kAlYImuVW7RVrNtW06bs7KhsDHLamQOV5s94IR/OiQ+OwZDwG9CTz+6q9WlTp3tNe6moTkxxnITEkxWoQIu7D7MWfJ4aWVihDUbn5fJ/ZuZoCVDUdTQr1nKs1zNxhWR8fYEi7NQqr83cCJYBi8AOShi2PtX16MW9Ts1IytYAiQ3mvCHiiivaFRyBeHy8DFWlaa/EHn2KXGV//f5OhxDqw8HCe4DGwaljWday6Xv28zThO9r6AYWSgv+RfknxeVh3xa7vWFNdVRFf+K+8onbC8sr4tEjnjBWacV3mPFQIDAQAB</item>
 
     <!--
     mapping from the possible donations of 1,2,3,5 and 10 usd to your in-app items defined in
