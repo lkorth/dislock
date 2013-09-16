@@ -101,7 +101,7 @@ public class PebbleLocker extends PreferenceActivity {
 				if(Boolean.parseBoolean(newValue.toString()))
 					showAlert("Pebble Locker is enabled, please set your password");
 				else
-					mPrefs.edit().putString("key_password", "");
+					mPrefs.edit().putString("key_password", "").commit();
 				
 				return true;
 			}
