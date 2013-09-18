@@ -40,6 +40,8 @@ public class PebbleLocker extends PreferenceActivity {
 	
 	private AlertDialog requirePassword;
 	
+	private long timeStamp;
+	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.layout.main);
@@ -121,7 +123,7 @@ public class PebbleLocker extends PreferenceActivity {
 			enableOptions(false);
 		}
 		
-		if(!mPrefs.getString("key_password", "").equals(""))
+		if(!mPrefs.getString("key_password", "").equals("") && timeStamp < (System.currentTimeMillis() - 60000))
             requestPassword();
 	}
 	
@@ -165,6 +167,8 @@ public class PebbleLocker extends PreferenceActivity {
 	                	
 	                	if(!mPrefs.getString("key_password", "").equals(password))
 	                		requestPassword();
+	                	else
+	                		timeStamp = System.currentTimeMillis();
 	                }
 	            })
 	            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
