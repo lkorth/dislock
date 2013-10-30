@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="root" >
     
     <PreferenceCategory
+        android:key="donateCategory"
         android:title="Donate">
         
         <Preference
@@ -30,11 +32,35 @@
         <CheckBoxPreference
             android:key="key_enable_locker"
             android:title="Enable Pebble Locker"
-            android:summary="Lock or unlock your phone based on Pebble connection status" />
+            android:summary="Lock or unlock your phone based on your device's connection status" />
         
         <CheckBoxPreference
             android:key="key_force_lock"
             android:title="Force lock on disconnect"
-            android:summary="Force your device to lock as soon as your Pebble disconnects" />
+            android:summary="Force your device to lock as soon as your device disconnects" />
+    </PreferenceCategory>
+    
+    <PreferenceCategory
+        android:title="Advanced Options">
+    
+    	<Preference
+    	    android:key="other_bluetooth_devices"
+    	    android:title="Other Bluetooth Devices"
+    	    android:summary="Select other bluetooth devices that will also unlock your device">
+    		<intent
+             	android:action="android.intent.action.VIEW"
+             	android:targetPackage="com.lukekorth.pebblelocker"
+             	android:targetClass="com.lukekorth.pebblelocker.BluetoothDevices" /> 
+    	</Preference>
+    	
+    	<Preference
+    	    android:key="wifi"
+    	    android:title="WiFi"
+    	    android:summary="Select WiFi networks that will unlock your device">
+   	    	<intent
+             	android:action="android.intent.action.VIEW"
+             	android:targetPackage="com.lukekorth.pebblelocker"
+             	android:targetClass="com.lukekorth.pebblelocker.WiFiNetworks" /> 
+        </Preference>
     </PreferenceCategory>
 </PreferenceScreen>

@@ -8,7 +8,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		Locker.lockIfEnabled(context);
+		Locker.lockIfEnabled(context, null);
 	}
 
 }

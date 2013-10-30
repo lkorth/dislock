@@ -1,6 +1,8 @@
 <resources>
 
     <string name="app_name">Pebble Locker</string>
+    <string name="bluetooth_devices">Select Devices</string>
+    <string name="wifi_networks">Select WiFi Networks</string>
 
     <string name="reset_password_warning">
         You have just reset your screen lock password to \"%1$s\""</string>

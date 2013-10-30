@@ -3,10 +3,12 @@
     android:versionCode="5"
     android:versionName="1.4" >
 
-    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="17" />
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="18" />
     
     <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
         android:allowBackup="true"
@@ -22,6 +24,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <activity android:name=".BluetoothDevices"  android:label="@string/bluetooth_devices" />
+        <activity android:name=".WiFiNetworks"  android:label="@string/wifi_networks" />
 
         <receiver android:name=".PebbleLocker$CustomDeviceAdminReceiver"
                 android:label="Pebble Locker"
@@ -33,11 +38,17 @@
             </intent-filter>
         </receiver>
         
-        <receiver android:name=".PebbleConnectionReceiver">
+        <receiver android:name=".ConnectionReceiver">
             <intent-filter>
                 <action android:name="com.getpebble.action.PEBBLE_CONNECTED" />
                 <action android:name="com.getpebble.action.PEBBLE_DISCONNECTED" />
+                
                 <action android:name="android.intent.action.USER_PRESENT" />
+                
+                <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
+        		<action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" /> 
+        		
+        		<action android:name="android.net.wifi.supplicant.CONNECTION_CHANGE" />  
             </intent-filter>
         </receiver>
         

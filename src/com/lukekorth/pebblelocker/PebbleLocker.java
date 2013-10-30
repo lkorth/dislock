@@ -18,7 +18,9 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -114,6 +116,9 @@ public class PebbleLocker extends PreferenceActivity {
 	
 	public void onResume() {
 		super.onResume();
+		
+		if(mPrefs.getBoolean("donated", false) && findPreference("donateCategory") != null)	
+			((PreferenceScreen) findPreference("root")).removePreference(((PreferenceCategory) findPreference("donateCategory")));
 		
 		if(mDPM.isAdminActive(mDeviceAdmin)) {
 			mAdmin.setChecked(true);
