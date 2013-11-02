@@ -1,7 +1,6 @@
 package com.lukekorth.pebblelocker;
 
 import android.app.admin.DevicePolicyManager;
-import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -14,24 +13,21 @@ import android.preference.PreferenceManager;
 import com.lukekorth.pebblelocker.PebbleLocker.CustomDeviceAdminReceiver;
 
 public class Locker {
-
-	public static void lockIfEnabled(Context context, BluetoothDevice device) {
-		Locker.lockIfEnabled(context, device, true);
-	}
 	
-	public static void lockIfEnabled(Context context, boolean forceLock) {
-		Locker.lockIfEnabled(context, null, forceLock);
+	public static void lockIfEnabled(Context context) {
+		Locker.lockIfEnabled(context, true);
 	}
 
-	public static void lockIfEnabled(Context context, BluetoothDevice device, boolean forceLock) {
+	public static void lockIfEnabled(Context context, boolean forceLock) {
 		DevicePolicyManager dpm = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
 
 		if (dpm.isAdminActive(new ComponentName(context, CustomDeviceAdminReceiver.class))) {
-			if (Locker.connectedToDeviceOrWifi(context, device)) {
-				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-
-				if (prefs.getBoolean("key_enable_locker", false)) {
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+			
+			if (prefs.getBoolean("key_enable_locker", false)) {
+				if (!Locker.connectedToDeviceOrWifi(context)) {
 					dpm.resetPassword(prefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+					prefs.edit().putBoolean("locked", true).commit();
 
 					if (forceLock && prefs.getBoolean("key_force_lock", false))
 						dpm.lockNow();
@@ -40,18 +36,22 @@ public class Locker {
 		}
 	}
 
-	public static void unlockIfEnabled(Context context, BluetoothDevice device) {
+	public static void unlockIfEnabled(Context context) {
 		DevicePolicyManager dpm = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
 
 		if (dpm.isAdminActive(new ComponentName(context, CustomDeviceAdminReceiver.class))) {
-			if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("key_enable_locker", false)) {
-				if(Locker.connectedToDeviceOrWifi(context, device) == false)
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+			
+			if (prefs.getBoolean("key_enable_locker", false)) {
+				if(Locker.connectedToDeviceOrWifi(context)) {
 					dpm.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+					prefs.edit().putBoolean("locked", false).commit();
+				}
 			}
 		}
 	}
 	
-	private static boolean connectedToDeviceOrWifi(Context context, BluetoothDevice device) {
+	private static boolean connectedToDeviceOrWifi(Context context) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
 		boolean pebble = false;
@@ -61,12 +61,12 @@ public class Locker {
 		if(prefs.getBoolean("pebble", true))
 			pebble = Locker.isWatchConnected(context);
 
-		if(device != null && prefs.getBoolean(device.getAddress(), false))
+		if(prefs.getBoolean(prefs.getString("bluetooth", ""), false))
 			bluetooth = true;
 
 		WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-		if(wifiInfo != null && prefs.getBoolean(wifiInfo.getSSID(), false))
+		if(wifiInfo != null && prefs.getBoolean(WiFiNetworks.stripQuotes(wifiInfo.getSSID()), false))
 			wifi = true;
 		
 		return (pebble || bluetooth || wifi);
