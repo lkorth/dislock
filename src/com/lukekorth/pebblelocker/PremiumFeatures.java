@@ -28,30 +28,26 @@ public class PremiumFeatures extends PreferenceActivity {
 		});     
 	}
 	
-	public void onResume() {
-		super.onResume();
-		
-		if(!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("donated", false)) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-	        builder.setMessage("These options require the premium version of the app, press ok to purchase");
-	        builder.setCancelable(false);
-	        builder.setPositiveButton("Ok", new OnClickListener() {
-				@Override
-				public void onClick(DialogInterface arg0, int arg1) {                                     
-					String payload = "";                                       
-					                                                           
-					mHelper.launchPurchaseFlow(PremiumFeatures.this, "pebblelocker.premium", 100001,  
-					        mPurchaseFinishedListener, payload);               
-				}
-	        });
-	        builder.setNegativeButton("Cancel", new OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					PremiumFeatures.this.finish();
-				}
-	        });
-	        builder.show();
-		}
+	public void requirePremiumPurchase() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("These options require the premium version of the app, press ok to purchase");
+        builder.setCancelable(false);
+        builder.setPositiveButton("Ok", new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface arg0, int arg1) {                                     
+				String payload = "";                                       
+				                                                           
+				mHelper.launchPurchaseFlow(PremiumFeatures.this, "pebblelocker.premium", 100001,  
+				        mPurchaseFinishedListener, payload);               
+			}
+        });
+        builder.setNegativeButton("Cancel", new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				PremiumFeatures.this.finish();
+			}
+        });
+        builder.show();
 	}
 	
 	 IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener = new IabHelper.OnIabPurchaseFinishedListener() {      
