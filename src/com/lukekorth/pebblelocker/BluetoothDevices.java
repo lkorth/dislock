@@ -6,15 +6,14 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 
-public class BluetoothDevices extends PreferenceActivity {
+public class BluetoothDevices extends PremiumFeatures {
 
 	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+		super.onCreate(savedInstanceState);                                                                                                                                               
 
 		// Root
 		PreferenceScreen root = getPreferenceManager().createPreferenceScreen(this);
@@ -48,5 +47,13 @@ public class BluetoothDevices extends PreferenceActivity {
 		}
 
 		setPreferenceScreen(root);
+	}
+	
+	public void onResume() {
+		super.onResume();
+	}
+	
+	public void onDestroy() {
+		super.onDestroy();
 	}
 }

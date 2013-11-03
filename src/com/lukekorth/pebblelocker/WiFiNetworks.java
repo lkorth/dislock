@@ -11,7 +11,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 
-public class WiFiNetworks extends PreferenceActivity {
+public class WiFiNetworks extends PremiumFeatures {
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -38,6 +38,14 @@ public class WiFiNetworks extends PreferenceActivity {
 	    }
 
 		setPreferenceScreen(root);
+	}
+	
+	public void onResume() {
+		super.onResume();
+	}
+	
+	public void onDestroy() {
+		super.onDestroy();
 	}
 
 	public static String stripQuotes(String input) {

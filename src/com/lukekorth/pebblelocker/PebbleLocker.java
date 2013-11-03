@@ -2,6 +2,10 @@ package com.lukekorth.pebblelocker;
 
 import org.donations.DonationsActivity;
 
+import com.lukekorth.pebblelocker.util.IabHelper;
+import com.lukekorth.pebblelocker.util.IabResult;
+import com.lukekorth.pebblelocker.util.Inventory;
+
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.admin.DeviceAdminReceiver;
@@ -131,6 +135,21 @@ public class PebbleLocker extends PreferenceActivity {
 		
 		if(!mPrefs.getString("key_password", "").equals("") && timeStamp < (System.currentTimeMillis() - 60000))
             requestPassword();
+				
+		IabHelper.QueryInventoryFinishedListener mGotInventoryListener 
+		   = new IabHelper.QueryInventoryFinishedListener() {
+			public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
+				if (!result.isFailure()) {
+					if(inventory.hasPurchase("pebblelocker.donation.3") || inventory.hasPurchase("pebblelocker.donation.5") || 
+						inventory.hasPurchase("pebblelocker.donation.10") || inventory.hasPurchase("pebblelocker.premium")) {
+						mPrefs.edit().putBoolean("donated", true).commit();
+						
+						if(findPreference("donateCategory") != null)
+							((PreferenceScreen) findPreference("root")).removePreference(((PreferenceCategory) findPreference("donateCategory")));
+					}
+				}
+			}
+		};
 	}
 	
 	/**
