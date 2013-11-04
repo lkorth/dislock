@@ -50,11 +50,12 @@ public class PremiumFeatures extends PreferenceActivity {
         builder.show();
 	}
 	
-	 IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener = new IabHelper.OnIabPurchaseFinishedListener() {      
+	IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener = new IabHelper.OnIabPurchaseFinishedListener() {      
 	     public void onIabPurchaseFinished(IabResult result, Purchase purchase) {                                                               
-	         if (mHelper == null) return;                                                                                     
+	         if (mHelper == null) 
+	        	 return;                                                                                     
 	                                                                                                                          
-	         if (result.isFailure()) {                                                                                        
+	         if (result.isFailure()) {                                                                                      
 	        	AlertDialog.Builder builder = new AlertDialog.Builder(PremiumFeatures.this);
 	 	        builder.setMessage("There was an error purchasing, please try again later");
 	 	        builder.setCancelable(false);
