@@ -21,10 +21,7 @@ public class PremiumFeatures extends PreferenceActivity {
 		mHelper = new IabHelper(this, getString(R.string.donations__google_pubkey));
 
 		mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
-			public void onIabSetupFinished(IabResult result) {
-				if (!result.isSuccess() || mHelper == null)
-					return;
-			}
+			public void onIabSetupFinished(IabResult result) {}
 		});     
 	}
 	
