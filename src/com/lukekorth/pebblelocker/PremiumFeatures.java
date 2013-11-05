@@ -15,14 +15,21 @@ public class PremiumFeatures extends PreferenceActivity {
 	
 	private IabHelper mHelper;
 	
+	private String payload;
+	private int request;
+	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		mHelper = new IabHelper(this, getString(R.string.donations__google_pubkey));
-
 		mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
 			public void onIabSetupFinished(IabResult result) {}
 		});     
+	}
+	
+	public void configureOptions(String payload, int request) {
+		this.payload = payload;
+		this.request = request;
 	}
 	
 	public void requirePremiumPurchase() {
@@ -31,10 +38,8 @@ public class PremiumFeatures extends PreferenceActivity {
         builder.setCancelable(false);
         builder.setPositiveButton("Ok", new OnClickListener() {
 			@Override
-			public void onClick(DialogInterface arg0, int arg1) {                                     
-				String payload = "";                                       
-				                                                           
-				mHelper.launchPurchaseFlow(PremiumFeatures.this, "pebblelocker.premium", 100001,  
+			public void onClick(DialogInterface arg0, int arg1) {          
+				mHelper.launchPurchaseFlow(PremiumFeatures.this, "pebblelocker.premium", request,  
 				        mPurchaseFinishedListener, payload);               
 			}
         });

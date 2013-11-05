@@ -19,6 +19,8 @@ public class BluetoothDevices extends PremiumFeatures {
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		configureOptions("bluetooth", 100002);
 	}
 	
 	public void onResume() {

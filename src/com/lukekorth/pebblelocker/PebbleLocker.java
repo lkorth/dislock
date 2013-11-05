@@ -36,6 +36,7 @@ public class PebbleLocker extends PreferenceActivity {
 	private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
 	
 	private IabHelper mHelper;
+	private boolean mHelperSetup = false;
 	
 	private DevicePolicyManager mDPM;
 	private ComponentName mDeviceAdmin;
@@ -124,18 +125,10 @@ public class PebbleLocker extends PreferenceActivity {
 	public void onResume() {
 		super.onResume();
 		
-		if(mPrefs.getBoolean("donated", false)) {
-			if(findPreference("donateCategory") != null)
-				((PreferenceScreen) findPreference("root")).removePreference(((PreferenceCategory) findPreference("donateCategory")));
-		} else {
-			mHelper = new IabHelper(this, getString(R.string.donations__google_pubkey));
-	        mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
-	            public void onIabSetupFinished(IabResult result) {
-	                if (result.isSuccess())
-	                	mHelper.queryInventoryAsync(mGotInventoryListener);	                
-	            }
-	        });
-		}
+		if(mPrefs.getBoolean("donated", false))
+			removeDonateOption();
+		else
+			checkPurchaseHistory();
 		
 		if(mDPM.isAdminActive(mDeviceAdmin)) {
 			mAdmin.setChecked(true);
@@ -149,19 +142,39 @@ public class PebbleLocker extends PreferenceActivity {
             requestPassword();
 	}
 	
+	public void checkPurchaseHistory() {
+		if(mHelper == null) {
+			mHelper = new IabHelper(this, getString(R.string.donations__google_pubkey));
+			
+			mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
+	            public void onIabSetupFinished(IabResult result) {
+	                if (result.isSuccess()) {
+	                	mHelperSetup = true;
+	                	mHelper.queryInventoryAsync(mGotInventoryListener);	     
+	                }
+	            }
+			});
+		} else if (mHelperSetup) {
+			mHelper.queryInventoryAsync(mGotInventoryListener);
+		}
+	}
+	
 	IabHelper.QueryInventoryFinishedListener mGotInventoryListener = new IabHelper.QueryInventoryFinishedListener() {
 		public void onQueryInventoryFinished(IabResult result, Inventory inventory) {			
 			if (!result.isFailure()) {				
 				if(inventory.hasPurchase("pebblelocker.donation.3") || inventory.hasPurchase("pebblelocker.donation.5") || 
 					inventory.hasPurchase("pebblelocker.donation.10") || inventory.hasPurchase("pebblelocker.premium")) {
 					mPrefs.edit().putBoolean("donated", true).commit();
-					
-					if(findPreference("donateCategory") != null)
-						((PreferenceScreen) findPreference("root")).removePreference(((PreferenceCategory) findPreference("donateCategory")));
+					removeDonateOption();
 				}
 			}
 		}
 	};
+	
+	public void removeDonateOption() {
+		if(findPreference("donateCategory") != null)
+			((PreferenceScreen) findPreference("root")).removePreference(((PreferenceCategory) findPreference("donateCategory")));
+	}
 	
 	/**
      * This is dangerous, so we prevent automated tests from doing it, and we
