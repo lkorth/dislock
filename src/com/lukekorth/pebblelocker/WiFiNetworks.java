@@ -61,11 +61,13 @@ public class WiFiNetworks extends PremiumFeatures {
 			    for (WifiConfiguration config : configs) {
 			    	String ssid = WiFiNetworks.stripQuotes(config.SSID);
 			    	
-			    	// Checkbox preference
-					CheckBoxPreference checkboxPref = new CheckBoxPreference(this);
-					checkboxPref.setKey(ssid);
-					checkboxPref.setTitle(ssid);
-					inlinePrefCat.addPreference(checkboxPref);
+			    	if(ssid != null && ssid != "") {
+				    	// Checkbox preference
+						CheckBoxPreference checkboxPref = new CheckBoxPreference(this);
+						checkboxPref.setKey(ssid);
+						checkboxPref.setTitle(ssid);
+						inlinePrefCat.addPreference(checkboxPref);
+			    	}
 			    }
 	
 				setPreferenceScreen(root);
@@ -78,7 +80,7 @@ public class WiFiNetworks extends PremiumFeatures {
 	}
 
 	public static String stripQuotes(String input) {
-		if(input.startsWith("\"") && input.endsWith("\""))
+		if(input != null && input.startsWith("\"") && input.endsWith("\""))
 			return input.substring(1, input.length() - 1);
 		else
 			return input;
