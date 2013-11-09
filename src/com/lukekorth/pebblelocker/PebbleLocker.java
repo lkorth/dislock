@@ -76,7 +76,7 @@ public class PebbleLocker extends PreferenceActivity {
 		((Preference) findPreference("contact")).setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference arg0) {
-				LogReporting reporter = new LogReporting(PebbleLocker.this, "pebble-locker");
+				LogReporting reporter = new LogReporting(PebbleLocker.this, Locker.TAG);
 				reporter.collectAndSendLogs();
 				
 				return true;
