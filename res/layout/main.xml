@@ -63,4 +63,12 @@
              	android:targetClass="com.lukekorth.pebblelocker.WiFiNetworks" /> 
         </Preference>
     </PreferenceCategory>
+    
+    <PreferenceCategory
+        android:title="Help">
+        <Preference
+            android:key="contact"
+            android:title="Contact Developer" 
+            android:summary="If you are having problems, click here to contact the developer" />
+    </PreferenceCategory>
 </PreferenceScreen>

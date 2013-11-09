@@ -73,6 +73,16 @@ public class PebbleLocker extends PreferenceActivity {
 			}
         });
 		
+		((Preference) findPreference("contact")).setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference arg0) {
+				LogReporting reporter = new LogReporting(PebbleLocker.this, "pebble-locker");
+				reporter.collectAndSendLogs();
+				
+				return true;
+			}
+		});
+		
 		mAdmin.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 			@Override
 			public boolean onPreferenceChange(Preference preference, Object newValue) {
