@@ -41,8 +41,8 @@ public class ConnectionReceiver extends BroadcastReceiver {
 			}
 		}
 				
-		if(action.equalsIgnoreCase("com.getpebble.action.PEBBLE_CONNECTED") ||
-				action.equalsIgnoreCase("android.bluetooth.device.action.ACL_CONNECTED") || (action.equalsIgnoreCase("android.net.conn.CONNECTIVITY_CHANGE") && wifi) && prefs.getBoolean("locked", true)) {
+		if((action.equalsIgnoreCase("com.getpebble.action.PEBBLE_CONNECTED") ||
+				action.equalsIgnoreCase("android.bluetooth.device.action.ACL_CONNECTED") || (action.equalsIgnoreCase("android.net.conn.CONNECTIVITY_CHANGE") && wifi)) && prefs.getBoolean("locked", true)) {
 			if(((PowerManager) context.getSystemService(Context.POWER_SERVICE)).isScreenOn()) {
 				prefs.edit().putBoolean("unlock", true).commit();
 				
@@ -54,8 +54,8 @@ public class ConnectionReceiver extends BroadcastReceiver {
 				
 				Locker.unlockIfEnabled(context);
 			}
-		} else if (action.equalsIgnoreCase("com.getpebble.action.PEBBLE_DISCONNECTED") ||
-				   	action.equalsIgnoreCase("android.bluetooth.device.action.ACL_DISCONNECTED") || action.equalsIgnoreCase("android.net.conn.CONNECTIVITY_CHANGE") && !prefs.getBoolean("locked", false)) {
+		} else if ((action.equalsIgnoreCase("com.getpebble.action.PEBBLE_DISCONNECTED") ||
+				   	action.equalsIgnoreCase("android.bluetooth.device.action.ACL_DISCONNECTED") || action.equalsIgnoreCase("android.net.conn.CONNECTIVITY_CHANGE")) && !prefs.getBoolean("locked", false)) {
 			Log.i(Locker.TAG, "Attempting lock");
 			
 			Locker.lockIfEnabled(context);
