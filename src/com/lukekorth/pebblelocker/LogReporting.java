@@ -32,7 +32,7 @@ public class LogReporting {
 	private class GenerateLogFile extends AsyncTask<Void, Void, String> {
 		@Override
 		protected String doInBackground(Void... args) {
-			String filename = "pebble-locker.log";
+			String filename = "pebble-locker" + System.currentTimeMillis() + ".log";
 			
 			try {
 				Process process = Runtime.getRuntime().exec("logcat -v time -d -s " + mTag);
