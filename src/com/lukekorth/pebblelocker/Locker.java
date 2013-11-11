@@ -101,11 +101,18 @@ public class Locker {
 	 *         otherwise false. This method will also return false if the Pebble
 	 *         application is not installed on the user's handset.
 	 */
-	public static boolean isWatchConnected(final Context context) {
+	public static boolean isWatchConnected(Context context) {
 		Cursor c = context.getApplicationContext().getContentResolver().query(Uri.parse("content://com.getpebble.android.provider/state"), null, null, null, null);
-		if (c == null || !c.moveToNext()) {
+		if (c == null)
+			return false;
+		
+		if(!c.moveToNext()) {
+			c.close();
 			return false;
 		}
-		return c.getInt(0) == 1;
+
+		boolean connected = c.getInt(0) == 1;
+		c.close();
+		return connected;
 	}
 }
