@@ -1,5 +1,6 @@
 package com.lukekorth.pebblelocker;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,59 +14,81 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class ConnectionReceiver extends BroadcastReceiver {
+	
+	private static final String PEBBLE_CONNECTED       = "com.getpebble.action.pebble_connected";
+	private static final String PEBBLE_DISCONNECTED    = "com.getpebble.action.pebble_disconnected";
+	private static final String BLUETOOTH_CONNECTED    = "android.bluetooth.device.action.acl_connected";
+	private static final String BLUETOOTH_DISCONNECTED = "android.bluetooth.device.action.acl_disconnected";
+	private static final String CONNECTIVITY_CHANGE    = "android.net.conn.connectivity_change";
+	private static final String USER_PRESENT           = "android.intent.action.user_present";
+	private static final String UNLOCK                 = "unlock";
+	
+	private Context mContext;
+	private SharedPreferences mPrefs;
+	private String mAction;
 
+	@SuppressLint("DefaultLocale")
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-		String action = intent.getAction();
+		mContext = context;
+		mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+		mAction = intent.getAction().toLowerCase();
 		
-		Log.i(Locker.TAG, "ConnectionReceiver: " + action);
+		Log.i(Locker.TAG, "ConnectionReceiver: " + mAction);
 		
-		if(action.equalsIgnoreCase("android.bluetooth.device.action.ACL_CONNECTED")) {
-			BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-			prefs.edit().putString("bluetooth", device.getAddress()).commit();
-			
-			Log.i(Locker.TAG, "Bluetooth device connected: " + device.getName());
-		} else if(action.equalsIgnoreCase("android.bluetooth.device.action.ACL_DISCONNECTED"))
-			prefs.edit().putString("bluetooth", "").commit();		
+		checkForBluetoothDevice(intent, ((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)));
 		
-		boolean wifi = false;
-		if(action.equalsIgnoreCase("android.net.conn.CONNECTIVITY_CHANGE")) {
-			NetworkInfo netInfo = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo(); 
-	    
-			if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-	            wifi = true;
-	            
-	            Log.i(Locker.TAG, "Wifi network connected: " + 
-	            		((WifiManager) context.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo().getSSID());
-			}
-		}
-				
-		if((action.equalsIgnoreCase("com.getpebble.action.PEBBLE_CONNECTED") ||
-				action.equalsIgnoreCase("android.bluetooth.device.action.ACL_CONNECTED") || (action.equalsIgnoreCase("android.net.conn.CONNECTIVITY_CHANGE") && wifi)) && prefs.getBoolean("locked", true)) {
-			if(((PowerManager) context.getSystemService(Context.POWER_SERVICE)).isScreenOn()) {
-				prefs.edit().putBoolean("unlock", true).commit();
-				
+		if((mAction.equals(PEBBLE_CONNECTED) || mAction.equals(BLUETOOTH_CONNECTED) || isWifiConnected()) && isLocked(true)) {
+			if(isScreenOn()) {
+				mPrefs.edit().putBoolean(UNLOCK, true).commit();
 				Log.i(Locker.TAG, "Screen is on, setting unlock true for future unlock");
 			} else {
-				prefs.edit().putBoolean("unlock", false).commit();
-				
+				mPrefs.edit().putBoolean(UNLOCK, false).commit();
 				Log.i(Locker.TAG, "Attempting unlock");
 				
 				Locker.unlockIfEnabled(context);
 			}
-		} else if ((action.equalsIgnoreCase("com.getpebble.action.PEBBLE_DISCONNECTED") ||
-				   	action.equalsIgnoreCase("android.bluetooth.device.action.ACL_DISCONNECTED") || action.equalsIgnoreCase("android.net.conn.CONNECTIVITY_CHANGE")) && !prefs.getBoolean("locked", false)) {
+		} else if ((mAction.equals(PEBBLE_DISCONNECTED) || mAction.equals(BLUETOOTH_DISCONNECTED) || !isWifiConnected()) && !isLocked(false)) {
 			Log.i(Locker.TAG, "Attempting lock");
 			
 			Locker.lockIfEnabled(context);
-		} else if (action.equalsIgnoreCase("android.intent.action.USER_PRESENT") && 
-				prefs.getBoolean("unlock", false)) {
-			prefs.edit().putBoolean("unlock", false).commit();
-			
+		} else if (mAction.equals(USER_PRESENT) && mPrefs.getBoolean(UNLOCK, false)) {
+			mPrefs.edit().putBoolean(UNLOCK, false).commit();
 			Log.i(Locker.TAG, "User present and need to unlock...attempting to unlock");
 			
 			Locker.unlockIfEnabled(context);
 		}
+	}
+	
+	public boolean isLocked(boolean defaultValue) {
+		return mPrefs.getBoolean("locked", defaultValue);
+	}
+	
+	public boolean isScreenOn() {
+		return ((PowerManager) mContext.getSystemService(Context.POWER_SERVICE)).isScreenOn();
+	}
+	
+	public void checkForBluetoothDevice(Intent intent, BluetoothDevice device) {
+		if(mAction.equals(BLUETOOTH_CONNECTED)) {
+			mPrefs.edit().putString("bluetooth", device.getAddress()).commit();
+			Log.i(Locker.TAG, "Bluetooth device connected: " + device.getName());
+		} else if(mAction.equals(BLUETOOTH_DISCONNECTED)) {
+			mPrefs.edit().putString("bluetooth", "").commit();
+			Log.i(Locker.TAG, "Bluetooth device disconnected: " + device.getName());
+		}
+	}
+	
+	public boolean isWifiConnected() {
+		if(mAction.equals(CONNECTIVITY_CHANGE)) {
+			NetworkInfo netInfo =  ((ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+			if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {	            
+	            Log.i(Locker.TAG, "Wifi network connected: " + 
+	            		((WifiManager) mContext.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo().getSSID());
+	            
+	            return true;
+			}
+		}
+		
+		return false;
 	}
 }
