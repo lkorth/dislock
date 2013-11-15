@@ -36,7 +36,7 @@ public class ConnectionReceiver extends BroadcastReceiver {
 		
 		Log.i(Locker.TAG, "ConnectionReceiver: " + mAction);
 		
-		checkForBluetoothDevice(intent, ((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)));
+		checkForBluetoothDevice(((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)));
 		
 		if((mAction.equals(PEBBLE_CONNECTED) || mAction.equals(BLUETOOTH_CONNECTED) || isWifiConnected()) && isLocked(true)) {
 			if(isScreenOn()) {
@@ -68,7 +68,7 @@ public class ConnectionReceiver extends BroadcastReceiver {
 		return ((PowerManager) mContext.getSystemService(Context.POWER_SERVICE)).isScreenOn();
 	}
 	
-	public void checkForBluetoothDevice(Intent intent, BluetoothDevice device) {
+	public void checkForBluetoothDevice(BluetoothDevice device) {
 		if(mAction.equals(BLUETOOTH_CONNECTED)) {
 			mPrefs.edit().putString("bluetooth", device.getAddress()).commit();
 			Log.i(Locker.TAG, "Bluetooth device connected: " + device.getName());
