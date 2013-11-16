@@ -9,6 +9,7 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -143,6 +144,7 @@ public class PebbleLocker extends PreferenceActivity {
 		if(mDPM.isAdminActive(mDeviceAdmin)) {
 			mAdmin.setChecked(true);
 			enableOptions(true);
+			checkForRequiredPasswordByOtherApps();
 		} else {
 			mAdmin.setChecked(false);
 			enableOptions(false);
@@ -152,7 +154,7 @@ public class PebbleLocker extends PreferenceActivity {
             requestPassword();
 	}
 	
-	public void checkPurchaseHistory() {
+	private void checkPurchaseHistory() {
 		if(mHelper == null) {
 			mHelper = new IabHelper(this, getString(R.string.donations__google_pubkey));
 			
@@ -181,7 +183,7 @@ public class PebbleLocker extends PreferenceActivity {
 		}
 	};
 	
-	public void removeDonateOption() {
+	private void removeDonateOption() {
 		if(findPreference("donateCategory") != null)
 			((PreferenceScreen) findPreference("root")).removePreference(((PreferenceCategory) findPreference("donateCategory")));
 	}
@@ -208,6 +210,18 @@ public class PebbleLocker extends PreferenceActivity {
 		mPassword.setEnabled(isEnabled);
 		mEnable.setEnabled(isEnabled);
 		mForceLock.setEnabled(isEnabled);
+	}
+	
+	private void checkForRequiredPasswordByOtherApps() {		
+		if(mDPM.getPasswordMinimumLength(mDeviceAdmin) > 0) {
+			showAlert("There are other apps installed that require a password or pin to be set on your device. " +
+					"Pebble Locker cannot function unless these apps are disabled or uninstalled.", new OnClickListener() {
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					PebbleLocker.this.finish();
+				}
+			});
+		}
 	}
 	
 	private void requestPassword() {
@@ -246,10 +260,14 @@ public class PebbleLocker extends PreferenceActivity {
 		}
 	}
 	
-	private void showAlert(String string) {
+	private void showAlert(String message) {
+		showAlert(message, null);
+	}
+	
+	private void showAlert(String message, OnClickListener onClickListener) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(string);
-        builder.setPositiveButton("Ok", null);
+        builder.setMessage(message);
+        builder.setPositiveButton("Ok", onClickListener);
         builder.show();
 	}
 	
