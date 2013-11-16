@@ -45,16 +45,16 @@ public class ConnectionReceiver extends BroadcastReceiver {
 			} else {
 				mPrefs.edit().putBoolean(UNLOCK, false).commit();
 				Log.i(Locker.TAG, "Attempting unlock");
-				Locker.unlockIfEnabled(context);
+				new Locker(context).unlockIfEnabled();
 			}
 		} else if ((mAction.equals(PEBBLE_DISCONNECTED) || mAction.equals(BLUETOOTH_DISCONNECTED) || !isWifiConnected()) && !isLocked(false)) {
 			mPrefs.edit().putBoolean(UNLOCK, false).commit();
 			Log.i(Locker.TAG, "Attempting lock");
-			Locker.lockIfEnabled(context);
+			new Locker(context).lockIfEnabled();
 		} else if (mAction.equals(USER_PRESENT) && needToUnlock()) {
 			mPrefs.edit().putBoolean(UNLOCK, false).commit();
 			Log.i(Locker.TAG, "User present and need to unlock...attempting to unlock");
-			Locker.unlockIfEnabled(context);
+			new Locker(context).unlockIfEnabled();
 		}
 	}
 	

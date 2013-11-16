@@ -17,25 +17,35 @@ public class Locker {
 	
 	public static final String TAG = "pebble-locker";
 	
-	public static void lockIfEnabled(Context context) {
-		Locker.lockIfEnabled(context, true);
+	private Context mContext;
+	private SharedPreferences mPrefs;
+	private DevicePolicyManager mDpm;
+	
+	public Locker(Context context) {
+		mContext = context;
+		mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+		mDpm = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
+	}
+	
+	public boolean isActiveAdmin() {
+		return mDpm.isAdminActive(new ComponentName(mContext, CustomDeviceAdminReceiver.class));
+	}
+	
+	public void lockIfEnabled() {
+		lockIfEnabled(true);
 	}
 
-	public static void lockIfEnabled(Context context, boolean forceLock) {
-		DevicePolicyManager dpm = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
-
-		if (dpm.isAdminActive(new ComponentName(context, CustomDeviceAdminReceiver.class))) {
-			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-			
-			if (prefs.getBoolean("key_enable_locker", false)) {
-				if (!Locker.connectedToDeviceOrWifi(context)) {
-					dpm.resetPassword(prefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-					prefs.edit().putBoolean("locked", true).commit();
+	public void lockIfEnabled(boolean forceLock) {
+		if (isActiveAdmin()) {
+			if (mPrefs.getBoolean("key_enable_locker", false)) {
+				if (!connectedToDeviceOrWifi()) {
+					mDpm.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+					mPrefs.edit().putBoolean("locked", true).commit();
 					
 					Log.i(TAG, "Locked!");
 
-					if (forceLock && prefs.getBoolean("key_force_lock", false))
-						dpm.lockNow();
+					if (forceLock && mPrefs.getBoolean("key_force_lock", false))
+						mDpm.lockNow();
 				}
 			}
 		} else {
@@ -43,16 +53,12 @@ public class Locker {
 		}
 	}
 
-	public static void unlockIfEnabled(Context context) {
-		DevicePolicyManager dpm = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
-
-		if (dpm.isAdminActive(new ComponentName(context, CustomDeviceAdminReceiver.class))) {
-			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-			
-			if (prefs.getBoolean("key_enable_locker", false)) {
-				if(Locker.connectedToDeviceOrWifi(context)) {
-					dpm.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-					prefs.edit().putBoolean("locked", false).commit();
+	public void unlockIfEnabled() {
+		if (isActiveAdmin()) {			
+			if (mPrefs.getBoolean("key_enable_locker", false)) {
+				if(connectedToDeviceOrWifi()) {
+					mDpm.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+					mPrefs.edit().putBoolean("locked", false).commit();
 					
 					Log.i(TAG, "Unlocked!");	
 				}
@@ -62,22 +68,20 @@ public class Locker {
 		}
 	}
 	
-	private static boolean connectedToDeviceOrWifi(Context context) {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-		
+	private boolean connectedToDeviceOrWifi() {		
 		boolean pebble = false;
 		boolean bluetooth = false;
 		boolean wifi = false;
 		
-		if(prefs.getBoolean("pebble", true))
-			pebble = Locker.isWatchConnected(context);
+		if(mPrefs.getBoolean("pebble", true))
+			pebble = Locker.isWatchConnected(mContext);
 
-		if(prefs.getBoolean(prefs.getString("bluetooth", ""), false))
+		if(mPrefs.getBoolean(mPrefs.getString("bluetooth", ""), false))
 			bluetooth = true;
 
-		WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+		WifiManager wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
 		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-		if(wifiInfo != null && prefs.getBoolean(WiFiNetworks.stripQuotes(wifiInfo.getSSID()), false))
+		if(wifiInfo != null && mPrefs.getBoolean(WiFiNetworks.stripQuotes(wifiInfo.getSSID()), false))
 			wifi = true;
 		
 		Log.i(TAG, "Pebble: " + pebble + " Bluetooth: " + bluetooth + " Wifi: " + wifi);
