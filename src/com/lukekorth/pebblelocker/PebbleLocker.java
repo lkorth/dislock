@@ -37,7 +37,6 @@ public class PebbleLocker extends PreferenceActivity {
 	private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
 	
 	private IabHelper mHelper;
-	private boolean mHelperSetup = false;
 	
 	private DevicePolicyManager mDPM;
 	private ComponentName mDeviceAdmin;
@@ -136,10 +135,7 @@ public class PebbleLocker extends PreferenceActivity {
 	public void onResume() {
 		super.onResume();
 		
-		if(mPrefs.getBoolean("donated", false))
-			removeDonateOption();
-		else
-			checkPurchaseHistory();
+		checkPurchaseHistory();
 		
 		if(mDPM.isAdminActive(mDeviceAdmin)) {
 			mAdmin.setChecked(true);
@@ -154,34 +150,48 @@ public class PebbleLocker extends PreferenceActivity {
             requestPassword();
 	}
 	
+	public void onDestroy() {
+		super.onDestroy();
+		
+		cleanupHelper();
+	}
+	
 	private void checkPurchaseHistory() {
-		if(mHelper == null) {
-			mHelper = new IabHelper(this, getString(R.string.donations__google_pubkey));
-			
-			mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
-	            public void onIabSetupFinished(IabResult result) {
-	                if (result.isSuccess()) {
-	                	mHelperSetup = true;
-	                	mHelper.queryInventoryAsync(mGotInventoryListener);	     
-	                }
-	            }
-			});
-		} else if (mHelperSetup) {
-			mHelper.queryInventoryAsync(mGotInventoryListener);
-		}
+		cleanupHelper();
+		
+		mHelper = new IabHelper(this, getString(R.string.donations__google_pubkey));
+		
+		mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
+            public void onIabSetupFinished(IabResult result) {
+                if (result.isSuccess()) {
+                	mHelper.queryInventoryAsync(mGotInventoryListener);	     
+                } else {
+                	showAlert("There was an issue checking for purchases, please contact the developer");
+                }
+            }
+		});
 	}
 	
 	IabHelper.QueryInventoryFinishedListener mGotInventoryListener = new IabHelper.QueryInventoryFinishedListener() {
 		public void onQueryInventoryFinished(IabResult result, Inventory inventory) {			
-			if (!result.isFailure()) {				
+			if (!result.isFailure()) {			
 				if(inventory.hasPurchase("pebblelocker.donation.3") || inventory.hasPurchase("pebblelocker.donation.5") || 
 					inventory.hasPurchase("pebblelocker.donation.10") || inventory.hasPurchase("pebblelocker.premium")) {
 					mPrefs.edit().putBoolean("donated", true).commit();
 					removeDonateOption();
 				}
+			} else {
+				showAlert("There was an issue checking for purchases, please contact the developer");
 			}
 		}
 	};
+	
+	private void cleanupHelper() {
+		if(mHelper != null) {
+			mHelper.dispose();
+			mHelper = null;
+		}
+	}
 	
 	private void removeDonateOption() {
 		if(findPreference("donateCategory") != null)

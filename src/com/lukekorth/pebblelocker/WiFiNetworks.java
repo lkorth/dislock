@@ -20,8 +20,6 @@ public class WiFiNetworks extends PremiumFeatures {
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		configureOptions("wifi", 100001);
 	}
 	
 	public void onResume() {
