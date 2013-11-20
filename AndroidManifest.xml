@@ -40,7 +40,7 @@
             </intent-filter>
         </receiver>
         
-        <receiver android:name=".ConnectionReceiver" android:exported="false">
+        <receiver android:name=".ConnectionReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="com.getpebble.action.PEBBLE_CONNECTED" />
                 <action android:name="com.getpebble.action.PEBBLE_DISCONNECTED" />
@@ -54,7 +54,7 @@
             </intent-filter>
         </receiver>
         
-        <receiver android:name=".PhoneStateReceiver">
+        <receiver android:name=".PhoneStateReceiver" android:exported="true">
           <intent-filter>
               <action android:name="android.intent.action.BOOT_COMPLETED" />
               <action android:name="android.intent.action.ACTION_SHUTDOWN" />
