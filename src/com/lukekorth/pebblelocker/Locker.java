@@ -82,7 +82,7 @@ public class Locker {
 
 		WifiManager wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
 		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-		if(wifiInfo != null && mPrefs.getBoolean(Base64.encodeToString(wifiInfo.getSSID().getBytes(), Base64.DEFAULT), false))
+		if(wifiInfo != null && mPrefs.getBoolean(Base64.encodeToString(wifiInfo.getSSID().getBytes(), Base64.DEFAULT).trim(), false))
 			wifi = true;
 		
 		Log.i(TAG, "Pebble: " + pebble + " Bluetooth: " + bluetooth + " Wifi: " + wifi);
