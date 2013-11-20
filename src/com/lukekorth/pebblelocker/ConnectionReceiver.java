@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.util.Base64;
 import android.util.Log;
 
 public class ConnectionReceiver extends BroadcastReceiver {
@@ -83,9 +84,9 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	public boolean isWifiConnected() {
 		if(mAction.equals(CONNECTIVITY_CHANGE)) {
 			NetworkInfo netInfo =  ((ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
-			if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {	            
-	            Log.i(Locker.TAG, "Wifi network connected: " + 
-	            		((WifiManager) mContext.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo().getSSID());
+			if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+				String ssid = ((WifiManager) mContext.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo().getSSID();
+	            Log.i(Locker.TAG, "Wifi network " + ssid + " connected: " + Base64.encodeToString(ssid.getBytes(), Base64.DEFAULT));
 	            
 	            return true;
 			}

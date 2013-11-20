@@ -15,6 +15,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.provider.Settings;
+import android.util.Base64;
 
 public class WiFiNetworks extends PremiumFeatures {
 	
@@ -64,7 +65,7 @@ public class WiFiNetworks extends PremiumFeatures {
 			    	if(ssid != null && ssid != "") {
 				    	// Checkbox preference
 						CheckBoxPreference checkboxPref = new CheckBoxPreference(this);
-						checkboxPref.setKey(ssid);
+						checkboxPref.setKey(Base64.encodeToString(config.SSID.getBytes(), Base64.DEFAULT));
 						checkboxPref.setTitle(ssid);
 						inlinePrefCat.addPreference(checkboxPref);
 			    	}
@@ -79,7 +80,7 @@ public class WiFiNetworks extends PremiumFeatures {
 		super.onDestroy();
 	}
 
-	public static String stripQuotes(String input) {
+	private static String stripQuotes(String input) {
 		if(input != null && input.startsWith("\"") && input.endsWith("\""))
 			return input.substring(1, input.length() - 1);
 		else
