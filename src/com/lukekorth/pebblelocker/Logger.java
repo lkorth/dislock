@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class Logger extends SQLiteOpenHelper {
 	
@@ -26,11 +27,15 @@ public class Logger extends SQLiteOpenHelper {
 	}
 	
 	public void log(String message) {
+		long timestamp = System.currentTimeMillis();
+		
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues cv = new ContentValues();
-        cv.put("timestamp", System.currentTimeMillis());
+        cv.put("timestamp", timestamp);
         cv.put("message", message);
+        
+        Log.d("pebble-locker", message);
        
         db.insert("log", null, cv);
         db.close();

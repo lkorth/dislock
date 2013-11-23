@@ -1,4 +1,4 @@
-package com.lukekorth.pebblelocker;
+	package com.lukekorth.pebblelocker;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
@@ -12,7 +12,6 @@ import android.net.wifi.WifiManager;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Base64;
-import android.util.Log;
 
 public class ConnectionReceiver extends BroadcastReceiver {
 	
@@ -22,10 +21,12 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	private static final String BLUETOOTH_DISCONNECTED = "android.bluetooth.device.action.acl_disconnected";
 	private static final String CONNECTIVITY_CHANGE    = "android.net.conn.connectivity_change";
 	private static final String USER_PRESENT           = "android.intent.action.user_present";
+	public static final String LOCKED				   = "locked";
 	private static final String UNLOCK                 = "unlock";
 	
 	private Context mContext;
 	private SharedPreferences mPrefs;
+	private Logger mLogger;
 	private String mAction;
 
 	@SuppressLint("DefaultLocale")
@@ -33,34 +34,38 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		mContext = context;
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+		mLogger = new Logger(context);
 		mAction = intent.getAction().toLowerCase();
 		
-		Log.i(Locker.TAG, "ConnectionReceiver: " + mAction);
+		mLogger.log("ConnectionReceiver: " + mAction);
 		
 		checkForBluetoothDevice(((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)));
 		
 		if((mAction.equals(PEBBLE_CONNECTED) || mAction.equals(BLUETOOTH_CONNECTED) || isWifiConnected()) && isLocked(true)) {
 			if(isScreenOn()) {
 				mPrefs.edit().putBoolean(UNLOCK, true).commit();
-				Log.i(Locker.TAG, "Screen is on, setting unlock true for future unlock");
+				mLogger.log("Screen is on, setting unlock true for future unlock");
 			} else {
 				mPrefs.edit().putBoolean(UNLOCK, false).commit();
-				Log.i(Locker.TAG, "Attempting unlock");
+				mLogger.log("Attempting unlock");
 				new Locker(context).unlockIfEnabled();
 			}
 		} else if ((mAction.equals(PEBBLE_DISCONNECTED) || mAction.equals(BLUETOOTH_DISCONNECTED) || !isWifiConnected()) && !isLocked(false)) {
 			mPrefs.edit().putBoolean(UNLOCK, false).commit();
-			Log.i(Locker.TAG, "Attempting lock");
+			mLogger.log("Attempting lock");
 			new Locker(context).lockIfEnabled();
 		} else if (mAction.equals(USER_PRESENT) && needToUnlock()) {
 			mPrefs.edit().putBoolean(UNLOCK, false).commit();
-			Log.i(Locker.TAG, "User present and need to unlock...attempting to unlock");
+			mLogger.log("User present and need to unlock...attempting to unlock");
 			new Locker(context).unlockIfEnabled();
 		}
 	}
 	
 	public boolean isLocked(boolean defaultValue) {
-		return mPrefs.getBoolean("locked", defaultValue);
+		boolean locked = mPrefs.getBoolean(LOCKED, defaultValue);
+		mLogger.log("Locked: " + locked);
+		
+		return locked;
 	}
 	
 	public boolean isScreenOn() {
@@ -68,16 +73,19 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	}
 	
 	public boolean needToUnlock() {
-		return mPrefs.getBoolean(UNLOCK, true);
+		boolean needToUnlock = mPrefs.getBoolean(UNLOCK, true);
+		mLogger.log("Need to unlock: " + needToUnlock);
+		
+		return needToUnlock;
 	}
 	
 	public void checkForBluetoothDevice(BluetoothDevice device) {
 		if(mAction.equals(BLUETOOTH_CONNECTED)) {
 			mPrefs.edit().putString("bluetooth", device.getAddress()).commit();
-			Log.i(Locker.TAG, "Bluetooth device connected: " + device.getName());
+			mLogger.log("Bluetooth device connected: " + device.getName());
 		} else if(mAction.equals(BLUETOOTH_DISCONNECTED)) {
 			mPrefs.edit().putString("bluetooth", "").commit();
-			Log.i(Locker.TAG, "Bluetooth device disconnected: " + device.getName());
+			mLogger.log("Bluetooth device disconnected: " + device.getName());
 		}
 	}
 	
@@ -86,11 +94,17 @@ public class ConnectionReceiver extends BroadcastReceiver {
 			NetworkInfo netInfo =  ((ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
 			if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
 				String ssid = ((WifiManager) mContext.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo().getSSID();
-	            Log.i(Locker.TAG, "Wifi network " + ssid + " connected: " + Base64.encodeToString(ssid.getBytes(), Base64.DEFAULT));
-	            
-	            return true;
+				
+				if(ssid != null) {
+					mLogger.log("Wifi network " + ssid + " connected: " + Base64.encodeToString(ssid.getBytes(), Base64.DEFAULT).trim());
+					return true;
+				} else {
+					mLogger.log("SSID was null");
+				}
 			}
 		}
+		
+		mLogger.log("No wifi network connected");
 		
 		return false;
 	}

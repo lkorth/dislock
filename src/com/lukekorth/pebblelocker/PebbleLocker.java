@@ -76,7 +76,7 @@ public class PebbleLocker extends PreferenceActivity {
 		((Preference) findPreference("contact")).setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference arg0) {
-				LogReporting reporter = new LogReporting(PebbleLocker.this, Locker.TAG);
+				LogReporting reporter = new LogReporting(PebbleLocker.this);
 				reporter.collectAndSendLogs();
 				
 				return true;
@@ -148,6 +148,8 @@ public class PebbleLocker extends PreferenceActivity {
 		
 		if(!mPrefs.getString("key_password", "").equals("") && timeStamp < (System.currentTimeMillis() - 60000))
             requestPassword();
+		
+		mPrefs.edit().putBoolean("donated", true).commit();
 	}
 	
 	public void onDestroy() {

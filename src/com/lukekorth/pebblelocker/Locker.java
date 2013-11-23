@@ -10,26 +10,25 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
 import android.util.Base64;
-import android.util.Log;
 
 import com.lukekorth.pebblelocker.PebbleLocker.CustomDeviceAdminReceiver;
 
 public class Locker {
 	
-	public static final String TAG = "pebble-locker";
-	
 	private Context mContext;
 	private SharedPreferences mPrefs;
-	private DevicePolicyManager mDpm;
+	private Logger mLogger;
+	private DevicePolicyManager mDPM;
 	
 	public Locker(Context context) {
 		mContext = context;
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-		mDpm = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
+		mLogger = new Logger(context);
+		mDPM = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
 	}
 	
 	public boolean isActiveAdmin() {
-		return mDpm.isAdminActive(new ComponentName(mContext, CustomDeviceAdminReceiver.class));
+		return mDPM.isAdminActive(new ComponentName(mContext, CustomDeviceAdminReceiver.class));
 	}
 	
 	public void lockIfEnabled() {
@@ -40,32 +39,36 @@ public class Locker {
 		if (isActiveAdmin()) {
 			if (mPrefs.getBoolean("key_enable_locker", false)) {
 				if (!connectedToDeviceOrWifi()) {
-					mDpm.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-					mPrefs.edit().putBoolean("locked", true).commit();
+					mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+					mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).commit();
 					
-					Log.i(TAG, "Locked!");
+					mLogger.log("Locked!");
 
 					if (forceLock && mPrefs.getBoolean("key_force_lock", false))
-						mDpm.lockNow();
+						mDPM.lockNow();
 				}
+			} else {
+				mLogger.log("key_enable_locker is false");
 			}
 		} else {
-			Log.i(TAG, "Not an active admin");
+			mLogger.log("Not an active admin");
 		}
 	}
 
 	public void unlockIfEnabled() {
-		if (isActiveAdmin()) {			
+		if (isActiveAdmin()) {
 			if (mPrefs.getBoolean("key_enable_locker", false)) {
 				if(connectedToDeviceOrWifi()) {
-					mDpm.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-					mPrefs.edit().putBoolean("locked", false).commit();
+					mDPM.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+					mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, false).commit();
 					
-					Log.i(TAG, "Unlocked!");	
+					mLogger.log("Unlocked!");	
 				}
+			} else {
+				mLogger.log("key_enable_locker is false");
 			}
 		} else {
-			Log.i(TAG, "Not an active admin");
+			mLogger.log("Not an active admin");
 		}
 	}
 	
@@ -76,16 +79,28 @@ public class Locker {
 		
 		if(mPrefs.getBoolean("pebble", true))
 			pebble = Locker.isWatchConnected(mContext);
+		else
+			mLogger.log("Unlock via any Pebble is not enabled");
 
-		if(mPrefs.getBoolean(mPrefs.getString("bluetooth", ""), false))
+		String bluetoothAddress = mPrefs.getString("bluetooth", "");
+		mLogger.log("Connected bluetooth address: " + bluetoothAddress);
+		if(mPrefs.getBoolean(bluetoothAddress, false))
 			bluetooth = true;
 
 		WifiManager wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
 		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-		if(wifiInfo != null && wifiInfo.getSSID() != null && mPrefs.getBoolean(Base64.encodeToString(wifiInfo.getSSID().getBytes(), Base64.DEFAULT).trim(), false))
-			wifi = true;
+		if(wifiInfo != null) {
+			if(wifiInfo.getSSID() != null) {
+				if(mPrefs.getBoolean(Base64.encodeToString(wifiInfo.getSSID().getBytes(), Base64.DEFAULT).trim(), false))
+					wifi = true;
+			} else {
+				mLogger.log("wifiInfo.getSSID is null");
+			}
+		} else {
+			mLogger.log("wifiInfo is null");
+		}
 		
-		Log.i(TAG, "Pebble: " + pebble + " Bluetooth: " + bluetooth + " Wifi: " + wifi);
+		mLogger.log("Pebble: " + pebble + " Bluetooth: " + bluetooth + " Wifi: " + wifi);
 		
 		return (pebble || bluetooth || wifi);
 	}
@@ -116,7 +131,7 @@ public class Locker {
 			return false;
 		}
 
-		boolean connected = c.getInt(0) == 1;
+		boolean connected = (c.getInt(0) == 1);
 		c.close();
 		return connected;
 	}

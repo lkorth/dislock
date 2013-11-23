@@ -1,27 +1,25 @@
 package com.lukekorth.pebblelocker;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.util.Map;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 
 public class LogReporting {
 
 	private Context mContext;
-	private String mTag;
 	
 	private ProgressDialog mLoading;
 	
-	public LogReporting(Context context, String tag) {
+	public LogReporting(Context context) {
 		mContext = context;
-		mTag = tag;
 	}
 	
 	public void collectAndSendLogs() {
@@ -32,24 +30,24 @@ public class LogReporting {
 	private class GenerateLogFile extends AsyncTask<Void, Void, String> {
 		@Override
 		protected String doInBackground(Void... args) {
-			String filename = "pebble-locker" + System.currentTimeMillis() + ".log";
+			String filename = "pebble-locker.log";
+			StringBuilder message = new StringBuilder();
+			
+			Map<String,?> keys = PreferenceManager.getDefaultSharedPreferences(mContext).getAll();
+			for(Map.Entry<String,?> entry : keys.entrySet()) {
+				if(!entry.getKey().equals("key_password")) {
+					message.append(entry.getKey() + " : " + entry.getValue().toString() + "\n");
+				}
+			}	
+			message.append("\n\n");
+			message.append(new Logger(mContext).getLog());
 			
 			try {
-				Process process = Runtime.getRuntime().exec("logcat -v time -d -s " + mTag);
-				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-				StringBuilder log = new StringBuilder(); 
-				String line;
-				while ((line = bufferedReader.readLine()) != null) { 
-					log.append(line);
-					log.append("\n"); 
-				}
-				
 				File file = new File(mContext.getExternalFilesDir(null), filename);
 				file.createNewFile();
 				
 				FileWriter out = new FileWriter(file);
-	            out.write(log.toString());
+	            out.write(message.toString());
 	            out.close();
 			} catch (IOException e) {
 			}
