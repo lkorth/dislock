@@ -8,8 +8,11 @@ import java.util.Map;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.preference.PreferenceManager;
 
 public class LogReporting {
@@ -32,6 +35,25 @@ public class LogReporting {
 		protected String doInBackground(Void... args) {
 			String filename = "pebble-locker.log";
 			StringBuilder message = new StringBuilder();
+			
+			PackageManager pManager = mContext.getPackageManager();
+			String lockerVersion;
+			try {
+				lockerVersion = pManager.getPackageInfo(mContext.getPackageName(), 0).versionName;
+			} catch (NameNotFoundException e1) {
+				lockerVersion = "not found";
+			}
+			
+			String pebbleVersion;
+			try {
+				pebbleVersion = pManager.getPackageInfo("com.getpebble.android", 0).versionName;
+			} catch (NameNotFoundException e1) {
+				pebbleVersion = "not found";
+			}
+			
+			message.append("Android version: " + Build.VERSION.SDK_INT + "\n");
+			message.append("App version: " + lockerVersion  + "\n");
+			message.append("Pebble app version: " + pebbleVersion + "\n");
 			
 			Map<String,?> keys = PreferenceManager.getDefaultSharedPreferences(mContext).getAll();
 			for(Map.Entry<String,?> entry : keys.entrySet()) {
