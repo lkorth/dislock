@@ -6,8 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
@@ -91,20 +90,21 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	
 	public boolean isWifiConnected() {
 		if(mAction.equals(CONNECTIVITY_CHANGE)) {
-			NetworkInfo netInfo =  ((ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
-			if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-				String ssid = ((WifiManager) mContext.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo().getSSID();
+			WifiManager wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+			WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+			if(wifiInfo != null) {
+				String ssid = wifiInfo.getSSID();
 				
 				if(ssid != null) {
 					mLogger.log("Wifi network " + ssid + " connected: " + Base64.encodeToString(ssid.getBytes(), Base64.DEFAULT).trim());
 					return true;
 				} else {
-					mLogger.log("SSID was null");
+					mLogger.log("ConnectionReceiver: wifiInfo.getSSID is null");
 				}
+			} else {
+				mLogger.log("ConnectionReceiver: wifiInfo is null");
 			}
 		}
-		
-		mLogger.log("No wifi network connected");
 		
 		return false;
 	}
