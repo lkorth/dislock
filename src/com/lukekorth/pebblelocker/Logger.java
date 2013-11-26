@@ -29,14 +29,14 @@ public class Logger extends SQLiteOpenHelper {
         onCreate(db);
 	}
 	
-	public void log(String message) {
+	public void log(String tag, String message) {
 		long timestamp = System.currentTimeMillis();
 		
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues cv = new ContentValues();
         cv.put("timestamp", timestamp);
-        cv.put("message", new Timestamp(new Date().getTime()) + " : " + message);
+        cv.put("message", new Timestamp(new Date().getTime()) + " : " + tag + " " + message);
         db.insert("log", null, cv);
         
         Log.d("pebble-locker", message);

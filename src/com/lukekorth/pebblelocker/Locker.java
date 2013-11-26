@@ -18,12 +18,14 @@ public class Locker {
 	private Context mContext;
 	private SharedPreferences mPrefs;
 	private Logger mLogger;
+	private String mUniq;
 	private DevicePolicyManager mDPM;
 	
-	public Locker(Context context) {
+	public Locker(Context context, String tag) {
 		mContext = context;
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		mLogger = new Logger(context);
+		mUniq = tag;
 		mDPM = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
 	}
 	
@@ -42,16 +44,16 @@ public class Locker {
 					mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
 					mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).commit();
 					
-					mLogger.log("Locked!");
+					mLogger.log(mUniq, "Locked!");
 
 					if (forceLock && mPrefs.getBoolean("key_force_lock", false))
 						mDPM.lockNow();
 				}
 			} else {
-				mLogger.log("key_enable_locker is false");
+				mLogger.log(mUniq, "key_enable_locker is false");
 			}
 		} else {
-			mLogger.log("Not an active admin");
+			mLogger.log(mUniq, "Not an active admin");
 		}
 	}
 
@@ -62,13 +64,13 @@ public class Locker {
 					mDPM.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
 					mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, false).commit();
 					
-					mLogger.log("Unlocked!");	
+					mLogger.log(mUniq, "Unlocked!");	
 				}
 			} else {
-				mLogger.log("key_enable_locker is false");
+				mLogger.log(mUniq, "key_enable_locker is false");
 			}
 		} else {
-			mLogger.log("Not an active admin");
+			mLogger.log(mUniq, "Not an active admin");
 		}
 	}
 	
@@ -80,10 +82,10 @@ public class Locker {
 		if(mPrefs.getBoolean("pebble", true))
 			pebble = isWatchConnected();
 		else
-			mLogger.log("Unlock via any Pebble is not enabled");
+			mLogger.log(mUniq, "Unlock via any Pebble is not enabled");
 
 		String bluetoothAddress = mPrefs.getString("bluetooth", "");
-		mLogger.log("Connected bluetooth address: " + bluetoothAddress);
+		mLogger.log(mUniq, "Connected bluetooth address: " + bluetoothAddress);
 		if(mPrefs.getBoolean(bluetoothAddress, false))
 			bluetooth = true;
 
@@ -94,13 +96,13 @@ public class Locker {
 				if(mPrefs.getBoolean(Base64.encodeToString(wifiInfo.getSSID().getBytes(), Base64.DEFAULT).trim(), false))
 					wifi = true;
 			} else {
-				mLogger.log("wifiInfo.getSSID is null");
+				mLogger.log(mUniq, "wifiInfo.getSSID is null");
 			}
 		} else {
-			mLogger.log("wifiInfo is null");
+			mLogger.log(mUniq, "wifiInfo is null");
 		}
 		
-		mLogger.log("Pebble: " + pebble + " Bluetooth: " + bluetooth + " Wifi: " + wifi);
+		mLogger.log(mUniq, "Pebble: " + pebble + " Bluetooth: " + bluetooth + " Wifi: " + wifi);
 		
 		return (pebble || bluetooth || wifi);
 	}
@@ -126,7 +128,7 @@ public class Locker {
 		try {
 			c = mContext.getApplicationContext().getContentResolver().query(Uri.parse("content://com.getpebble.android.provider/state"), null, null, null, null);
 		} catch (Exception e) {
-			mLogger.log("Exception getting Pebble connection status: " + e);
+			mLogger.log(mUniq, "Exception getting Pebble connection status: " + e);
 		}
 		
 		if (c == null)

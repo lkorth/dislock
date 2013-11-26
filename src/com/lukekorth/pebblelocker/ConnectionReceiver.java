@@ -1,5 +1,7 @@
 	package com.lukekorth.pebblelocker;
 
+import java.util.UUID;
+
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -26,6 +28,7 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	private Context mContext;
 	private SharedPreferences mPrefs;
 	private Logger mLogger;
+	private String mUniq;
 	private String mAction;
 
 	@SuppressLint("DefaultLocale")
@@ -34,35 +37,36 @@ public class ConnectionReceiver extends BroadcastReceiver {
 		mContext = context;
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		mLogger = new Logger(context);
+		mUniq = "[" + UUID.randomUUID().getLeastSignificantBits() + "]";
 		mAction = intent.getAction().toLowerCase();
 		
-		mLogger.log("ConnectionReceiver: " + mAction);
+		mLogger.log(mUniq, "ConnectionReceiver: " + mAction);
 		
 		checkForBluetoothDevice(((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)));
 		
 		if((mAction.equals(PEBBLE_CONNECTED) || mAction.equals(BLUETOOTH_CONNECTED) || isWifiConnected()) && isLocked(true)) {
 			if(isScreenOn()) {
 				mPrefs.edit().putBoolean(UNLOCK, true).commit();
-				mLogger.log("Screen is on, setting unlock true for future unlock");
+				mLogger.log(mUniq, "Screen is on, setting unlock true for future unlock");
 			} else {
 				mPrefs.edit().putBoolean(UNLOCK, false).commit();
-				mLogger.log("Attempting unlock");
-				new Locker(context).unlockIfEnabled();
+				mLogger.log(mUniq, "Attempting unlock");
+				new Locker(context, mUniq).unlockIfEnabled();
 			}
 		} else if ((mAction.equals(PEBBLE_DISCONNECTED) || mAction.equals(BLUETOOTH_DISCONNECTED) || !isWifiConnected()) && !isLocked(false)) {
 			mPrefs.edit().putBoolean(UNLOCK, false).commit();
-			mLogger.log("Attempting lock");
-			new Locker(context).lockIfEnabled();
+			mLogger.log(mUniq, "Attempting lock");
+			new Locker(context, mUniq).lockIfEnabled();
 		} else if (mAction.equals(USER_PRESENT) && needToUnlock()) {
 			mPrefs.edit().putBoolean(UNLOCK, false).commit();
-			mLogger.log("User present and need to unlock...attempting to unlock");
-			new Locker(context).unlockIfEnabled();
+			mLogger.log(mUniq, "User present and need to unlock...attempting to unlock");
+			new Locker(context, mUniq).unlockIfEnabled();
 		}
 	}
 	
 	public boolean isLocked(boolean defaultValue) {
 		boolean locked = mPrefs.getBoolean(LOCKED, defaultValue);
-		mLogger.log("Locked: " + locked);
+		mLogger.log(mUniq, "Locked: " + locked);
 		
 		return locked;
 	}
@@ -73,7 +77,7 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	
 	public boolean needToUnlock() {
 		boolean needToUnlock = mPrefs.getBoolean(UNLOCK, true);
-		mLogger.log("Need to unlock: " + needToUnlock);
+		mLogger.log(mUniq, "Need to unlock: " + needToUnlock);
 		
 		return needToUnlock;
 	}
@@ -81,10 +85,10 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	public void checkForBluetoothDevice(BluetoothDevice device) {
 		if(mAction.equals(BLUETOOTH_CONNECTED)) {
 			mPrefs.edit().putString("bluetooth", device.getAddress()).commit();
-			mLogger.log("Bluetooth device connected: " + device.getName());
+			mLogger.log(mUniq, "Bluetooth device connected: " + device.getName());
 		} else if(mAction.equals(BLUETOOTH_DISCONNECTED)) {
 			mPrefs.edit().putString("bluetooth", "").commit();
-			mLogger.log("Bluetooth device disconnected: " + device.getName());
+			mLogger.log(mUniq, "Bluetooth device disconnected: " + device.getName());
 		}
 	}
 	
@@ -96,13 +100,13 @@ public class ConnectionReceiver extends BroadcastReceiver {
 				String ssid = wifiInfo.getSSID();
 				
 				if(ssid != null) {
-					mLogger.log("Wifi network " + ssid + " connected: " + Base64.encodeToString(ssid.getBytes(), Base64.DEFAULT).trim());
+					mLogger.log(mUniq, "Wifi network " + ssid + " connected: " + Base64.encodeToString(ssid.getBytes(), Base64.DEFAULT).trim());
 					return true;
 				} else {
-					mLogger.log("ConnectionReceiver: wifiInfo.getSSID is null");
+					mLogger.log(mUniq, "ConnectionReceiver: wifiInfo.getSSID is null");
 				}
 			} else {
-				mLogger.log("ConnectionReceiver: wifiInfo is null");
+				mLogger.log(mUniq, "ConnectionReceiver: wifiInfo is null");
 			}
 		}
 		
