@@ -78,7 +78,7 @@ public class Locker {
 		boolean wifi = false;
 		
 		if(mPrefs.getBoolean("pebble", true))
-			pebble = Locker.isWatchConnected(mContext);
+			pebble = isWatchConnected();
 		else
 			mLogger.log("Unlock via any Pebble is not enabled");
 
@@ -121,8 +121,14 @@ public class Locker {
 	 *         otherwise false. This method will also return false if the Pebble
 	 *         application is not installed on the user's handset.
 	 */
-	public static boolean isWatchConnected(Context context) {
-		Cursor c = context.getApplicationContext().getContentResolver().query(Uri.parse("content://com.getpebble.android.provider/state"), null, null, null, null);
+	public boolean isWatchConnected() {
+		Cursor c = null;
+		try {
+			c = mContext.getApplicationContext().getContentResolver().query(Uri.parse("content://com.getpebble.android.provider/state"), null, null, null, null);
+		} catch (Exception e) {
+			mLogger.log("Exception getting Pebble connection status: " + e);
+		}
+		
 		if (c == null)
 			return false;
 		
