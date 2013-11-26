@@ -1,5 +1,8 @@
 package com.lukekorth.pebblelocker;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -9,7 +12,7 @@ import android.util.Log;
 
 public class Logger extends SQLiteOpenHelper {
 	
-	private static final int VERSION = 1;
+	private static final int VERSION = 11;
 	
     public Logger(Context context) {
     	super(context, "pebble-locker", null, VERSION);  
@@ -17,7 +20,7 @@ public class Logger extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		db.execSQL("CREATE TABLE log (pk INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, message TEXT)");
+		db.execSQL("CREATE TABLE log (pk INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, message TEXT)");
 	}
 
 	@Override
@@ -33,11 +36,12 @@ public class Logger extends SQLiteOpenHelper {
 
         ContentValues cv = new ContentValues();
         cv.put("timestamp", timestamp);
-        cv.put("message", message);
+        cv.put("message", new Timestamp(new Date().getTime()) + " : " + message);
+        db.insert("log", null, cv);
         
         Log.d("pebble-locker", message);
-       
-        db.insert("log", null, cv);
+        
+        db.delete("log","timestamp < ?", new String[] { Long.toString(System.currentTimeMillis() - 604800000) });
         db.close();
     }
 	
@@ -49,8 +53,7 @@ public class Logger extends SQLiteOpenHelper {
         StringBuffer response = new StringBuffer();
         
         while(cursor.moveToNext()) {
-        	response.append(cursor.getString(cursor.getColumnIndex("timestamp")) +
-        					": " + cursor.getString(cursor.getColumnIndex("message")) + "\n");
+        	response.append(cursor.getString(cursor.getColumnIndex("message")) + "\n");
         }
         
         cursor.close();

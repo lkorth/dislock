@@ -1,9 +1,11 @@
 package com.lukekorth.pebblelocker;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Map;
+import java.util.zip.GZIPOutputStream;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -33,7 +35,7 @@ public class LogReporting {
 	private class GenerateLogFile extends AsyncTask<Void, Void, String> {
 		@Override
 		protected String doInBackground(Void... args) {
-			String filename = "pebble-locker.log";
+			String filename = "pebble-locker.gz";
 			StringBuilder message = new StringBuilder();
 			
 			PackageManager pManager = mContext.getPackageManager();
@@ -64,13 +66,13 @@ public class LogReporting {
 			message.append("\n\n");
 			message.append(new Logger(mContext).getLog());
 			
-			try {
+			try {				
 				File file = new File(mContext.getExternalFilesDir(null), filename);
 				file.createNewFile();
 				
-				FileWriter out = new FileWriter(file);
-	            out.write(message.toString());
-	            out.close();
+				GZIPOutputStream gos = new GZIPOutputStream(new BufferedOutputStream(new PrintStream(file)));
+				gos.write(message.toString().getBytes());
+				gos.close();
 			} catch (IOException e) {
 			}
 			
