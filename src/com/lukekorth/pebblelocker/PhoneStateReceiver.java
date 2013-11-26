@@ -8,8 +8,8 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		new Logger(context).log("Received a PhoneState BroadcastIntent: " + intent.getAction());
-		new Locker(context).lockIfEnabled();
+		new Logger(context).log("[PHONESTATE]", "Received a PhoneState BroadcastIntent: " + intent.getAction());
+		new Locker(context, "[PHONESTATE]").lockIfEnabled();
 	}
 
 }

@@ -37,7 +37,7 @@ public class ConnectionReceiver extends BroadcastReceiver {
 		mContext = context;
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		mLogger = new Logger(context);
-		mUniq = "[" + UUID.randomUUID().getLeastSignificantBits() + "]";
+		mUniq = "[" + UUID.randomUUID().toString().split("-")[1] + "]";
 		mAction = intent.getAction().toLowerCase();
 		
 		mLogger.log(mUniq, "ConnectionReceiver: " + mAction);

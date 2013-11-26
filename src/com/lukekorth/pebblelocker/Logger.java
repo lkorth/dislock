@@ -39,7 +39,7 @@ public class Logger extends SQLiteOpenHelper {
         cv.put("message", new Timestamp(new Date().getTime()) + " : " + tag + " " + message);
         db.insert("log", null, cv);
         
-        Log.d("pebble-locker", message);
+        Log.d("pebble-locker", tag + " " + message);
         
         db.delete("log","timestamp < ?", new String[] { Long.toString(System.currentTimeMillis() - 604800000) });
         db.close();
