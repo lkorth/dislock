@@ -20,7 +20,7 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	private static final String CONNECTED              = "connected";
 	private static final String USER_PRESENT           = "android.intent.action.user_present";
 	public static final String LOCKED				   = "locked";
-	public static final String UNLOCK                 = "unlock";
+	public static final String UNLOCK                  = "unlock";
 	
 	private SharedPreferences mPrefs;
 	private Logger mLogger;
@@ -48,7 +48,7 @@ public class ConnectionReceiver extends BroadcastReceiver {
 		} else if ((mAction.equals(PEBBLE_DISCONNECTED) || mAction.equals(BLUETOOTH_DISCONNECTED)) && !isLocked(false)) {
 			mLogger.log(mUniq, "Attempting lock");
 			new Locker(context, mUniq).lockIfEnabled();
-		} else if (mAction.equals(CONNECTIVITY_CHANGE) && intent.getBooleanExtra(CONNECTED, false)) {
+		} else if (mAction.equals(CONNECTIVITY_CHANGE) && !intent.getBooleanExtra(CONNECTED, false)) {
 			mLogger.log(mUniq, "Wifi was disconnected...attempting lock");
 			new Locker(context, mUniq).lockIfEnabled();
 		}
