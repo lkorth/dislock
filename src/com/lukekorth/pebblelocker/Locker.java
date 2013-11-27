@@ -1,5 +1,6 @@
 package com.lukekorth.pebblelocker;
 
+import android.app.KeyguardManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -42,7 +43,10 @@ public class Locker {
 			if (mPrefs.getBoolean("key_enable_locker", false)) {
 				if (!connectedToDeviceOrWifi()) {
 					mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-					mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).commit();
+					mPrefs.edit()
+						.putBoolean(ConnectionReceiver.LOCKED, true)
+						.putBoolean(ConnectionReceiver.UNLOCK, false)
+					.commit();
 					
 					mLogger.log(mUniq, "Locked!");
 
@@ -61,10 +65,18 @@ public class Locker {
 		if (isActiveAdmin()) {
 			if (mPrefs.getBoolean("key_enable_locker", false)) {
 				if(connectedToDeviceOrWifi()) {
-					mDPM.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-					mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, false).commit();
-					
-					mLogger.log(mUniq, "Unlocked!");	
+					if(isDeviceOnLockscreen()) {
+						mPrefs.edit().putBoolean(ConnectionReceiver.UNLOCK, true).commit();
+						mLogger.log(mUniq, "Screen is on lockscreen, setting unlock true for future unlock");
+					} else {
+						mDPM.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+						mPrefs.edit()
+							.putBoolean(ConnectionReceiver.LOCKED, false)
+							.putBoolean(ConnectionReceiver.UNLOCK, false)
+							.commit();
+						
+						mLogger.log(mUniq, "Unlocked!");	
+					}
 				}
 			} else {
 				mLogger.log(mUniq, "key_enable_locker is false");
@@ -72,6 +84,10 @@ public class Locker {
 		} else {
 			mLogger.log(mUniq, "Not an active admin");
 		}
+	}
+	
+	public boolean isDeviceOnLockscreen() {
+		return ((KeyguardManager) mContext.getSystemService(Context.KEYGUARD_SERVICE)).inKeyguardRestrictedInputMode();
 	}
 	
 	private boolean connectedToDeviceOrWifi() {		
