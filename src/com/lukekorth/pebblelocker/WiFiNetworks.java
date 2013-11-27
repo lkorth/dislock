@@ -65,7 +65,7 @@ public class WiFiNetworks extends PremiumFeatures {
 			    	if(ssid != null && ssid != "") {
 				    	// Checkbox preference
 						CheckBoxPreference checkboxPref = new CheckBoxPreference(this);
-						checkboxPref.setKey(Base64.encodeToString(config.SSID.getBytes(), Base64.DEFAULT).trim());
+						checkboxPref.setKey(Base64.encodeToString(ssid.getBytes(), Base64.DEFAULT).trim());
 						checkboxPref.setTitle(ssid);
 						inlinePrefCat.addPreference(checkboxPref);
 			    	}
@@ -80,7 +80,7 @@ public class WiFiNetworks extends PremiumFeatures {
 		super.onDestroy();
 	}
 
-	private static String stripQuotes(String input) {
+	public static String stripQuotes(String input) {
 		if(input != null && input.startsWith("\"") && input.endsWith("\""))
 			return input.substring(1, input.length() - 1);
 		else
