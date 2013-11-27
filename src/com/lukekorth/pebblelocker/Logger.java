@@ -12,7 +12,7 @@ import android.util.Log;
 
 public class Logger extends SQLiteOpenHelper {
 	
-	private static final int VERSION = 11;
+	private static final int VERSION = 12;
 	
     public Logger(Context context) {
     	super(context, "pebble-locker", null, VERSION);  
@@ -38,8 +38,6 @@ public class Logger extends SQLiteOpenHelper {
         cv.put("timestamp", timestamp);
         cv.put("message", new Timestamp(new Date().getTime()) + " : " + tag + " " + message);
         db.insert("log", null, cv);
-        
-        Log.d("pebble-locker", tag + " " + message);
         
         db.delete("log","timestamp < ?", new String[] { Long.toString(System.currentTimeMillis() - 604800000) });
         db.close();

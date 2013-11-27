@@ -148,8 +148,6 @@ public class PebbleLocker extends PreferenceActivity {
 		
 		if(!mPrefs.getString("key_password", "").equals("") && timeStamp < (System.currentTimeMillis() - 60000))
             requestPassword();
-		
-		mPrefs.edit().putBoolean("donated", true).commit();
 	}
 	
 	public void onDestroy() {
