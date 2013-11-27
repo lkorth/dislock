@@ -50,7 +50,7 @@
                 <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
         		<action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" /> 
         		
-        		<action android:name="android.net.wifi.supplicant.CONNECTION_CHANGE" />
+        		<action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
         

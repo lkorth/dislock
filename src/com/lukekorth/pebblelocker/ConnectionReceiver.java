@@ -8,6 +8,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 
 public class ConnectionReceiver extends BroadcastReceiver {
@@ -16,12 +18,12 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	private static final String PEBBLE_DISCONNECTED    = "com.getpebble.action.pebble_disconnected";
 	private static final String BLUETOOTH_CONNECTED    = "android.bluetooth.device.action.acl_connected";
 	private static final String BLUETOOTH_DISCONNECTED = "android.bluetooth.device.action.acl_disconnected";
-	private static final String CONNECTIVITY_CHANGE    = "android.net.wifi.supplicant.connection_change";
-	private static final String CONNECTED              = "connected";
+	private static final String CONNECTIVITY_CHANGE    = "android.net.conn.connectivity_change";
 	private static final String USER_PRESENT           = "android.intent.action.user_present";
 	public static final String LOCKED				   = "locked";
 	public static final String UNLOCK                  = "unlock";
 	
+	private Context mContext;
 	private SharedPreferences mPrefs;
 	private Logger mLogger;
 	private String mUniq;
@@ -30,6 +32,7 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	@SuppressLint("DefaultLocale")
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		mContext = context;
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		mLogger = new Logger(context);
 		mUniq = "[" + UUID.randomUUID().toString().split("-")[1] + "]";
@@ -38,18 +41,16 @@ public class ConnectionReceiver extends BroadcastReceiver {
 		mLogger.log(mUniq, "ConnectionReceiver: " + mAction);
 		
 		checkForBluetoothDevice(((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)));
+		boolean isWifiConnected = isWifiConnected();
 		
 		if (mAction.equals(USER_PRESENT) && needToUnlock()) {
 			mLogger.log(mUniq, "User present and need to unlock...attempting to unlock");
 			new Locker(context, mUniq).unlockIfEnabled();
-		} else if((mAction.equals(PEBBLE_CONNECTED) || mAction.equals(BLUETOOTH_CONNECTED) || isWifiConnected(intent)) && isLocked(true)) {
+		} else if((mAction.equals(PEBBLE_CONNECTED) || mAction.equals(BLUETOOTH_CONNECTED) || (mAction.equals(CONNECTIVITY_CHANGE) && isWifiConnected)) && isLocked(true)) {
 			mLogger.log(mUniq, "Attempting unlock");
 			new Locker(context, mUniq).unlockIfEnabled();
-		} else if ((mAction.equals(PEBBLE_DISCONNECTED) || mAction.equals(BLUETOOTH_DISCONNECTED)) && !isLocked(false)) {
+		} else if ((mAction.equals(PEBBLE_DISCONNECTED) || mAction.equals(BLUETOOTH_DISCONNECTED) || (mAction.equals(CONNECTIVITY_CHANGE) && !isWifiConnected)) && !isLocked(false)) {
 			mLogger.log(mUniq, "Attempting lock");
-			new Locker(context, mUniq).lockIfEnabled();
-		} else if (mAction.equals(CONNECTIVITY_CHANGE) && !intent.getBooleanExtra(CONNECTED, false)) {
-			mLogger.log(mUniq, "Wifi was disconnected...attempting lock");
 			new Locker(context, mUniq).lockIfEnabled();
 		}
 	}
@@ -78,13 +79,18 @@ public class ConnectionReceiver extends BroadcastReceiver {
 		}
 	}
 	
-	private boolean isWifiConnected(Intent intent) {
-		if(mAction.equals(CONNECTIVITY_CHANGE) && intent.getBooleanExtra(CONNECTED, false)) {
-			mLogger.log(mUniq, "Wifi network connected");
-			return true;
-		}
+	private boolean isWifiConnected() {		
+		NetworkInfo networkInfo = ((ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+	    if(networkInfo != null) {
+	        if(networkInfo.isConnected() && networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+	        	return true;
+	        } else {
+	        	mLogger.log(mUniq, "Network is not connected to wifi");
+	        }
+	    } else {
+	    	mLogger.log(mUniq, "NetworkInfo is null");
+	    }
 		
-		mLogger.log(mUniq, "No connection change/no wifi network connected");
 		return false;
 	}
 }
