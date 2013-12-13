@@ -127,22 +127,6 @@ public class Locker {
 		return (pebble || bluetooth || wifi);
 	}
 
-	/**
-	 * Copied from PebbleKit https://github.com/pebble/pebblekit
-	 * 
-	 * Synchronously query the Pebble application to see if an active Bluetooth
-	 * connection to a watch currently exists.
-	 * 
-	 * @param context
-	 *            The Android context used to perform the query.
-	 *            <p/>
-	 *            <em>Protip:</em> You probably want to use your
-	 *            ApplicationContext here.
-	 * 
-	 * @return true if an active connection to the watch currently exists,
-	 *         otherwise false. This method will also return false if the Pebble
-	 *         application is not installed on the user's handset.
-	 */
 	public boolean isWatchConnected() {
 		Cursor c = null;
 		try {
