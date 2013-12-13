@@ -28,7 +28,7 @@ public class PremiumFeatures extends PreferenceActivity {
 			public void onClick(DialogInterface arg0, int arg1) {
 				cleanupHelper();
 
-				mHelper = new IabHelper(PremiumFeatures.this, getString(R.string.donations__google_pubkey));
+				mHelper = new IabHelper(PremiumFeatures.this, getString(R.string.billing_public_key));
 				mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
 					public void onIabSetupFinished(IabResult result) {
 						launchPurchase();

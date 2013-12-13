@@ -1,7 +1,5 @@
 package com.lukekorth.pebblelocker;
 
-import org.donations.DonationsActivity;
-
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.admin.DeviceAdminReceiver;
@@ -19,9 +17,7 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,15 +59,6 @@ public class PebbleLocker extends PreferenceActivity {
 		
 		mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 		mDeviceAdmin = new ComponentName(this, CustomDeviceAdminReceiver.class);
-		
-		((Preference) findPreference("donate")).setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				PebbleLocker.this
-					.startActivity(new Intent(PebbleLocker.this, DonationsActivity.class));
-				return true;
-			}
-        });
 		
 		((Preference) findPreference("contact")).setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			@Override
@@ -159,7 +146,7 @@ public class PebbleLocker extends PreferenceActivity {
 	private void checkPurchaseHistory() {
 		cleanupHelper();
 		
-		mHelper = new IabHelper(this, getString(R.string.donations__google_pubkey));
+		mHelper = new IabHelper(this, getString(R.string.billing_public_key));
 		
 		mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
             public void onIabSetupFinished(IabResult result) {
@@ -178,7 +165,6 @@ public class PebbleLocker extends PreferenceActivity {
 				if(inventory.hasPurchase("pebblelocker.donation.3") || inventory.hasPurchase("pebblelocker.donation.5") || 
 					inventory.hasPurchase("pebblelocker.donation.10") || inventory.hasPurchase("pebblelocker.premium")) {
 					mPrefs.edit().putBoolean("donated", true).commit();
-					removeDonateOption();
 				}
 			} else {
 				showAlert("There was an issue checking for purchases, please contact the developer");
@@ -191,11 +177,6 @@ public class PebbleLocker extends PreferenceActivity {
 			mHelper.dispose();
 			mHelper = null;
 		}
-	}
-	
-	private void removeDonateOption() {
-		if(findPreference("donateCategory") != null)
-			((PreferenceScreen) findPreference("root")).removePreference(((PreferenceCategory) findPreference("donateCategory")));
 	}
 	
 	/**

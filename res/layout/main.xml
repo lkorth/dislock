@@ -3,16 +3,6 @@
     android:key="root" >
     
     <PreferenceCategory
-        android:key="donateCategory"
-        android:title="Donate">
-        
-        <Preference
-            android:key="donate"
-            android:title="Donate" 
-            android:summary="Please donate if you find this free app useful and help support futher development" />
-    </PreferenceCategory>
-    
-    <PreferenceCategory
         android:title="Device Admin" >
 
         <CheckBoxPreference

@@ -1,5 +1,4 @@
 <resources>
-
     <string name="app_name">Pebble Locker</string>
     <string name="bluetooth_devices">Select Devices</string>
     <string name="wifi_networks">Select WiFi Networks</string>
@@ -7,4 +6,5 @@
     <string name="reset_password_warning">
         You have just reset your lock screen password to \"%1$s\""</string>
         
+    <string name="billing_public_key">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmKCACsyFRONCbAFoNV+e1h+o9AXUTgiEZPDV24aaWyhTAixwK+sEHtcjlmElYHSO/9a6HBXa03JCsSNWc9Ngqpj3fTiZ+IZQ9HRLUt4mDWVh0/fKSiTfS9bEjGx8oHnteHTe+BvsTkkM5OR00n0zG+++a+948P8pv1B6f/QvJ1y9mgGyy5LR0CXVEnZrQJonqofPxBDaPvbNYNTGFkNSEepDk5xRfIfDpbftvgnDBtJya1BWc1aGksJURUyFZntj7fin3i05PbIiTztGWOKCGubegcJt+HIl304nvBZCbUVZpiSaOqWDQZO6kmloMoy5vC1GP1/WaN554XKNcDZ0rwIDAQAB</string>
 </resources>
