@@ -11,6 +11,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
 import android.util.Base64;
+import android.util.Log;
 
 import com.lukekorth.pebblelocker.PebbleLocker.CustomDeviceAdminReceiver;
 
@@ -46,7 +47,7 @@ public class Locker {
 					mPrefs.edit()
 						.putBoolean(ConnectionReceiver.LOCKED, true)
 						.putBoolean(ConnectionReceiver.UNLOCK, false)
-					.commit();
+						.commit();
 					
 					mLogger.log(mUniq, "Locked!");
 
@@ -69,7 +70,18 @@ public class Locker {
 						mPrefs.edit().putBoolean(ConnectionReceiver.UNLOCK, true).commit();
 						mLogger.log(mUniq, "Screen is on lockscreen, setting unlock true for future unlock");
 					} else {
-						mDPM.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+						try {
+							mDPM.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+						} catch (IllegalArgumentException e) {
+							mLogger.log(mUniq, "There was an exception when setting the password to blank, setting it back. " + Log.getStackTraceString(e));
+							
+							mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+							mPrefs.edit()
+								.putBoolean(ConnectionReceiver.LOCKED, true)
+								.putBoolean(ConnectionReceiver.UNLOCK, false)
+								.commit();
+						}
+						
 						mPrefs.edit()
 							.putBoolean(ConnectionReceiver.LOCKED, false)
 							.putBoolean(ConnectionReceiver.UNLOCK, false)
