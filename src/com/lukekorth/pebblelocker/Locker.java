@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.Log;
@@ -99,7 +100,12 @@ public class Locker {
 	}
 	
 	public boolean isDeviceOnLockscreen() {
-		return ((KeyguardManager) mContext.getSystemService(Context.KEYGUARD_SERVICE)).inKeyguardRestrictedInputMode();
+		boolean keyguard = ((KeyguardManager) mContext.getSystemService(Context.KEYGUARD_SERVICE)).inKeyguardRestrictedInputMode();
+		boolean screen = ((PowerManager) mContext.getSystemService(Context.POWER_SERVICE)).isScreenOn();
+		
+		mLogger.log(mUniq, "Keyguard is showing: " + keyguard + " Screen is on: " + screen);
+		
+		return keyguard && screen;
 	}
 	
 	private boolean connectedToDeviceOrWifi() {		
