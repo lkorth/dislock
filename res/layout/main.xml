@@ -60,5 +60,8 @@
             android:key="contact"
             android:title="Contact Developer" 
             android:summary="If you are having problems, click here to contact the developer" />
+        <Preference
+            android:key="viewVersion"
+            android:title="Current Version" />
     </PreferenceCategory>
 </PreferenceScreen>

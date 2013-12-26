@@ -10,6 +10,8 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
@@ -69,6 +71,8 @@ public class PebbleLocker extends PreferenceActivity {
 				return true;
 			}
 		});
+		
+		((Preference) findPreference("viewVersion")).setSummary(currentVersion());
 		
 		mAdmin.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 			@Override
@@ -273,6 +277,14 @@ public class PebbleLocker extends PreferenceActivity {
         } else {
             return false;
         }
+    }
+    
+    private String currentVersion() {
+    	try {
+			return ((PackageInfo) getPackageManager().getPackageInfo(getPackageName(), 0)).versionName;
+		} catch (NameNotFoundException e) {
+			return "";
+		}
     }
 	
 	/**
