@@ -9,6 +9,7 @@ import java.util.zip.GZIPOutputStream;
 
 import com.lukekorth.pebblelocker.PebbleLocker.CustomDeviceAdminReceiver;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
@@ -37,6 +38,7 @@ public class LogReporting {
 	}
 	
 	private class GenerateLogFile extends AsyncTask<Void, Void, String> {
+		@SuppressLint("NewApi")
 		@Override
 		protected String doInBackground(Void... args) {
 			String filename = "pebble-locker.gz";
@@ -57,12 +59,19 @@ public class LogReporting {
 				pebbleVersion = "not found";
 			}
 			
-			int minPasswordLength = ((DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE)).getPasswordMinimumLength(null);
+			DevicePolicyManager dpm = ((DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE));
+			int minPasswordLength = dpm.getPasswordMinimumLength(null);
+			
+			int encryptionStatus = -1;
+			if(Build.VERSION.SDK_INT >= 11) {
+				encryptionStatus = dpm.getStorageEncryptionStatus();
+			}
 			
 			message.append("Android version: " + Build.VERSION.SDK_INT + "\n");
 			message.append("App version: " + lockerVersion  + "\n");
 			message.append("Pebble app version: " + pebbleVersion + "\n");
 			message.append("Minimum password length: " + minPasswordLength + "\n");
+			message.append("Encryption status: " + encryptionStatus + "\n");
 			
 			Map<String,?> keys = PreferenceManager.getDefaultSharedPreferences(mContext).getAll();
 			for(Map.Entry<String,?> entry : keys.entrySet()) {
