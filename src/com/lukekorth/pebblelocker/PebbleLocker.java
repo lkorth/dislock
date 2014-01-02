@@ -93,7 +93,6 @@ public class PebbleLocker extends PreferenceActivity {
                     return true;
                 }
 			}
-			
 		});
 		
 		mPassword.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -208,7 +207,7 @@ public class PebbleLocker extends PreferenceActivity {
 	}
 	
 	private void checkForRequiredPasswordByOtherApps() {		
-		if(mDPM.getPasswordMinimumLength(mDeviceAdmin) > 0) {
+		if(mDPM.getPasswordMinimumLength(null) > 0) {
 			showAlert("There are other apps installed that require a password or pin to be set on your device. " +
 					"Pebble Locker cannot function unless these apps are disabled or uninstalled.", new OnClickListener() {
 				@Override

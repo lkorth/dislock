@@ -7,7 +7,11 @@ import java.io.PrintStream;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
+import com.lukekorth.pebblelocker.PebbleLocker.CustomDeviceAdminReceiver;
+
 import android.app.ProgressDialog;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -53,9 +57,12 @@ public class LogReporting {
 				pebbleVersion = "not found";
 			}
 			
+			int minPasswordLength = ((DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE)).getPasswordMinimumLength(null);
+			
 			message.append("Android version: " + Build.VERSION.SDK_INT + "\n");
 			message.append("App version: " + lockerVersion  + "\n");
 			message.append("Pebble app version: " + pebbleVersion + "\n");
+			message.append("Minimum password length: " + minPasswordLength + "\n");
 			
 			Map<String,?> keys = PreferenceManager.getDefaultSharedPreferences(mContext).getAll();
 			for(Map.Entry<String,?> entry : keys.entrySet()) {
