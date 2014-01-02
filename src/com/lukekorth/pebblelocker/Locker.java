@@ -44,13 +44,13 @@ public class Locker {
 		if (isActiveAdmin()) {
 			if (mPrefs.getBoolean("key_enable_locker", false)) {
 				if (!connectedToDeviceOrWifi()) {
-					mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+					boolean passwordChanged = mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
 					mPrefs.edit()
 						.putBoolean(ConnectionReceiver.LOCKED, true)
 						.putBoolean(ConnectionReceiver.UNLOCK, false)
 						.commit();
 					
-					mLogger.log(mUniq, "Locked!");
+					mLogger.log(mUniq, "Locked: " + passwordChanged);
 
 					if (forceLock && mPrefs.getBoolean("key_force_lock", false))
 						mDPM.lockNow();
@@ -71,20 +71,23 @@ public class Locker {
 						mPrefs.edit().putBoolean(ConnectionReceiver.UNLOCK, true).commit();
 						mLogger.log(mUniq, "Screen is on lockscreen, setting unlock true for future unlock");
 					} else {
+						boolean passwordChanged = false;
+						
 						try {
-							mDPM.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+							passwordChanged = mDPM.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
 							
 							mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, false).commit();
 						} catch (IllegalArgumentException e) {
-							mLogger.log(mUniq, "There was an exception when setting the password to blank, setting it back. " + Log.getStackTraceString(e));
-							
-							mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+							boolean passwordReset = mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
 							mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).commit();
+							
+							mLogger.log(mUniq, "There was an exception when setting the password to blank, setting it back. Successfully reset: " 
+									+ passwordReset + " " + Log.getStackTraceString(e));
 						}
 						
 						mPrefs.edit().putBoolean(ConnectionReceiver.UNLOCK, false).commit();
 						
-						mLogger.log(mUniq, "Unlocked!");	
+						mLogger.log(mUniq, "Unlocked: " + passwordChanged);	
 					}
 				}
 			} else {
