@@ -208,8 +208,10 @@ public class PebbleLocker extends PreferenceActivity {
 	
 	private void checkForRequiredPasswordByOtherApps() {		
 		if(mDPM.getPasswordMinimumLength(null) > 0) {
-			showAlert("There are other apps installed that require a password or pin to be set on your device. " +
-					"Pebble Locker cannot function unless these apps are disabled or uninstalled.", new OnClickListener() {
+			showAlert("Your device is encrypted or there are other apps installed that require a password or pin to be set. " +
+					  "Pebble Locker does not work on encrypted devices or with other apps that require a pin or password. " +
+					  "If you wish to use Pebble Locker you will need to decrypt your device or disabled or uninstall any apps " +
+					  "that require a pin or password.", new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface arg0, int arg1) {
 					PebbleLocker.this.finish();
