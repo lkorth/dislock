@@ -65,7 +65,7 @@ public class WiFiNetworks extends PremiumFeatures {
 			    	if(ssid != null && ssid != "") {
 				    	// Checkbox preference
 						CheckBoxPreference checkboxPref = new CheckBoxPreference(this);
-						checkboxPref.setKey(Base64.encodeToString(ssid.getBytes(), Base64.DEFAULT).trim());
+						checkboxPref.setKey(WiFiNetworks.base64Encode(ssid));
 						checkboxPref.setTitle(ssid);
 						inlinePrefCat.addPreference(checkboxPref);
 			    	}
@@ -85,5 +85,9 @@ public class WiFiNetworks extends PremiumFeatures {
 			return input.substring(1, input.length() - 1);
 		else
 			return input;
+	}
+	
+	public static String base64Encode(String input) {
+		return Base64.encodeToString(input.getBytes(), Base64.DEFAULT).trim();
 	}
 }

@@ -127,10 +127,11 @@ public class Locker {
 		if(wifiInfo != null) {
 			if(wifiInfo.getSSID() != null) {
 				String ssid = WiFiNetworks.stripQuotes(wifiInfo.getSSID());
+				String encodedSsid = WiFiNetworks.base64Encode(ssid);
 				
-				mLogger.log(mUniq, "Wifi network " + ssid + " is connected: " + Base64.encodeToString(ssid.getBytes(), Base64.DEFAULT).trim());
+				mLogger.log(mUniq, "Wifi network " + ssid + " is connected: " + encodedSsid);
 								
-				if(mPrefs.getBoolean(Base64.encodeToString(ssid.getBytes(), Base64.DEFAULT).trim(), false))
+				if(mPrefs.getBoolean(encodedSsid, false))
 					wifi = true;
 			} else {
 				mLogger.log(mUniq, "wifiInfo.getSSID is null");
