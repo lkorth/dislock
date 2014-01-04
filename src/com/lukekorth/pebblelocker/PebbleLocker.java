@@ -125,12 +125,12 @@ public class PebbleLocker extends PreferenceActivity {
 	public void onResume() {
 		super.onResume();
 		
+		checkForRequiredPasswordByOtherApps();
 		checkPurchaseHistory();
 		
 		if(mDPM.isAdminActive(mDeviceAdmin)) {
 			mAdmin.setChecked(true);
 			enableOptions(true);
-			checkForRequiredPasswordByOtherApps();
 		} else {
 			mAdmin.setChecked(false);
 			enableOptions(false);
