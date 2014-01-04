@@ -50,7 +50,7 @@ public class Locker {
 						.putBoolean(ConnectionReceiver.UNLOCK, false)
 						.commit();
 					
-					mLogger.log(mUniq, "Locked: " + passwordChanged);
+					mLogger.log(mUniq, "Successfully locked: " + passwordChanged);
 
 					if (forceLock && mPrefs.getBoolean("key_force_lock", false))
 						mDPM.lockNow();
@@ -87,7 +87,7 @@ public class Locker {
 						
 						mPrefs.edit().putBoolean(ConnectionReceiver.UNLOCK, false).commit();
 						
-						mLogger.log(mUniq, "Unlocked: " + passwordChanged);	
+						mLogger.log(mUniq, "Sucessfully unlocked: " + passwordChanged);	
 					}
 				}
 			} else {
