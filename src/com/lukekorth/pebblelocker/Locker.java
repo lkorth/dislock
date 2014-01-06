@@ -1,5 +1,7 @@
 package com.lukekorth.pebblelocker;
 
+import java.util.ArrayList;
+
 import android.app.KeyguardManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
@@ -116,10 +118,12 @@ public class Locker {
 		else
 			mLogger.log(mUniq, "Unlock via any Pebble is not enabled");
 
-		String bluetoothAddress = mPrefs.getString("bluetooth", "");
-		mLogger.log(mUniq, "Connected bluetooth address: " + bluetoothAddress);
-		if(mPrefs.getBoolean(bluetoothAddress, false))
-			bluetooth = true;
+		ArrayList<String> connectedBluetoothDevices = new ConnectedBluetoothDevices(mContext).connectedDevices();
+		for(String address : connectedBluetoothDevices) {
+			mLogger.log(mUniq, "Connected bluetooth address: " + address);
+			if(mPrefs.getBoolean(address, false))
+				bluetooth = true;
+		}
 
 		WifiManager wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
 		WifiInfo wifiInfo = wifiManager.getConnectionInfo();

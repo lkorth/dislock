@@ -32,6 +32,8 @@ import com.lukekorth.pebblelocker.util.Inventory;
 
 public class PebbleLocker extends PreferenceActivity {
 	
+	public static final int VERSION = 15;
+	
 	private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
 	
 	private IabHelper mHelper;

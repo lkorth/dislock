@@ -11,10 +11,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class Logger extends SQLiteOpenHelper {
 	
-	private static final int VERSION = 15;
-	
     public Logger(Context context) {
-    	super(context, "pebble-locker", null, VERSION);  
+    	super(context, "pebble-locker", null, PebbleLocker.VERSION);  
     }
 
 	@Override
