@@ -11,7 +11,6 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
-import android.util.Base64;
 import android.util.Log;
 
 import com.lukekorth.pebblelocker.PebbleLocker.CustomDeviceAdminReceiver;
