@@ -7,12 +7,9 @@ import java.io.PrintStream;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
-import com.lukekorth.pebblelocker.PebbleLocker.CustomDeviceAdminReceiver;
-
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
