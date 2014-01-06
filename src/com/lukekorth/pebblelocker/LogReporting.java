@@ -38,7 +38,7 @@ public class LogReporting {
 		@SuppressLint("NewApi")
 		@Override
 		protected String doInBackground(Void... args) {
-			String filename = "pebble-locker.gz";
+			String filename = "pebble-locker.log.gz";
 			StringBuilder message = new StringBuilder();
 			
 			PackageManager pManager = mContext.getPackageManager();
