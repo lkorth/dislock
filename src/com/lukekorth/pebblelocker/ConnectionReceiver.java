@@ -71,10 +71,10 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	
 	private void checkForBluetoothDevice(BluetoothDevice device) {
 		if(mAction.equals(BLUETOOTH_CONNECTED)) {			
-			new ConnectedBluetoothDevices(mContext).setStatus(device.getAddress(), true);			
+			new DatabaseHelper(mContext).setStatus(device.getAddress(), true);			
 			mLogger.log(mUniq, "Bluetooth device connected: " + device.getName() + " " + device.getAddress());
 		} else if(mAction.equals(BLUETOOTH_DISCONNECTED)) {
-			new ConnectedBluetoothDevices(mContext).setStatus(device.getAddress(), false);
+			new DatabaseHelper(mContext).setStatus(device.getAddress(), false);
 			mLogger.log(mUniq, "Bluetooth device disconnected: " + device.getName() + " " + device.getAddress());
 		}
 	}

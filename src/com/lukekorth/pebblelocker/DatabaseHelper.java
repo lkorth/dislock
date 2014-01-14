@@ -8,15 +8,17 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class ConnectedBluetoothDevices extends SQLiteOpenHelper {
+public class DatabaseHelper extends SQLiteOpenHelper {
+	
+	private static final String BLUETOOTH_DEVICES = "connectedBluetoothDevices";
 
-	public ConnectedBluetoothDevices(Context context) {
-		super(context, "pebble-locker-bluetooth-devices", null, PebbleLocker.VERSION);
+	public DatabaseHelper(Context context) {
+		super(context, "pebble-locker", null, PebbleLocker.VERSION);
 	}
 	
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		db.execSQL("CREATE TABLE devices (address TEXT PRIMARY KEY, connected INTEGER)");
+		db.execSQL("CREATE TABLE " + BLUETOOTH_DEVICES + " (address TEXT PRIMARY KEY, connected INTEGER)");
 	}
 	
 	@Override
@@ -30,14 +32,14 @@ public class ConnectedBluetoothDevices extends SQLiteOpenHelper {
 		cv.put("connected", connected ? 1 : 0);
 		
 		SQLiteDatabase db = getWritableDatabase();
-		db.insertWithOnConflict("devices", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+		db.insertWithOnConflict(BLUETOOTH_DEVICES, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 		db.close();
 	}
 	
 	public ArrayList<String> connectedDevices() {
 		SQLiteDatabase db = getReadableDatabase();
 		Cursor cursor = 
-				db.query("devices", new String[] { "address" }, "connected == ?", new String[] { "1" }, null, null, null);
+				db.query(BLUETOOTH_DEVICES, new String[] { "address" }, "connected == ?", new String[] { "1" }, null, null, null);
 		
 		ArrayList<String> connectedDevices = new ArrayList<String>();
 		while(cursor.moveToNext()) {

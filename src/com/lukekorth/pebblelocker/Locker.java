@@ -118,7 +118,7 @@ public class Locker {
 		else
 			mLogger.log(mUniq, "Unlock via any Pebble is not enabled");
 
-		ArrayList<String> connectedBluetoothDevices = new ConnectedBluetoothDevices(mContext).connectedDevices();
+		ArrayList<String> connectedBluetoothDevices = new DatabaseHelper(mContext).connectedDevices();
 		for(String address : connectedBluetoothDevices) {
 			mLogger.log(mUniq, "Connected bluetooth address: " + address);
 			if(mPrefs.getBoolean(address, false))
