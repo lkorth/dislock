@@ -33,10 +33,6 @@ public class Locker {
 		mDPM = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
 	}
 	
-	public boolean isActiveAdmin() {
-		return mDPM.isAdminActive(new ComponentName(mContext, CustomDeviceAdminReceiver.class));
-	}
-	
 	public void lockIfEnabled() {
 		lockIfEnabled(true);
 	}
@@ -99,7 +95,12 @@ public class Locker {
 		}
 	}
 	
-	public boolean isDeviceOnLockscreen() {
+	
+	private boolean isActiveAdmin() {
+		return mDPM.isAdminActive(new ComponentName(mContext, CustomDeviceAdminReceiver.class));
+	}
+	
+	private boolean isDeviceOnLockscreen() {
 		boolean keyguard = ((KeyguardManager) mContext.getSystemService(Context.KEYGUARD_SERVICE)).inKeyguardRestrictedInputMode();
 		boolean screen = ((PowerManager) mContext.getSystemService(Context.POWER_SERVICE)).isScreenOn();
 		
@@ -109,24 +110,56 @@ public class Locker {
 	}
 	
 	private boolean connectedToDeviceOrWifi() {		
-		boolean pebble = false;
-		boolean bluetooth = false;
-		boolean wifi = false;
+		boolean pebble = isPebbleWatchConnected();
+		boolean bluetooth = isTrustedBluetoothDeviceConnected();
+		boolean wifi = isTrustedWifiConnected();
 		
-		if(mPrefs.getBoolean("pebble", true))
-			pebble = isWatchConnected();
-		else
-			mLogger.log(mUniq, "Unlock via any Pebble is not enabled");
+		mLogger.log(mUniq, "Pebble: " + pebble + " Bluetooth: " + bluetooth + " Wifi: " + wifi);
+		
+		return (pebble || bluetooth || wifi);
+	}
 
+	private boolean isPebbleWatchConnected() {
+		if(mPrefs.getBoolean("pebble", true)) {
+			Cursor c = null;
+			try {
+				c = mContext.getApplicationContext().getContentResolver().query(Uri.parse("content://com.getpebble.android.provider/state"), null, null, null, null);
+			} catch (Exception e) {
+				mLogger.log(mUniq, "Exception getting Pebble connection status: " + e);
+			}
+			
+			if (c == null)
+				return false;
+			
+			if(!c.moveToNext()) {
+				c.close();
+				return false;
+			}
+
+			boolean connected = (c.getInt(0) == 1);
+			c.close();
+			return connected;
+		} else {
+			mLogger.log(mUniq, "Unlock via any Pebble is not enabled");
+			return false;
+		}
+	}
+	
+	private boolean isTrustedBluetoothDeviceConnected() {
 		ArrayList<String> connectedBluetoothDevices = new DatabaseHelper(mContext).connectedDevices();
+		
 		for(String address : connectedBluetoothDevices) {
 			mLogger.log(mUniq, "Connected bluetooth address: " + address);
+			
 			if(mPrefs.getBoolean(address, false))
-				bluetooth = true;
+				return true;
 		}
-
-		WifiManager wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
-		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+		
+		return false;
+	}
+	
+	private boolean isTrustedWifiConnected() {
+		WifiInfo wifiInfo = ((WifiManager) mContext.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo();
 		if(wifiInfo != null) {
 			if(wifiInfo.getSSID() != null) {
 				String ssid = WiFiNetworks.stripQuotes(wifiInfo.getSSID());
@@ -135,7 +168,7 @@ public class Locker {
 				mLogger.log(mUniq, "Wifi network " + ssid + " is connected: " + encodedSsid);
 								
 				if(mPrefs.getBoolean(encodedSsid, false))
-					wifi = true;
+					return true;
 			} else {
 				mLogger.log(mUniq, "wifiInfo.getSSID is null");
 			}
@@ -143,29 +176,6 @@ public class Locker {
 			mLogger.log(mUniq, "wifiInfo is null");
 		}
 		
-		mLogger.log(mUniq, "Pebble: " + pebble + " Bluetooth: " + bluetooth + " Wifi: " + wifi);
-		
-		return (pebble || bluetooth || wifi);
-	}
-
-	public boolean isWatchConnected() {
-		Cursor c = null;
-		try {
-			c = mContext.getApplicationContext().getContentResolver().query(Uri.parse("content://com.getpebble.android.provider/state"), null, null, null, null);
-		} catch (Exception e) {
-			mLogger.log(mUniq, "Exception getting Pebble connection status: " + e);
-		}
-		
-		if (c == null)
-			return false;
-		
-		if(!c.moveToNext()) {
-			c.close();
-			return false;
-		}
-
-		boolean connected = (c.getInt(0) == 1);
-		c.close();
-		return connected;
+		return false;
 	}
 }
