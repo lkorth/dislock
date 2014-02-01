@@ -26,8 +26,8 @@
         
         <CheckBoxPreference
             android:key="key_force_lock"
-            android:title="Force lock on disconnect"
-            android:summary="Force your device to lock as soon as your device disconnects" />
+            android:title="Turn off screen on disconnect"
+            android:summary="Turn off the screen when your device disconnects from a trusted watch, bluetooth device or WiFi network" />
     </PreferenceCategory>
     
     <PreferenceCategory
