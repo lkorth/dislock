@@ -1,6 +1,6 @@
-bin/
-gen/
-
-.settings
-.classpath
-.project
+pebble-locker-android/bin/
+pebble-locker-android/gen/
+pebble-locker-android/.settings
+pebble-locker-android/.classpath
+pebble-locker-android/.project
+pebble-locker-watch-app/build/
