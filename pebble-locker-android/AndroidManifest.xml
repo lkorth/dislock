@@ -61,5 +61,11 @@
               <action android:name="android.intent.action.ACTION_SHUTDOWN" />
           </intent-filter>
         </receiver>
+
+        <receiver android:name=".PebbleRequestReceiver">
+          <intent-filter>
+            <action android:name="com.getpebble.action.app.RECEIVE" />
+          </intent-filter>
+        </receiver>
     </application>
 </manifest>

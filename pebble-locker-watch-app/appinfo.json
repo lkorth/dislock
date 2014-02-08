@@ -8,11 +8,29 @@
   "watchapp": {
     "watchface": false
   },
-  "appKeys": {
-    "get_state": 0,
-    "set_state": 1
-  },
   "resources": {
-    "media": []
+    "media": [
+      {
+        "menuIcon": true,
+        "type": "png",
+        "name": "MENU_ICON",
+        "file": "images/menu_icon.png"
+      },
+      {
+        "type": "png",
+        "name": "AUTO_IMAGE",
+        "file": "images/auto_image.png"
+      },
+      {
+        "type": "png",
+        "name": "UNLOCKED_IMAGE",
+        "file": "images/unlocked_image.png"
+      },
+      {
+        "type": "png",
+        "name": "LOCKED_IMAGE",
+        "file": "images/locked_image.png"
+      }
+    ]
   }
 }

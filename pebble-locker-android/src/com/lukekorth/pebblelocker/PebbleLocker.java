@@ -193,7 +193,7 @@ public class PebbleLocker extends PreferenceActivity {
             return;
         }
         
-        new Locker(this, "[USER_TRIGGERED]").lockIfEnabled(false);
+        new Locker(this, "[USER_TRIGGERED]").handleLocking(false);
         
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         String message = getString(R.string.reset_password_warning, newPassword);
