@@ -40,6 +40,7 @@ public class PebbleLocker extends PreferenceActivity {
 	private DevicePolicyManager mDPM;
 	private ComponentName mDeviceAdmin;
 	
+	private Preference         mStatus;
 	private CheckBoxPreference mAdmin;
 	private EditTextPreference mPassword;
 	private CheckBoxPreference mEnable;
@@ -55,9 +56,10 @@ public class PebbleLocker extends PreferenceActivity {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.layout.main);
 		
-		mAdmin = (CheckBoxPreference) findPreference("key_enable_admin");
-		mPassword = (EditTextPreference) findPreference("key_password");
-		mEnable = (CheckBoxPreference) findPreference("key_enable_locker");
+		mStatus    = (Preference) findPreference("visible_status");
+		mAdmin     = (CheckBoxPreference) findPreference("key_enable_admin");
+		mPassword  = (EditTextPreference) findPreference("key_password");
+		mEnable    = (CheckBoxPreference) findPreference("key_enable_locker");
 		mForceLock = (CheckBoxPreference) findPreference("key_force_lock");
 		
 		mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
@@ -128,14 +130,8 @@ public class PebbleLocker extends PreferenceActivity {
 		
 		checkForRequiredPasswordByOtherApps();
 		checkPurchaseHistory();
-		
-		if(mDPM.isAdminActive(mDeviceAdmin)) {
-			mAdmin.setChecked(true);
-			enableOptions(true);
-		} else {
-			mAdmin.setChecked(false);
-			enableOptions(false);
-		}
+		checkForActiveAdmin();
+		updateStatus();
 		
 		if(!mPrefs.getString("key_password", "").equals("") && timeStamp < (System.currentTimeMillis() - 60000))
             requestPassword();
@@ -219,6 +215,59 @@ public class PebbleLocker extends PreferenceActivity {
 				}
 			});
 		}
+	}
+	
+	private void checkForActiveAdmin() {
+		if(mDPM.isAdminActive(mDeviceAdmin)) {
+			mAdmin.setChecked(true);
+			enableOptions(true);
+		} else {
+			mAdmin.setChecked(false);
+			enableOptions(false);
+		}
+	}
+	
+	private void updateStatus() {
+		int lockState = mPrefs.getInt(ConnectionReceiver.LOCK_STATE, ConnectionReceiver.AUTO);
+		String statusMessage = "";
+		
+		switch(lockState) {
+		case 0:
+			if(mPrefs.getBoolean(ConnectionReceiver.LOCKED, false))
+				statusMessage = "Locked";
+			else
+				statusMessage = "Unlocked";
+			break;
+		case 1:
+			statusMessage = "Manually locked via Pebble watch app";
+			break;
+		case 2:
+			statusMessage = "Manually unlocked via Pebble watch app";
+			break;
+		}
+		
+		Locker locker = new Locker(this, "[LOADING_STATUS]");
+		String connectionStatus = "";
+		
+		if(locker.isPebbleWatchConnected())
+			connectionStatus += "Pebble watch connected";
+		else
+			connectionStatus += "Pebble watch disconnected";
+		
+		if(mPrefs.getBoolean("donated", false)) {
+			if(locker.isTrustedBluetoothDeviceConnected())
+				connectionStatus += "; Trusted bluetooth device connected; ";
+			else
+				connectionStatus += "; No trusted bluetooth device connected; ";
+			
+			if(locker.isTrustedWifiConnected())
+				connectionStatus += "Trusted WiFi network connected";
+			else
+				connectionStatus += "No trusted WiFi network connected";
+		}
+		
+		mStatus.setTitle(statusMessage);
+		mStatus.setSummary(connectionStatus);
 	}
 	
 	private void requestPassword() {

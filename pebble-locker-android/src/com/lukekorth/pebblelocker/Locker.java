@@ -119,7 +119,7 @@ public class Locker {
 		return (pebble || bluetooth || wifi);
 	}
 
-	private boolean isPebbleWatchConnected() {
+	public boolean isPebbleWatchConnected() {
 		if (mPrefs.getBoolean("pebble", true)) {
 			Cursor c = null;
 			try {
@@ -145,7 +145,7 @@ public class Locker {
 		}
 	}
 
-	private boolean isTrustedBluetoothDeviceConnected() {
+	public boolean isTrustedBluetoothDeviceConnected() {
 		ArrayList<String> connectedBluetoothDevices = new DatabaseHelper(mContext).connectedDevices();
 
 		for (String address : connectedBluetoothDevices) {
@@ -158,7 +158,7 @@ public class Locker {
 		return false;
 	}
 
-	private boolean isTrustedWifiConnected() {
+	public boolean isTrustedWifiConnected() {
 		WifiInfo wifiInfo = ((WifiManager) mContext.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo();
 		if (wifiInfo != null) {
 			if (wifiInfo.getSSID() != null) {
