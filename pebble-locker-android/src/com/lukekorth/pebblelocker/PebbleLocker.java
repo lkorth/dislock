@@ -24,7 +24,6 @@ import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.lukekorth.pebblelocker.util.IabHelper;
 import com.lukekorth.pebblelocker.util.IabResult;
@@ -298,38 +297,42 @@ public class PebbleLocker extends PreferenceActivity {
     	
         @Override
         public void onEnabled(Context context, Intent intent) {
-        	// intentionally left blank
+        	new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Device admin enabled");
         }
 
         @Override
         public CharSequence onDisableRequested(Context context, Intent intent) {
-        	// intentionally left blank
+        	new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Device admin disable requested, disabling");
+
+    		ComponentName deviceAdmin = new ComponentName(context, CustomDeviceAdminReceiver.class);    		
+    		((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE)).removeActiveAdmin(deviceAdmin);
+    		
         	return null;
         }
 
         @Override
         public void onDisabled(Context context, Intent intent) {
-        	// intentionally left blank
+        	new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Device admin disabled");
         }
 
         @Override
         public void onPasswordChanged(Context context, Intent intent) {
-        	// intentionally left blank
+        	new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Password changed");
         }
 
         @Override
         public void onPasswordFailed(Context context, Intent intent) {
-        	Toast.makeText(context, "Password change failed", Toast.LENGTH_SHORT).show();
+        	new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Password failed");
         }
 
         @Override
         public void onPasswordSucceeded(Context context, Intent intent) {
-        	// intentionally left blank
+        	new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Password succeeded");
         }
 
         @Override
         public void onPasswordExpiring(Context context, Intent intent) {
-            // intentionally left blank
+        	new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Password expiring");
         }
     }
 }
