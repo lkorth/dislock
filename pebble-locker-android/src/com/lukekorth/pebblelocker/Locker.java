@@ -1,9 +1,12 @@
 package com.lukekorth.pebblelocker;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import android.app.KeyguardManager;
 import android.app.admin.DevicePolicyManager;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -157,18 +160,45 @@ public class Locker {
 
 		return false;
 	}
+	
+	public String getConnectedBluetoothDeviceNames() {
+		ArrayList<String> connectedBluetoothDevices = new DatabaseHelper(mContext).connectedDevices();
+		Set<BluetoothDevice> pairedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
+		
+		String deviceNames = "";
+		if (connectedBluetoothDevices.size() > 0 && pairedDevices.size() > 0) {
+			for (BluetoothDevice device : pairedDevices) {
+				if (connectedBluetoothDevices.contains(device.getAddress())) {
+					if(deviceNames.length() == 0)
+						deviceNames += "(";
+					deviceNames += device.getName() + ",";
+				}
+			}
+			
+			if(deviceNames.length() > 0)
+				deviceNames = deviceNames.substring(0, deviceNames.length() - 1) + ")";
+		}
+		
+		return deviceNames;
+	}
 
 	public boolean isTrustedWifiConnected() {
+		String ssid        = getConnectedWifiSsid();
+		String encodedSsid = WiFiNetworks.base64Encode(ssid);
+
+		mLogger.log(mUniq, "Wifi network " + ssid + " is connected: " + encodedSsid);
+
+		if (mPrefs.getBoolean(encodedSsid, false))
+			return true;
+
+		return false;
+	}
+
+	public String getConnectedWifiSsid() {
 		WifiInfo wifiInfo = ((WifiManager) mContext.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo();
 		if (wifiInfo != null) {
 			if (wifiInfo.getSSID() != null) {
-				String ssid = WiFiNetworks.stripQuotes(wifiInfo.getSSID());
-				String encodedSsid = WiFiNetworks.base64Encode(ssid);
-
-				mLogger.log(mUniq, "Wifi network " + ssid + " is connected: " + encodedSsid);
-
-				if (mPrefs.getBoolean(encodedSsid, false))
-					return true;
+				return WiFiNetworks.stripQuotes(wifiInfo.getSSID());
 			} else {
 				mLogger.log(mUniq, "wifiInfo.getSSID is null");
 			}
@@ -176,6 +206,6 @@ public class Locker {
 			mLogger.log(mUniq, "wifiInfo is null");
 		}
 
-		return false;
+		return "";
 	}
 }

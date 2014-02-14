@@ -37,6 +37,11 @@
     
     <PreferenceCategory
         android:title="Advanced Options">
+        
+        <Preference
+            android:key="pebble_watch_app"
+            android:title="Download Pebble Watch App"
+            android:summary="Control the lock state from your Pebble watch. Options include automatic, locked and unlocked" />
     
     	<Preference
     	    android:key="other_bluetooth_devices"

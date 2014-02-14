@@ -13,30 +13,25 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
-import com.lukekorth.pebblelocker.util.IabHelper;
-import com.lukekorth.pebblelocker.util.IabResult;
-import com.lukekorth.pebblelocker.util.Inventory;
-
-public class PebbleLocker extends PreferenceActivity {
+public class PebbleLocker extends PremiumFeatures {
 	
 	public static final int VERSION = 15;
 	
 	private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
-	
-	private IabHelper mHelper;
 	
 	private DevicePolicyManager mDPM;
 	private ComponentName mDeviceAdmin;
@@ -46,11 +41,11 @@ public class PebbleLocker extends PreferenceActivity {
 	private EditTextPreference mPassword;
 	private CheckBoxPreference mEnable;
 	private CheckBoxPreference mForceLock;
+	private Preference         mWatchApp;
 	
 	private SharedPreferences mPrefs;
 	
 	private AlertDialog requirePassword;
-	
 	private long timeStamp;
 	
 	public void onCreate(Bundle savedInstanceState) {
@@ -62,6 +57,7 @@ public class PebbleLocker extends PreferenceActivity {
 		mPassword  = (EditTextPreference) findPreference("key_password");
 		mEnable    = (CheckBoxPreference) findPreference("key_enable_locker");
 		mForceLock = (CheckBoxPreference) findPreference("key_force_lock");
+		mWatchApp  = (Preference) findPreference("pebble_watch_app");
 		
 		mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 		mDeviceAdmin = new ComponentName(this, CustomDeviceAdminReceiver.class);
@@ -123,6 +119,20 @@ public class PebbleLocker extends PreferenceActivity {
 			}
 		});
 		
+		mWatchApp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				if(mPrefs.getBoolean("donated", false))
+					requirePremiumPurchase();
+				else {
+					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://ofkorth.net/pebble/pebble-locker-1.pbw"));
+				    startActivity(intent);
+				}
+
+				return true;
+			}
+		});
+		
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 	}
 	
@@ -130,54 +140,12 @@ public class PebbleLocker extends PreferenceActivity {
 		super.onResume();
 		
 		checkForRequiredPasswordByOtherApps();
-		checkPurchaseHistory();
+		checkForPreviousPurchases();
 		checkForActiveAdmin();
 		updateStatus();
 		
 		if(!mPrefs.getString("key_password", "").equals("") && timeStamp < (System.currentTimeMillis() - 60000))
             requestPassword();
-	}
-	
-	public void onDestroy() {
-		super.onDestroy();
-		
-		cleanupHelper();
-	}
-	
-	private void checkPurchaseHistory() {
-		cleanupHelper();
-		
-		mHelper = new IabHelper(this, getString(R.string.billing_public_key));
-		
-		mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
-            public void onIabSetupFinished(IabResult result) {
-                if (result.isSuccess()) {
-                	mHelper.queryInventoryAsync(mGotInventoryListener);	     
-                } else {
-                	showAlert("There was an issue checking for purchases, please contact the developer");
-                }
-            }
-		});
-	}
-	
-	IabHelper.QueryInventoryFinishedListener mGotInventoryListener = new IabHelper.QueryInventoryFinishedListener() {
-		public void onQueryInventoryFinished(IabResult result, Inventory inventory) {			
-			if (!result.isFailure()) {			
-				if(inventory.hasPurchase("pebblelocker.donation.3") || inventory.hasPurchase("pebblelocker.donation.5") || 
-					inventory.hasPurchase("pebblelocker.donation.10") || inventory.hasPurchase("pebblelocker.premium")) {
-					mPrefs.edit().putBoolean("donated", true).commit();
-				}
-			} else {
-				showAlert("There was an issue checking for purchases, please contact the developer");
-			}
-		}
-	};
-	
-	private void cleanupHelper() {
-		if(mHelper != null) {
-			mHelper.dispose();
-			mHelper = null;
-		}
 	}
 	
 	/**
@@ -265,14 +233,15 @@ public class PebbleLocker extends PreferenceActivity {
 			connectionStatus += "Pebble watch disconnected";
 		
 		if(mPrefs.getBoolean("donated", false)) {
-			if(locker.isTrustedBluetoothDeviceConnected())
-				connectionStatus += "\n" + "Trusted bluetooth device connected" + "\n";
-			else
+			if(locker.isTrustedBluetoothDeviceConnected()) {
+				String deviceNames = locker.getConnectedBluetoothDeviceNames();
+				connectionStatus += "\n" + "Trusted bluetooth device connected " + deviceNames + "\n";
+			} else
 				connectionStatus += "\n" + "No trusted bluetooth device connected" + "\n";
 			
-			if(locker.isTrustedWifiConnected())
-				connectionStatus += "Trusted WiFi network connected";
-			else
+			if(locker.isTrustedWifiConnected()) {
+				connectionStatus += "Trusted WiFi network connected (" + locker.getConnectedWifiSsid() + ")";
+			} else
 				connectionStatus += "No trusted WiFi network connected";
 		}
 		
@@ -316,17 +285,6 @@ public class PebbleLocker extends PreferenceActivity {
 		}
 	}
 	
-	private void showAlert(String message) {
-		showAlert(message, null);
-	}
-	
-	private void showAlert(String message, OnClickListener onClickListener) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(message);
-        builder.setPositiveButton("Ok", onClickListener);
-        builder.show();
-	}
-	
 	 /**
      * If the "user" is a monkey, post an alert and notify the caller.  This prevents automated
      * test frameworks from stumbling into annoying or dangerous operations.
@@ -347,6 +305,11 @@ public class PebbleLocker extends PreferenceActivity {
 			return "";
 		}
     }
+    
+	@Override
+	public void purchaseCanceled() {
+		// noop
+	}
 	
 	/**
      * All callbacks are on the UI thread and your implementations should not engage in any
