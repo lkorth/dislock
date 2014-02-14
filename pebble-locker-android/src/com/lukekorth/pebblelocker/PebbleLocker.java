@@ -1,5 +1,6 @@
 package com.lukekorth.pebblelocker;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.admin.DeviceAdminReceiver;
@@ -203,6 +204,7 @@ public class PebbleLocker extends PreferenceActivity {
 		mForceLock.setEnabled(isEnabled);
 	}
 	
+	@SuppressLint("NewApi")
 	private void checkForRequiredPasswordByOtherApps() {
 		int encryptionStatus = -1;
 		if(Build.VERSION.SDK_INT >= 11)
