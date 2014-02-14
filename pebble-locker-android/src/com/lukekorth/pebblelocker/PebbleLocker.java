@@ -256,9 +256,9 @@ public class PebbleLocker extends PreferenceActivity {
 		
 		if(mPrefs.getBoolean("donated", false)) {
 			if(locker.isTrustedBluetoothDeviceConnected())
-				connectionStatus += "; Trusted bluetooth device connected; ";
+				connectionStatus += "\n" + "Trusted bluetooth device connected" + "\n";
 			else
-				connectionStatus += "; No trusted bluetooth device connected; ";
+				connectionStatus += "\n" + "No trusted bluetooth device connected" + "\n";
 			
 			if(locker.isTrustedWifiConnected())
 				connectionStatus += "Trusted WiFi network connected";

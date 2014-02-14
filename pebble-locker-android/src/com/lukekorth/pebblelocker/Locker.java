@@ -109,7 +109,7 @@ public class Locker {
 		return keyguard && screen;
 	}
 
-	private boolean connectedToDeviceOrWifi() {
+	public boolean connectedToDeviceOrWifi() {
 		boolean pebble = isPebbleWatchConnected();
 		boolean bluetooth = isTrustedBluetoothDeviceConnected();
 		boolean wifi = isTrustedWifiConnected();
