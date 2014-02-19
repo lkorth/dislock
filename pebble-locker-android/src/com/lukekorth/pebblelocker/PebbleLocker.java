@@ -15,7 +15,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -44,7 +43,6 @@ public class PebbleLocker extends PremiumFeatures {
 	private EditTextPreference mPassword;
 	private CheckBoxPreference mEnable;
 	private CheckBoxPreference mForceLock;
-	private Preference         mWatchApp;
 	
 	private SharedPreferences mPrefs;
 	
@@ -62,7 +60,6 @@ public class PebbleLocker extends PremiumFeatures {
 		mPassword  = (EditTextPreference) findPreference("key_password");
 		mEnable    = (CheckBoxPreference) findPreference("key_enable_locker");
 		mForceLock = (CheckBoxPreference) findPreference("key_force_lock");
-		mWatchApp  = (Preference) findPreference("pebble_watch_app");
 		
 		mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 		mDeviceAdmin = new ComponentName(this, CustomDeviceAdminReceiver.class);
@@ -120,20 +117,6 @@ public class PebbleLocker extends PremiumFeatures {
 				else
 					mPrefs.edit().putString("key_password", "").commit();
 				
-				return true;
-			}
-		});
-		
-		mWatchApp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				if(mPrefs.getBoolean("donated", false))
-					requirePremiumPurchase();
-				else {
-					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://ofkorth.net/pebble/pebble-locker-1.pbw"));
-				    startActivity(intent);
-				}
-
 				return true;
 			}
 		});
