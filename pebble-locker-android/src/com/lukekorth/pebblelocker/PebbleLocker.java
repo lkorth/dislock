@@ -235,12 +235,12 @@ public class PebbleLocker extends PremiumFeatures {
 		if(mPrefs.getBoolean("donated", false)) {
 			if(locker.isTrustedBluetoothDeviceConnected()) {
 				String deviceNames = locker.getConnectedBluetoothDeviceNames();
-				connectionStatus += "\n" + "Trusted bluetooth device connected " + deviceNames + "\n";
+				connectionStatus += "\n" + "Trusted bluetooth device connected \n\t" + deviceNames + "\n";
 			} else
 				connectionStatus += "\n" + "No trusted bluetooth device connected" + "\n";
 			
 			if(locker.isTrustedWifiConnected()) {
-				connectionStatus += "Trusted WiFi network connected (" + locker.getConnectedWifiSsid() + ")";
+				connectionStatus += "Trusted WiFi network connected \n\t(" + locker.getConnectedWifiSsid() + ")";
 			} else
 				connectionStatus += "No trusted WiFi network connected";
 		}
