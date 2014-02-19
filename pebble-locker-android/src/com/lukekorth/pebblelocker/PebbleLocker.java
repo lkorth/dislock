@@ -5,11 +5,13 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.admin.DeviceAdminReceiver;
 import android.app.admin.DevicePolicyManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -22,6 +24,7 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +47,8 @@ public class PebbleLocker extends PremiumFeatures {
 	private Preference         mWatchApp;
 	
 	private SharedPreferences mPrefs;
+	
+	private BroadcastReceiver mStatusReceiver;
 	
 	private AlertDialog requirePassword;
 	private long timeStamp;
@@ -133,6 +138,13 @@ public class PebbleLocker extends PremiumFeatures {
 			}
 		});
 		
+		mStatusReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				PebbleLocker.this.updateStatus();
+			}
+		};
+		
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 	}
 	
@@ -144,9 +156,17 @@ public class PebbleLocker extends PremiumFeatures {
 		checkForActiveAdmin();
 		updateStatus();
 		
+		LocalBroadcastManager.getInstance(this)
+			.registerReceiver(mStatusReceiver, new IntentFilter(ConnectionReceiver.STATUS_CHANGED_INTENT));
+		
 		if(!mPrefs.getString("key_password", "").equals("") && timeStamp < (System.currentTimeMillis() - 60000) &&
 				mPrefs.getBoolean(ConnectionReceiver.LOCKED, true))
             requestPassword();
+	}
+	
+	public void onPause() {
+		super.onPause();
+		LocalBroadcastManager.getInstance(this).unregisterReceiver(mStatusReceiver);
 	}
 	
 	/**

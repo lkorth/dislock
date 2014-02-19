@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 
 public class ConnectionReceiver extends BroadcastReceiver {
 
@@ -20,6 +21,7 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	private static final String BLUETOOTH_DISCONNECTED = "android.bluetooth.device.action.acl_disconnected";
 	private static final String CONNECTIVITY_CHANGE = "android.net.conn.connectivity_change";
 	private static final String USER_PRESENT = "android.intent.action.user_present";
+	public static final String STATUS_CHANGED_INTENT = "com.lukekorth.pebblelocker.STATUS_CHANGED";
 	public static final String LOCKED = "locked";
 	public static final String UNLOCK = "unlock";
 	public static final String LOCK_STATE = "state";
@@ -43,6 +45,8 @@ public class ConnectionReceiver extends BroadcastReceiver {
 		mAction = intent.getAction().toLowerCase();
 
 		mLogger.log(mUniq, "ConnectionReceiver: " + mAction);
+		
+		LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(STATUS_CHANGED_INTENT));
 
 		int lockState = mPrefs.getInt(LOCK_STATE, AUTO);
 		if (lockState == AUTO) {
