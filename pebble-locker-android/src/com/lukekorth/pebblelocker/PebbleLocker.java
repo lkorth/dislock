@@ -144,7 +144,8 @@ public class PebbleLocker extends PremiumFeatures {
 		checkForActiveAdmin();
 		updateStatus();
 		
-		if(!mPrefs.getString("key_password", "").equals("") && timeStamp < (System.currentTimeMillis() - 60000))
+		if(!mPrefs.getString("key_password", "").equals("") && timeStamp < (System.currentTimeMillis() - 60000) &&
+				mPrefs.getBoolean(ConnectionReceiver.LOCKED, true))
             requestPassword();
 	}
 	
