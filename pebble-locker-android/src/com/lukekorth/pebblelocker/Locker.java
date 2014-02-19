@@ -124,28 +124,32 @@ public class Locker {
 
 	public boolean isPebbleWatchConnected() {
 		if (mPrefs.getBoolean("pebble", true)) {
-			Cursor c = null;
-			try {
-				c = mContext.getApplicationContext().getContentResolver().query(Uri.parse("content://com.getpebble.android.provider/state"), null, null, null, null);
-			} catch (Exception e) {
-				mLogger.log(mUniq, "Exception getting Pebble connection status: " + e);
-			}
-
-			if (c == null)
-				return false;
-
-			if (!c.moveToNext()) {
-				c.close();
-				return false;
-			}
-
-			boolean connected = (c.getInt(0) == 1);
-			c.close();
-			return connected;
+			return checkPebbleConnectionStatus();
 		} else {
 			mLogger.log(mUniq, "Unlock via any Pebble is not enabled");
 			return false;
 		}
+	}
+	
+	public boolean checkPebbleConnectionStatus() {
+		Cursor c = null;
+		try {
+			c = mContext.getApplicationContext().getContentResolver().query(Uri.parse("content://com.getpebble.android.provider/state"), null, null, null, null);
+		} catch (Exception e) {
+			mLogger.log(mUniq, "Exception getting Pebble connection status: " + e);
+		}
+
+		if (c == null)
+			return false;
+
+		if (!c.moveToNext()) {
+			c.close();
+			return false;
+		}
+
+		boolean connected = (c.getInt(0) == 1);
+		c.close();
+		return connected;
 	}
 
 	public boolean isTrustedBluetoothDeviceConnected() {

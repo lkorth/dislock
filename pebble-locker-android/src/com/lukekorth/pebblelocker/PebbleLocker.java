@@ -227,7 +227,7 @@ public class PebbleLocker extends PremiumFeatures {
 		Locker locker = new Locker(this, "[LOADING_STATUS]");
 		String connectionStatus = "";
 		
-		if(locker.isPebbleWatchConnected())
+		if(locker.checkPebbleConnectionStatus())
 			connectionStatus += "Pebble watch connected";
 		else
 			connectionStatus += "Pebble watch disconnected";

@@ -44,24 +44,24 @@ public class ConnectionReceiver extends BroadcastReceiver {
 
 		mLogger.log(mUniq, "ConnectionReceiver: " + mAction);
 
-    int lockState = mPrefs.getInt(LOCK_STATE, AUTO);
-    if(lockState == AUTO) {
-      checkForBluetoothDevice(((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)));
-      boolean isWifiConnected = isWifiConnected();
+		int lockState = mPrefs.getInt(LOCK_STATE, AUTO);
+		if (lockState == AUTO) {
+			checkForBluetoothDevice(((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)));
+			boolean isWifiConnected = isWifiConnected();
 
-      if (mAction.equals(USER_PRESENT) && needToUnlock()) {
-        mLogger.log(mUniq, "User present and need to unlock...attempting to unlock");
-        new Locker(context, mUniq).handleLocking();
-      } else if((mAction.equals(PEBBLE_CONNECTED) || mAction.equals(BLUETOOTH_CONNECTED) || (mAction.equals(CONNECTIVITY_CHANGE) && isWifiConnected)) && isLocked(true)) {
-        mLogger.log(mUniq, "Attempting unlock");
-        new Locker(context, mUniq).handleLocking();
-      } else if ((mAction.equals(PEBBLE_DISCONNECTED) || mAction.equals(BLUETOOTH_DISCONNECTED) || (mAction.equals(CONNECTIVITY_CHANGE) && !isWifiConnected)) && !isLocked(false)) {
-        mLogger.log(mUniq, "Attempting lock");
-        new Locker(context, mUniq).handleLocking();
-      }
-    } else {
-      mLogger.log(mUniq, "Lock state was manually set to " + lockState);
-    }
+			if (mAction.equals(USER_PRESENT) && needToUnlock()) {
+				mLogger.log(mUniq, "User present and need to unlock...attempting to unlock");
+				new Locker(context, mUniq).handleLocking();
+			} else if ((mAction.equals(PEBBLE_CONNECTED) || mAction.equals(BLUETOOTH_CONNECTED) || (mAction.equals(CONNECTIVITY_CHANGE) && isWifiConnected)) && isLocked(true)) {
+				mLogger.log(mUniq, "Attempting unlock");
+				new Locker(context, mUniq).handleLocking();
+			} else if ((mAction.equals(PEBBLE_DISCONNECTED) || mAction.equals(BLUETOOTH_DISCONNECTED) || (mAction.equals(CONNECTIVITY_CHANGE) && !isWifiConnected)) && !isLocked(false)) {
+				mLogger.log(mUniq, "Attempting lock");
+				new Locker(context, mUniq).handleLocking();
+			}
+		} else {
+			mLogger.log(mUniq, "Lock state was manually set to " + lockState);
+		}
 	}
 
 	private boolean isLocked(boolean defaultValue) {
@@ -79,10 +79,10 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	}
 
 	private void checkForBluetoothDevice(BluetoothDevice device) {
-		if(mAction.equals(BLUETOOTH_CONNECTED)) {
+		if (mAction.equals(BLUETOOTH_CONNECTED)) {
 			new DatabaseHelper(mContext).setStatus(device.getAddress(), true);
 			mLogger.log(mUniq, "Bluetooth device connected: " + device.getName() + " " + device.getAddress());
-		} else if(mAction.equals(BLUETOOTH_DISCONNECTED)) {
+		} else if (mAction.equals(BLUETOOTH_DISCONNECTED)) {
 			new DatabaseHelper(mContext).setStatus(device.getAddress(), false);
 			mLogger.log(mUniq, "Bluetooth device disconnected: " + device.getName() + " " + device.getAddress());
 		}
@@ -90,15 +90,15 @@ public class ConnectionReceiver extends BroadcastReceiver {
 
 	private boolean isWifiConnected() {
 		NetworkInfo networkInfo = ((ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
-	    if(networkInfo != null) {
-	        if(networkInfo.isConnected() && networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-	        	return true;
-	        } else {
-	        	mLogger.log(mUniq, "Network is not connected to wifi");
-	        }
-	    } else {
-	    	mLogger.log(mUniq, "NetworkInfo is null");
-	    }
+		if (networkInfo != null) {
+			if (networkInfo.isConnected() && networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+				return true;
+			} else {
+				mLogger.log(mUniq, "Network is not connected to wifi");
+			}
+		} else {
+			mLogger.log(mUniq, "NetworkInfo is null");
+		}
 
 		return false;
 	}
