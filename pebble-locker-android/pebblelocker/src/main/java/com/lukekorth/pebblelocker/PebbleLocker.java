@@ -55,7 +55,7 @@ public class PebbleLocker extends PremiumFeatures {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.layout.main);
 		
-		mStatus    = (Preference) findPreference("visible_status");
+		mStatus    = findPreference("visible_status");
 		mAdmin     = (CheckBoxPreference) findPreference("key_enable_admin");
 		mPassword  = (EditTextPreference) findPreference("key_password");
 		mEnable    = (CheckBoxPreference) findPreference("key_enable_locker");
@@ -64,7 +64,7 @@ public class PebbleLocker extends PremiumFeatures {
 		mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 		mDeviceAdmin = new ComponentName(this, CustomDeviceAdminReceiver.class);
 		
-		((Preference) findPreference("contact")).setOnPreferenceClickListener(new OnPreferenceClickListener() {
+		findPreference("contact").setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference arg0) {
 				LogReporting reporter = new LogReporting(PebbleLocker.this);
@@ -74,7 +74,7 @@ public class PebbleLocker extends PremiumFeatures {
 			}
 		});
 		
-		((Preference) findPreference("viewVersion")).setSummary(currentVersion());
+		findPreference("viewVersion").setSummary(currentVersion());
 		
 		mAdmin.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 			@Override
