@@ -123,9 +123,9 @@ public class PremiumFeatures extends PreferenceActivity implements IabHelper.Que
 	}
 	
 	public void showAlert(String message, OnClickListener onClickListener) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(message);
-        builder.setPositiveButton("Ok", onClickListener);
-        builder.show();
+		new AlertDialog.Builder(this)
+            .setMessage(message)
+            .setPositiveButton("Ok", onClickListener)
+            .show();
 	}
 }
