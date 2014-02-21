@@ -1,1 +1,2 @@
+include ':libraries:PebbleKit'
 include ':pebblelocker'
