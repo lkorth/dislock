@@ -11,5 +11,4 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 		new Logger(context).log("[PHONESTATE]", "Received a PhoneState BroadcastIntent: " + intent.getAction());
 		new Locker(context, "[PHONESTATE]").handleLocking();
 	}
-
 }
