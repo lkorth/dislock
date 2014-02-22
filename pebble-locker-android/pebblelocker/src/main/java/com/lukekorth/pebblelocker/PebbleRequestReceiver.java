@@ -22,7 +22,7 @@ public class PebbleRequestReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if (((UUID) intent.getSerializableExtra(Constants.APP_UUID)) == PEBBLE_APP_UUID) {
+		if (intent.getSerializableExtra(Constants.APP_UUID) == PEBBLE_APP_UUID) {
 			int transactionId = intent.getIntExtra(Constants.TRANSACTION_ID, Integer.MIN_VALUE);
 			String data = intent.getStringExtra(Constants.MSG_DATA);
 
@@ -44,9 +44,7 @@ public class PebbleRequestReceiver extends BroadcastReceiver {
 
 					if (responseDictionary.size() > 0)
 						PebbleKit.sendDataToPebble(context, PEBBLE_APP_UUID, responseDictionary);
-				} catch (JSONException e) {
-					// noop
-				}
+				} catch (JSONException e) {}
 			}
 		}
 	}
