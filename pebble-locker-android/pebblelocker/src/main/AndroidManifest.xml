@@ -1,9 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.lukekorth.pebblelocker"
-    android:versionCode="15"
-    android:versionName="2.3.6" >
-
-    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="19" />
+    package="com.lukekorth.pebblelocker">
     
     <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />

@@ -30,9 +30,7 @@ import android.view.View;
 import android.widget.EditText;
 
 public class PebbleLocker extends PremiumFeatures {
-	
-	public static final int VERSION = 15;
-	
+
 	private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
 	
 	private DevicePolicyManager mDPM;
