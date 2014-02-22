@@ -14,13 +14,6 @@ android {
     sourceSets {
         instrumentTest.setRoot('src/test')
     }
-
-    buildTypes {
-        release {
-            runProguard false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-        }
-    }
 }
 
 dependencies {
