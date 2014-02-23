@@ -1,3 +1,5 @@
+import groovy.swing.SwingBuilder
+
 apply plugin: 'android'
 
 android {
@@ -11,6 +13,21 @@ android {
         versionName "2.3.6"
     }
 
+    signingConfigs {
+        release {
+            storeFile file(System.getEnv("KEY_STORE"))
+            storePassword "PLACEHOLDER"
+            keyAlias System.getEnv("ALIAS")
+            keyPassword "PLACEHOLDER"
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
+
     sourceSets {
         instrumentTest.setRoot('src/test')
     }
@@ -19,4 +36,49 @@ android {
 dependencies {
     compile 'com.android.support:appcompat-v7:+'
     compile project(':libraries:PebbleKit')
+}
+
+
+// borrowed from https://www.timroes.de/2014/01/19/using-password-prompts-with-gradle-build-files/
+// and https://www.timroes.de/2013/09/22/handling-signing-configs-with-gradle/
+gradle.taskGraph.whenReady { taskGraph ->
+    // Only execute when we are trying to assemble a release build
+    if(taskGraph.hasTask(':pebblelocker:assembleRelease')) {
+        def password = ''
+
+        if(System.console() == null) {
+            new SwingBuilder().edt {
+                dialog(modal: true, // Otherwise the build will continue running before you closed the dialog
+                        title: 'Enter password',
+                        alwaysOnTop: true,
+                        resizable: false,
+                        locationRelativeTo: null, // Place dialog in center of the screen
+                        pack: true, // We need to pack the dialog (so it will take the size of it's children)
+                        show: true
+                ) {
+                    vbox { // Put everything below each other
+                        label(text: "Please enter key passphrase:")
+                        input = passwordField()
+                        button(defaultButton: true, text: 'OK', actionPerformed: {
+                            password = input.password;
+                            dispose();
+                        })
+                    }
+                }
+            }
+        } else {
+            password = System.console().readPassword("\nPlease enter key passphrase: ")
+        }
+
+        if(password.size() <= 0) {
+            throw new InvalidUserDataException("You must enter a password to proceed.")
+        }
+
+        // Must create String because System.readPassword() returns char[]
+        // (and assigning that below fails silently)
+        password = new String(password)
+
+        android.signingConfigs.release.storePassword = password
+        android.signingConfigs.release.keyPassword = password
+    }
 }
