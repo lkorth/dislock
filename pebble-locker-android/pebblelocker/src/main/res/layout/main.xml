@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
     
     <PreferenceCategory
         android:title="Status">
@@ -42,20 +44,12 @@
     	    android:key="other_bluetooth_devices"
     	    android:title="Other Bluetooth Devices"
     	    android:summary="Select other bluetooth devices that will also unlock your device">
-    		<intent
-             	android:action="android.intent.action.VIEW"
-             	android:targetPackage="com.lukekorth.pebblelocker"
-             	android:targetClass="com.lukekorth.pebblelocker.BluetoothDevices" /> 
     	</Preference>
     	
     	<Preference
     	    android:key="wifi"
     	    android:title="WiFi"
     	    android:summary="Select WiFi networks that will unlock your device">
-   	    	<intent
-             	android:action="android.intent.action.VIEW"
-             	android:targetPackage="com.lukekorth.pebblelocker"
-             	android:targetClass="com.lukekorth.pebblelocker.WiFiNetworks" /> 
         </Preference>
     </PreferenceCategory>
     

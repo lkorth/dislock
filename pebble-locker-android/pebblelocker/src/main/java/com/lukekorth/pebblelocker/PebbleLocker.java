@@ -29,7 +29,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
-public class PebbleLocker extends PremiumFeatures {
+public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickListener {
 
 	private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
 	
@@ -61,18 +61,11 @@ public class PebbleLocker extends PremiumFeatures {
 		
 		mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 		mDeviceAdmin = new ComponentName(this, CustomDeviceAdminReceiver.class);
-		
-		findPreference("contact").setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference arg0) {
-				LogReporting reporter = new LogReporting(PebbleLocker.this);
-				reporter.collectAndSendLogs();
-				
-				return true;
-			}
-		});
-		
-		findPreference("viewVersion").setSummary(currentVersion());
+
+        findPreference("other_bluetooth_devices").setOnPreferenceClickListener(this);
+        findPreference("wifi").setOnPreferenceClickListener(this);
+        findPreference("contact").setOnPreferenceClickListener(this);
+        findPreference("viewVersion").setSummary(currentVersion());
 		
 		mAdmin.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 			@Override
@@ -319,13 +312,26 @@ public class PebbleLocker extends PremiumFeatures {
 			return "";
 		}
     }
-    
-	@Override
-	public void purchaseCanceled() {
-		// noop
-	}
-	
-	/**
+
+    @Override
+    public boolean onPreferenceClick(Preference preference) {
+        if(preference.getKey().equals("other_bluetooth_devices") || preference.getKey().equals("wifi")) {
+            if(!hasPurchased()) {
+                requirePremiumPurchase();
+            } else {
+                if(preference.getKey().equals("other_bluetooth_devices"))
+                    startActivity(new Intent(this, BluetoothDevices.class));
+                else
+                    startActivity(new Intent(this, WiFiNetworks.class));
+            }
+        } else if(preference.getKey().equals("contact")) {
+            new LogReporting(PebbleLocker.this).collectAndSendLogs();
+        }
+
+        return true;
+    }
+
+    /**
      * All callbacks are on the UI thread and your implementations should not engage in any
      * blocking operations, including disk I/O.
      */

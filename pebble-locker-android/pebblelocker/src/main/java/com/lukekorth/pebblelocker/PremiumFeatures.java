@@ -42,7 +42,6 @@ public class PremiumFeatures extends PreferenceActivity implements IabHelper.Que
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					dialog.dismiss();
-					purchaseCanceled();
 				}
 			})
 			.show();
@@ -55,13 +54,13 @@ public class PremiumFeatures extends PreferenceActivity implements IabHelper.Que
 			mCheckForPurchases = true;
 	}
 	
-	public void purchaseCanceled() {
-		finish();
-	}
-	
 	public void purchaseSuccessful() {
 		PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("donated", true).commit();
 	}
+
+    public boolean hasPurchased() {
+        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean("donated", false);
+    }
 
 	private void initiatePurchase() {
 		mHelper.launchPurchaseFlow(this, "pebblelocker.premium", 1, this, "premium");
@@ -98,7 +97,7 @@ public class PremiumFeatures extends PreferenceActivity implements IabHelper.Que
 				.setPositiveButton("Ok", new OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						purchaseCanceled();
+						dialog.dismiss();
 					}
 				})
 				.show();
