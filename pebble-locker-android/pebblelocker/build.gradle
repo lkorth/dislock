@@ -43,7 +43,7 @@ dependencies {
 // and https://www.timroes.de/2013/09/22/handling-signing-configs-with-gradle/
 gradle.taskGraph.whenReady { taskGraph ->
     // Only execute when we are trying to assemble a release build
-    if(taskGraph.hasTask(':pebblelocker:assembleRelease')) {
+    if(taskGraph.hasTask(':pebblelocker:assembleRelease') || taskGraph.hasTask(':pebblelocker:installRelease')) {
         def password = ''
 
         if(System.console() == null) {
