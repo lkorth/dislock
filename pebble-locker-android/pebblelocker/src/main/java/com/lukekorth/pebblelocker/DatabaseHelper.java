@@ -10,11 +10,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int DB_VERSION = 1;
 	private static final String BLUETOOTH_DEVICES = "connectedBluetoothDevices";
 
 	public DatabaseHelper(Context context) {
-		super(context, "pebble-locker", null, DB_VERSION);
+		super(context, "pebble-locker", null, BuildConfig.VERSION_CODE);
 	}
 	
 	@Override
