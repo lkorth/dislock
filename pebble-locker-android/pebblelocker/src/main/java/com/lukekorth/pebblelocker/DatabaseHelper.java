@@ -18,13 +18,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		db.execSQL("CREATE TABLE " + BLUETOOTH_DEVICES + " (address TEXT PRIMARY KEY, connected INTEGER)");
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + BLUETOOTH_DEVICES + " (address TEXT PRIMARY KEY, connected INTEGER)");
 	}
 	
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS log");
-        db.execSQL("DROP TABLE IF EXISTS " + BLUETOOTH_DEVICES);
         onCreate(db);
 	}
 	
