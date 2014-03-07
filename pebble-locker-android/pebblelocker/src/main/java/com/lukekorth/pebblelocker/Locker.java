@@ -41,10 +41,11 @@ public class Locker {
 	}
 
 	public void handleLocking(boolean forceLock) {
-		if (connectedToDeviceOrWifi())
+        boolean connectedToDeviceOrWifi = connectedToDeviceOrWifi();
+		if (connectedToDeviceOrWifi && isLocked(true))
 			unlock();
-		else
-			lock();
+		else if (!connectedToDeviceOrWifi && isLocked(false))
+			lock(forceLock);
 	}
 
 	public void lock() {
@@ -111,6 +112,13 @@ public class Locker {
 
 		return keyguard && screen;
 	}
+
+    private boolean isLocked(boolean defaultValue) {
+        boolean locked = mPrefs.getBoolean(ConnectionReceiver.LOCKED, defaultValue);
+        mLogger.log(mUniq, "Locked: " + locked);
+
+        return locked;
+    }
 
 	public boolean connectedToDeviceOrWifi() {
 		boolean pebble = isPebbleWatchConnected();
