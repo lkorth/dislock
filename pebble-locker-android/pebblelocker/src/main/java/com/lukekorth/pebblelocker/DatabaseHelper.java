@@ -23,7 +23,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// noop
+        db.execSQL("DROP TABLE IF EXISTS log");
+        db.execSQL("DROP TABLE IF EXISTS " + BLUETOOTH_DEVICES);
+        onCreate(db);
 	}
 	
 	public void setStatus(String address, boolean connected) {
