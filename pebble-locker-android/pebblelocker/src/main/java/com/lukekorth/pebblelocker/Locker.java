@@ -80,10 +80,17 @@ public class Locker {
 
 				mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, false).commit();
 			} catch (IllegalArgumentException e) {
-				boolean passwordReset = mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-				mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).commit();
+                String password = mPrefs.getString("key_password", "");
 
-				mLogger.log(mUniq, "There was an exception when setting the password to blank, setting it back. Successfully reset: " + passwordReset + " " + Log.getStackTraceString(e));
+                if(!password.equals("")) {
+				    boolean passwordReset = mDPM.resetPassword(password, DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+
+				    mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).commit();
+
+				    mLogger.log(mUniq, "There was an exception when setting the password to blank, setting it back. Successfully reset: " + passwordReset + " " + Log.getStackTraceString(e));
+                } else {
+                    mLogger.log(mUniq, "User's password is empty");
+                }
 			}
 
 			mPrefs.edit().putBoolean(ConnectionReceiver.UNLOCK, false).commit();
