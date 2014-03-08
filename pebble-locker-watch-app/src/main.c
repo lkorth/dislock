@@ -71,6 +71,7 @@ static void get_state_from_phone() {
 
 static void init(void) {
   window = window_create();
+  window_set_background_color(window, GColorBlack);
   window_set_click_config_provider(window, click_config_provider);
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
@@ -79,12 +80,14 @@ static void init(void) {
   unlocked_image = gbitmap_create_with_resource(RESOURCE_ID_UNLOCKED_IMAGE);
   locked_image = gbitmap_create_with_resource(RESOURCE_ID_LOCKED_IMAGE);
 
-  text_layer = text_layer_create((GRect) { .origin = { 0, 148 }, .size = { bounds.size.w, 20 } });
+  text_layer = text_layer_create((GRect) { .origin = { 0, 128 }, .size = { bounds.size.w, 40 } });
+  text_layer_set_background_color(text_layer, GColorBlack);
+  text_layer_set_text_color(text_layer, GColorWhite);
   text_layer_set_text(text_layer, "Loading...");
   text_layer_set_text_alignment(text_layer, GTextAlignmentCenter);
   layer_add_child(window_layer, text_layer_get_layer(text_layer));
 
-  image_layer = bitmap_layer_create(bounds);
+  image_layer = bitmap_layer_create((GRect) { .origin = { 0, 0 }, .size = { bounds.size.w, 128 } });
   bitmap_layer_set_alignment(image_layer, GAlignCenter);
   layer_add_child(window_layer, bitmap_layer_get_layer(image_layer));
 
