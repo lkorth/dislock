@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
@@ -16,6 +17,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.lukekorth.pebblelocker.PebbleLocker.CustomDeviceAdminReceiver;
@@ -63,6 +65,8 @@ public class Locker {
 
 		if (forceLock && mPrefs.getBoolean("key_force_lock", false))
 			mDPM.lockNow();
+
+        sendBroadcast();
 	}
 
 	public void unlock() {
@@ -97,6 +101,8 @@ public class Locker {
 
 			mLogger.log(mUniq, "Sucessfully unlocked: " + passwordChanged);
 		}
+
+        sendBroadcast();
 	}
 
 	private boolean enabled() {
@@ -125,6 +131,10 @@ public class Locker {
         mLogger.log(mUniq, "Locked: " + locked);
 
         return locked;
+    }
+
+    private void sendBroadcast() {
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ConnectionReceiver.STATUS_CHANGED_INTENT));
     }
 
 	public boolean connectedToDeviceOrWifi() {

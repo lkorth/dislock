@@ -45,8 +45,6 @@ public class ConnectionReceiver extends BroadcastReceiver {
 		mAction = intent.getAction().toLowerCase();
 
 		mLogger.log(mUniq, "ConnectionReceiver: " + mAction);
-		
-		LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(STATUS_CHANGED_INTENT));
 
 		int lockState = mPrefs.getInt(LOCK_STATE, AUTO);
 		if (lockState == AUTO) {
