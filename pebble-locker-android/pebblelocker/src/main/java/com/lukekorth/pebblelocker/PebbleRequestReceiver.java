@@ -73,13 +73,13 @@ public class PebbleRequestReceiver extends BroadcastReceiver {
 		getSharedPrefs(context).edit().putInt(ConnectionReceiver.LOCK_STATE, state).commit();
 
 		switch (state) {
-		case 0:
+		case ConnectionReceiver.AUTO:
 			new Locker(context, "[MANUAL]").handleLocking();
 			break;
-		case 1:
+		case ConnectionReceiver.MANUAL_UNLOCKED:
 			new Locker(context, "[MANUAL]").unlock();
 			break;
-		case 2:
+		case ConnectionReceiver.MANUAL_LOCKED:
 			new Locker(context, "[MANUAL]").lock();
 			break;
 		}

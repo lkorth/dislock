@@ -234,16 +234,16 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 		String statusMessage = "";
 		
 		switch(lockState) {
-		case 0:
+		case ConnectionReceiver.AUTO:
 			if(mPrefs.getBoolean(ConnectionReceiver.LOCKED, false))
 				statusMessage = "Locked (Automatic)";
 			else
 				statusMessage = "Unlocked (Automatic)";
 			break;
-		case 1:
+		case ConnectionReceiver.MANUAL_UNLOCKED:
 			statusMessage = "Manually unlocked via watch app";
 			break;
-		case 2:
+		case ConnectionReceiver.MANUAL_LOCKED:
 			statusMessage = "Manually locked via watch app";
 			break;
 		}

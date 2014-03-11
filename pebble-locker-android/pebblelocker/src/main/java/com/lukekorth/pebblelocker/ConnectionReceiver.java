@@ -26,8 +26,8 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	public  static final String UNLOCK                 = "unlock";
 	public  static final String LOCK_STATE             = "state";
 	public  static final int    AUTO                   = 0;
-	public  static final int    MANUAL_LOCKED          = 1;
-	public  static final int    MANUAL_UNLOCKED        = 2;
+	public  static final int    MANUAL_UNLOCKED        = 1;
+	public  static final int    MANUAL_LOCKED          = 2;
 
 	private Context mContext;
 	private SharedPreferences mPrefs;
