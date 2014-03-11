@@ -68,7 +68,7 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
         findPreference("other_bluetooth_devices").setOnPreferenceClickListener(this);
         findPreference("wifi").setOnPreferenceClickListener(this);
         findPreference("contact").setOnPreferenceClickListener(this);
-        findPreference("viewVersion").setSummary(currentVersion());
+        findPreference("viewVersion").setSummary(BuildConfig.VERSION_NAME);
 		
 		mAdmin.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 			@Override
@@ -320,14 +320,6 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
         } else {
             return false;
         }
-    }
-    
-    private String currentVersion() {
-    	try {
-			return ((PackageInfo) getPackageManager().getPackageInfo(getPackageName(), 0)).versionName;
-		} catch (NameNotFoundException e) {
-			return "";
-		}
     }
 
     @Override
