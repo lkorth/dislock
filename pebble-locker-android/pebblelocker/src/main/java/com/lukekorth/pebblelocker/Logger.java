@@ -8,11 +8,19 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class Logger extends SQLiteOpenHelper {
+
+    private String mTag;
 	
     public Logger(Context context) {
     	super(context, "pebble-locker-logger", null, BuildConfig.VERSION_CODE);
+    }
+
+    public Logger(Context context, String tag) {
+        this(context);
+        mTag = tag;
     }
 
 	@Override
@@ -25,6 +33,10 @@ public class Logger extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS log");
         onCreate(db);
 	}
+
+    public void log(String message) {
+        log(mTag, message);
+    }
 	
 	public void log(String tag, String message) {
 		long timestamp = System.currentTimeMillis();
@@ -38,6 +50,9 @@ public class Logger extends SQLiteOpenHelper {
         
         db.delete("log","timestamp < ?", new String[] { Long.toString(System.currentTimeMillis() - 604800000) });
         db.close();
+
+        if(BuildConfig.DEBUG)
+            Log.d("pebble-locker", tag + " " + message);
     }
 	
 	public String getLog() {
