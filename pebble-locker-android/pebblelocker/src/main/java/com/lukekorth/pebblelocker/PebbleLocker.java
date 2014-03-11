@@ -60,7 +60,7 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 		mPassword  = (EditTextPreference) findPreference("key_password");
 		mEnable    = (CheckBoxPreference) findPreference("key_enable_locker");
 		mForceLock = (CheckBoxPreference) findPreference("key_force_lock");
-		mWatchApp  = (Preference) findPreference("pebble_watch_app");
+		mWatchApp  = findPreference("pebble_watch_app");
 		
 		mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 		mDeviceAdmin = new ComponentName(this, CustomDeviceAdminReceiver.class);
