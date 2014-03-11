@@ -22,9 +22,19 @@ public class PebbleRequestReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if (intent.getSerializableExtra(Constants.APP_UUID) == PEBBLE_APP_UUID) {
+        Logger logger = new Logger(context, "[" + UUID.randomUUID().toString().split("-")[1] + "]");
+
+        UUID uuid = (UUID) intent.getSerializableExtra(Constants.APP_UUID);
+
+        if(uuid == null)
+            return;
+
+        if (uuid.compareTo(PEBBLE_APP_UUID) == 0) {
 			int transactionId = intent.getIntExtra(Constants.TRANSACTION_ID, Integer.MIN_VALUE);
 			String data = intent.getStringExtra(Constants.MSG_DATA);
+
+            logger.log("Pebble request txn id: " + transactionId);
+            logger.log("Pebble raw request: " + data);
 
 			if (transactionId == Integer.MIN_VALUE)
 				return;
@@ -38,22 +48,28 @@ public class PebbleRequestReceiver extends BroadcastReceiver {
 					PebbleDictionary responseDictionary = new PebbleDictionary();
 
 					if (pebbleDictionary.getInteger(GET_STATE) != null)
-						responseDictionary.addInt32(SET_STATE, getState(context));
+						responseDictionary.addInt32(SET_STATE, getState(context, logger));
 					else if (pebbleDictionary.getInteger(SET_STATE) != null)
-						responseDictionary.addInt32(SET_STATE, setState(context, (int) ((long) pebbleDictionary.getInteger(SET_STATE))));
+						responseDictionary.addInt32(SET_STATE, setState(context, logger, (int) ((long) pebbleDictionary.getInteger(SET_STATE))));
 
-					if (responseDictionary.size() > 0)
-						PebbleKit.sendDataToPebble(context, PEBBLE_APP_UUID, responseDictionary);
+					if (responseDictionary.size() > 0) {
+                        logger.log("Sending response to Pebble: " + responseDictionary.toJsonString());
+                        PebbleKit.sendDataToPebble(context, PEBBLE_APP_UUID, responseDictionary);
+                    }
 				} catch (JSONException e) {}
 			}
 		}
 	}
 
-	private int getState(Context context) {
-		return getSharedPrefs(context).getInt(ConnectionReceiver.LOCK_STATE, ConnectionReceiver.AUTO);
+	private int getState(Context context, Logger logger) {
+        int state = getSharedPrefs(context).getInt(ConnectionReceiver.LOCK_STATE, ConnectionReceiver.AUTO);
+        logger.log("Getting current lock state: " + state);
+
+		return state;
 	}
 
-	private int setState(Context context, int state) {
+	private int setState(Context context, Logger logger, int state) {
+        logger.log("Setting lock state: " + state);
 		getSharedPrefs(context).edit().putInt(ConnectionReceiver.LOCK_STATE, state).commit();
 
 		switch (state) {
@@ -61,10 +77,10 @@ public class PebbleRequestReceiver extends BroadcastReceiver {
 			new Locker(context, "[MANUAL]").handleLocking();
 			break;
 		case 1:
-			new Locker(context, "[MANUAL]").lock();
+			new Locker(context, "[MANUAL]").unlock();
 			break;
 		case 2:
-			new Locker(context, "[MANUAL]").unlock();
+			new Locker(context, "[MANUAL]").lock();
 			break;
 		}
 
