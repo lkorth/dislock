@@ -48,6 +48,8 @@ public class Locker {
 			unlock();
 		else if (!connectedToDeviceOrWifi && isLocked(false))
 			lock(forceLock);
+        else
+            sendBroadcast();
 	}
 
 	public void lock() {
