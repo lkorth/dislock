@@ -9,7 +9,7 @@ static GBitmap *auto_image;
 static GBitmap *unlocked_image;
 static GBitmap *locked_image;
 
-static int current_state = 0;
+int current_state = 0;
 
 void set_current_image() {
   switch(current_state) {
@@ -26,6 +26,10 @@ void set_current_image() {
       text_layer_set_text(text_layer, "Locked");
       break;
   }
+}
+
+void error_communicating_with_phone() {
+  text_layer_set_text(text_layer, "No connection");
 }
 
 static void send_state_to_phone() {

@@ -1,5 +1,4 @@
-static TextLayer *text_layer;
+int current_state;
 
-static int current_state;
-
+void error_communicating_with_phone();
 void set_current_image();
