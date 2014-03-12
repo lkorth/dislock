@@ -16,6 +16,11 @@
         "name": "MENU_ICON",
         "file": "images/menu_icon.png"
       },
+	  {
+		"type": "png",
+		"name": "CONFIGURE_IMAGE",
+		"file": "images/configure_image.png"
+	  },
       {
         "type": "png",
         "name": "AUTO_IMAGE",

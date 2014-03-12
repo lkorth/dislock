@@ -5,6 +5,7 @@ static Window *window;
 static TextLayer *text_layer;
 static BitmapLayer *image_layer;
 
+static GBitmap *configure;
 static GBitmap *auto_image;
 static GBitmap *unlocked_image;
 static GBitmap *locked_image;
@@ -13,6 +14,9 @@ int current_state = 0;
 
 void set_current_image() {
   switch(current_state) {
+	case -1:
+	  bitmap_layer_set_bitmap(image_layer, configure);
+	  text_layer_set_text(text_layer, "");
     case 0:
       bitmap_layer_set_bitmap(image_layer, auto_image);
       text_layer_set_text(text_layer, "Auto");
@@ -80,6 +84,7 @@ static void init(void) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
 
+  configure = gbitmap_create_with_resource(RESOURCE_ID_CONFIGURE_IMAGE);
   auto_image = gbitmap_create_with_resource(RESOURCE_ID_AUTO_IMAGE);
   unlocked_image = gbitmap_create_with_resource(RESOURCE_ID_UNLOCKED_IMAGE);
   locked_image = gbitmap_create_with_resource(RESOURCE_ID_LOCKED_IMAGE);
