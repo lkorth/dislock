@@ -47,10 +47,14 @@ public class PebbleRequestReceiver extends BroadcastReceiver {
 					PebbleDictionary pebbleDictionary = PebbleDictionary.fromJson(data);
 					PebbleDictionary responseDictionary = new PebbleDictionary();
 
-					if (pebbleDictionary.getInteger(GET_STATE) != null)
+                    Locker locker = new Locker(context, "[MANUAL]");
+
+                    if (!locker.enabled())
+                        responseDictionary.addInt32(SET_STATE, -1);
+					else if (pebbleDictionary.getInteger(GET_STATE) != null)
 						responseDictionary.addInt32(SET_STATE, getState(context, logger));
 					else if (pebbleDictionary.getInteger(SET_STATE) != null)
-						responseDictionary.addInt32(SET_STATE, setState(context, logger, (int) ((long) pebbleDictionary.getInteger(SET_STATE))));
+						responseDictionary.addInt32(SET_STATE, setState(context, logger, locker, (int) ((long) pebbleDictionary.getInteger(SET_STATE))));
 
 					if (responseDictionary.size() > 0) {
                         logger.log("Sending response to Pebble: " + responseDictionary.toJsonString());
@@ -68,19 +72,19 @@ public class PebbleRequestReceiver extends BroadcastReceiver {
 		return state;
 	}
 
-	private int setState(Context context, Logger logger, int state) {
+	private int setState(Context context, Logger logger, Locker locker, int state) {
         logger.log("Setting lock state: " + state);
 		getSharedPrefs(context).edit().putInt(ConnectionReceiver.LOCK_STATE, state).commit();
 
 		switch (state) {
 		case ConnectionReceiver.AUTO:
-			new Locker(context, "[MANUAL]").handleLocking();
+			locker.handleLocking();
 			break;
 		case ConnectionReceiver.MANUAL_UNLOCKED:
-			new Locker(context, "[MANUAL]").unlock();
+			locker.unlock();
 			break;
 		case ConnectionReceiver.MANUAL_LOCKED:
-			new Locker(context, "[MANUAL]").lock();
+			locker.lock();
 			break;
 		}
 

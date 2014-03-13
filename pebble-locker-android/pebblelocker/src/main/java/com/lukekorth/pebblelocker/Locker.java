@@ -27,14 +27,12 @@ public class Locker {
 	private Context mContext;
 	private SharedPreferences mPrefs;
 	private Logger mLogger;
-	private String mUniq;
 	private DevicePolicyManager mDPM;
 
 	public Locker(Context context, String tag) {
 		mContext = context;
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-		mLogger = new Logger(context);
-		mUniq = tag;
+		mLogger = new Logger(context, tag);
 		mDPM = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
 	}
 
@@ -63,7 +61,7 @@ public class Locker {
 		boolean passwordChanged = mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
 		mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).putBoolean(ConnectionReceiver.UNLOCK, false).commit();
 
-		mLogger.log(mUniq, "Successfully locked: " + passwordChanged);
+		mLogger.log("Successfully locked: " + passwordChanged);
 
 		if (forceLock && mPrefs.getBoolean("key_force_lock", false))
 			mDPM.lockNow();
@@ -77,7 +75,7 @@ public class Locker {
 
 		if (isDeviceOnLockscreen()) {
 			mPrefs.edit().putBoolean(ConnectionReceiver.UNLOCK, true).commit();
-			mLogger.log(mUniq, "Screen is on lockscreen, setting unlock true for future unlock");
+			mLogger.log("Screen is on lockscreen, setting unlock true for future unlock");
 		} else {
 			boolean passwordChanged = false;
 
@@ -86,51 +84,48 @@ public class Locker {
 
 				mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, false).commit();
 			} catch (IllegalArgumentException e) {
-                String password = mPrefs.getString("key_password", "");
+                boolean passwordReset = mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
 
-                if(!password.equals("")) {
-				    boolean passwordReset = mDPM.resetPassword(password, DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+                mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).commit();
 
-				    mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).commit();
-
-				    mLogger.log(mUniq, "There was an exception when setting the password to blank, setting it back. Successfully reset: " + passwordReset + " " + Log.getStackTraceString(e));
-                } else {
-                    mLogger.log(mUniq, "User's password is empty");
-                }
-			}
+                mLogger.log("There was an exception when setting the password to blank, setting it back. Successfully reset: " + passwordReset + " " + Log.getStackTraceString(e));
+            }
 
 			mPrefs.edit().putBoolean(ConnectionReceiver.UNLOCK, false).commit();
 
-			mLogger.log(mUniq, "Sucessfully unlocked: " + passwordChanged);
+			mLogger.log("Sucessfully unlocked: " + passwordChanged);
 		}
 
         sendBroadcast();
 	}
 
-	private boolean enabled() {
+	public boolean enabled() {
 		boolean activeAdmin = mDPM.isAdminActive(new ComponentName(mContext, CustomDeviceAdminReceiver.class));
 		boolean enabled = mPrefs.getBoolean("key_enable_locker", false);
+        boolean password = mPrefs.getString("key_password", "").equals("");
 
 		if (!activeAdmin)
-			mLogger.log(mUniq, "Not an active admin");
+			mLogger.log("Not an active admin");
 		if (!enabled)
-			mLogger.log(mUniq, "key_enable_locker is false");
+			mLogger.log("key_enable_locker is false");
+        if (!password)
+            mLogger.log("User's password is empty");
 
-		return activeAdmin && enabled;
+		return activeAdmin && enabled && password;
 	}
 
 	private boolean isDeviceOnLockscreen() {
 		boolean keyguard = ((KeyguardManager) mContext.getSystemService(Context.KEYGUARD_SERVICE)).inKeyguardRestrictedInputMode();
 		boolean screen = ((PowerManager) mContext.getSystemService(Context.POWER_SERVICE)).isScreenOn();
 
-		mLogger.log(mUniq, "Keyguard is showing: " + keyguard + " Screen is on: " + screen);
+		mLogger.log("Keyguard is showing: " + keyguard + " Screen is on: " + screen);
 
 		return keyguard && screen;
 	}
 
     private boolean isLocked(boolean defaultValue) {
         boolean locked = mPrefs.getBoolean(ConnectionReceiver.LOCKED, defaultValue);
-        mLogger.log(mUniq, "Locked: " + locked);
+        mLogger.log("Locked: " + locked);
 
         return locked;
     }
@@ -144,7 +139,7 @@ public class Locker {
 		boolean bluetooth = isTrustedBluetoothDeviceConnected();
 		boolean wifi = isTrustedWifiConnected();
 
-		mLogger.log(mUniq, "Pebble: " + pebble + " Bluetooth: " + bluetooth + " Wifi: " + wifi);
+		mLogger.log("Pebble: " + pebble + " Bluetooth: " + bluetooth + " Wifi: " + wifi);
 
 		return (pebble || bluetooth || wifi);
 	}
@@ -153,7 +148,7 @@ public class Locker {
 		if (mPrefs.getBoolean("pebble", true)) {
 			return checkPebbleConnectionStatus();
 		} else {
-			mLogger.log(mUniq, "Unlock via any Pebble is not enabled");
+			mLogger.log("Unlock via any Pebble is not enabled");
 			return false;
 		}
 	}
@@ -163,7 +158,7 @@ public class Locker {
 		try {
 			c = mContext.getApplicationContext().getContentResolver().query(Uri.parse("content://com.getpebble.android.provider/state"), null, null, null, null);
 		} catch (Exception e) {
-			mLogger.log(mUniq, "Exception getting Pebble connection status: " + e);
+			mLogger.log("Exception getting Pebble connection status: " + e);
 		}
 
 		if (c == null)
@@ -183,7 +178,7 @@ public class Locker {
 		ArrayList<String> connectedBluetoothDevices = new DatabaseHelper(mContext).connectedDevices();
 
 		for (String address : connectedBluetoothDevices) {
-			mLogger.log(mUniq, "Connected bluetooth address: " + address);
+			mLogger.log("Connected bluetooth address: " + address);
 
 			if (mPrefs.getBoolean(address, false))
 				return true;
@@ -217,7 +212,7 @@ public class Locker {
 		String ssid        = getConnectedWifiSsid();
 		String encodedSsid = WiFiNetworks.base64Encode(ssid);
 
-		mLogger.log(mUniq, "Wifi network " + ssid + " is connected: " + encodedSsid);
+		mLogger.log("Wifi network " + ssid + " is connected: " + encodedSsid);
 
 		if (mPrefs.getBoolean(encodedSsid, false))
 			return true;
@@ -231,10 +226,10 @@ public class Locker {
 			if (wifiInfo.getSSID() != null) {
 				return WiFiNetworks.stripQuotes(wifiInfo.getSSID());
 			} else {
-				mLogger.log(mUniq, "wifiInfo.getSSID is null");
+				mLogger.log("wifiInfo.getSSID is null");
 			}
 		} else {
-			mLogger.log(mUniq, "wifiInfo is null");
+			mLogger.log("wifiInfo is null");
 		}
 
 		return "";
