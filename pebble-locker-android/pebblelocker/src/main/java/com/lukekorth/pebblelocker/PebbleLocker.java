@@ -121,7 +121,7 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 				if(!mPrefs.getBoolean("donated", false))
 					requirePremiumPurchase();
 				else {
-					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://ofkorth.net/pebble/pebble-locker-1.pbw"));
+					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://ofkorth.net/pebble/pebble-locker-1.pbw"));
 				    startActivity(intent);
 				}
 
