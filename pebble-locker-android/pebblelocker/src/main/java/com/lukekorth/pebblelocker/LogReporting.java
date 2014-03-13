@@ -65,9 +65,9 @@ public class LogReporting {
 			}
 			
 			message.append("Android version: " + Build.VERSION.SDK_INT + "\n");
-            message.append("Device manufacturer:" + Build.MANUFACTURER);
-            message.append("Device model:" + Build.MODEL);
-            message.append("Device product:" + Build.PRODUCT);
+            message.append("Device manufacturer:" + Build.MANUFACTURER + "\n");
+            message.append("Device model:" + Build.MODEL + "\n");
+            message.append("Device product:" + Build.PRODUCT + "\n");
 			message.append("App version: " + lockerVersion  + "\n");
 			message.append("Pebble app version: " + pebbleVersion + "\n");
 			message.append("Minimum password length: " + minPasswordLength + "\n");
