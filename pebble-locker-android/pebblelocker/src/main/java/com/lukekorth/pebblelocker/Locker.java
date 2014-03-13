@@ -102,7 +102,7 @@ public class Locker {
 	public boolean enabled() {
 		boolean activeAdmin = mDPM.isAdminActive(new ComponentName(mContext, CustomDeviceAdminReceiver.class));
 		boolean enabled = mPrefs.getBoolean("key_enable_locker", false);
-        boolean password = mPrefs.getString("key_password", "").equals("");
+        boolean password = !(mPrefs.getString("key_password", "").equals(""));
 
 		if (!activeAdmin)
 			mLogger.log("Not an active admin");
