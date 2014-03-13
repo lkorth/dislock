@@ -14,9 +14,6 @@ int current_state = 0;
 
 void set_current_image() {
   switch(current_state) {
-	case -1:
-	  bitmap_layer_set_bitmap(image_layer, configure);
-	  text_layer_set_text(text_layer, "");
     case 0:
       bitmap_layer_set_bitmap(image_layer, auto_image);
       text_layer_set_text(text_layer, "Auto");
@@ -28,6 +25,10 @@ void set_current_image() {
     case 2:
       bitmap_layer_set_bitmap(image_layer, locked_image);
       text_layer_set_text(text_layer, "Locked");
+      break;
+    case 3:
+      bitmap_layer_set_bitmap(image_layer, configure);
+      text_layer_set_text(text_layer, "");
       break;
   }
 }

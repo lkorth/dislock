@@ -50,7 +50,7 @@ public class PebbleRequestReceiver extends BroadcastReceiver {
                     Locker locker = new Locker(context, "[MANUAL]");
 
                     if (!locker.enabled())
-                        responseDictionary.addInt32(SET_STATE, -1);
+                        responseDictionary.addInt32(SET_STATE, 3);
 					else if (pebbleDictionary.getInteger(GET_STATE) != null)
 						responseDictionary.addInt32(SET_STATE, getState(context, logger));
 					else if (pebbleDictionary.getInteger(SET_STATE) != null)
