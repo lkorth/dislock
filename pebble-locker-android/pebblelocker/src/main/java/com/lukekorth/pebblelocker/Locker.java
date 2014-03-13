@@ -44,7 +44,7 @@ public class Locker {
         boolean connectedToDeviceOrWifi = connectedToDeviceOrWifi();
 		if (connectedToDeviceOrWifi && isLocked(true))
 			unlock();
-		else if (!connectedToDeviceOrWifi && isLocked(false))
+		else if (!connectedToDeviceOrWifi && !isLocked(false))
 			lock(forceLock);
         else
             sendBroadcast();
