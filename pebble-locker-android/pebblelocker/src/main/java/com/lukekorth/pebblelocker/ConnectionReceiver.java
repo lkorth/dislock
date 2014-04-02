@@ -62,7 +62,23 @@ public class ConnectionReceiver extends BroadcastReceiver {
 				new Locker(context, mUniq).handleLocking();
 			}
 		} else {
-			mLogger.log(mUniq, "Lock state was manually set to " + lockState);
+            String lockStateString;
+            switch (lockState) {
+                case AUTO:
+                    lockStateString = "Auto";
+                    break;
+                case MANUAL_UNLOCKED:
+                    lockStateString = "Manual Unlocked";
+                    break;
+                case MANUAL_LOCKED:
+                    lockStateString = "Manual Locked";
+                    break;
+                default:
+                    lockStateString = "Error";
+                    break;
+            }
+
+			mLogger.log(mUniq, "Lock state was manually set to " + lockStateString);
 		}
 	}
 
