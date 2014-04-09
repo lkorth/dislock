@@ -165,7 +165,7 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
      * remind the user after we do it.
      */
     private void doResetPassword(String newPassword) {
-        if (alertIfMonkey(this, "You can't reset my password, you are a monkey!")) {
+        if (alertIfMonkey("You can't reset my password, you are a monkey!")) {
             return;
         }
         
@@ -313,7 +313,7 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
      * If the "user" is a monkey, post an alert and notify the caller.  This prevents automated
      * test frameworks from stumbling into annoying or dangerous operations.
      */
-    private boolean alertIfMonkey(Context context, String string) {
+    private boolean alertIfMonkey(String string) {
         if (ActivityManager.isUserAMonkey()) {
             showAlert(string);
             return true;
