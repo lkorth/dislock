@@ -75,6 +75,9 @@ public class PremiumFeatures extends PreferenceActivity implements IabHelper.Que
 	}
 
     public boolean hasPurchased() {
+        if(BuildConfig.DEBUG)
+            return true;
+
         return PreferenceManager.getDefaultSharedPreferences(this).getBoolean("donated", false);
     }
 
