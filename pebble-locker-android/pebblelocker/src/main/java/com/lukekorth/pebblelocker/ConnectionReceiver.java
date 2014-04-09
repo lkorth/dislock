@@ -62,27 +62,11 @@ public class ConnectionReceiver extends BroadcastReceiver {
 				new Locker(context, mUniq).handleLocking();
 			}
 		} else {
-            String lockStateString;
-            switch (lockState) {
-                case AUTO:
-                    lockStateString = "Auto";
-                    break;
-                case MANUAL_UNLOCKED:
-                    lockStateString = "Manual Unlocked";
-                    break;
-                case MANUAL_LOCKED:
-                    lockStateString = "Manual Locked";
-                    break;
-                default:
-                    lockStateString = "Error";
-                    break;
-            }
-
-			mLogger.log(mUniq, "Lock state was manually set to " + lockStateString);
+			mLogger.log(mUniq, "Lock state was manually set to " + getLockStateName(lockState));
 		}
 	}
 
-	private boolean isLocked(boolean defaultValue) {
+    private boolean isLocked(boolean defaultValue) {
 		boolean locked = mPrefs.getBoolean(LOCKED, defaultValue);
 		mLogger.log(mUniq, "Locked: " + locked);
 
@@ -120,4 +104,23 @@ public class ConnectionReceiver extends BroadcastReceiver {
 
 		return false;
 	}
+
+    private String getLockStateName(int lockState) {
+        String lockStateString;
+        switch (lockState) {
+            case AUTO:
+                lockStateString = "Auto";
+                break;
+            case MANUAL_UNLOCKED:
+                lockStateString = "Manual Unlocked";
+                break;
+            case MANUAL_LOCKED:
+                lockStateString = "Manual Locked";
+                break;
+            default:
+                lockStateString = "Error";
+                break;
+        }
+        return lockStateString;
+    }
 }
