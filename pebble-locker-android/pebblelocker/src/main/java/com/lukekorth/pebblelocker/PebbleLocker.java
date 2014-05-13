@@ -13,8 +13,6 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -212,7 +210,7 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
                     .setNegativeButton("Use anyway", new OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            mPrefs.edit().putBoolean("ignore_warning", true);
+                            mPrefs.edit().putBoolean("ignore_warning", true).commit();
                         }
                     })
                     .show();
@@ -309,7 +307,7 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 		}
 	}
 	
-	 /**
+	/**
      * If the "user" is a monkey, post an alert and notify the caller.  This prevents automated
      * test frameworks from stumbling into annoying or dangerous operations.
      */
