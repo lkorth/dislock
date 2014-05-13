@@ -29,7 +29,6 @@ import android.view.View;
 import android.widget.EditText;
 
 import fr.nicolaspomepuy.discreetapprate.AppRate;
-import fr.nicolaspomepuy.discreetapprate.AppRateTheme;
 import fr.nicolaspomepuy.discreetapprate.RetryPolicy;
 
 public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickListener {
@@ -140,7 +139,6 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
                 .text("Rate Pebble Locker")
                 .initialLaunchCount(3)
                 .retryPolicy(RetryPolicy.EXPONENTIAL)
-                .theme(AppRateTheme.LIGHT)
                 .checkAndShow();
 	}
 	
