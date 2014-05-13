@@ -92,10 +92,6 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 		mPassword.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 			@Override
 			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				// hack because we need the new password to be 
-				// sent in shared prefs before this method returns
-				mPrefs.edit().putString("key_password", newValue.toString()).commit();
-				
 				doResetPassword((String) newValue);
 				return true;
 			}
@@ -166,7 +162,15 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
         if (alertIfMonkey("You can't reset my password, you are a monkey!")) {
             return;
         }
-        
+
+        // hack because we need the new password to be
+        // sent in shared prefs before this method returns
+        mPrefs.edit().putString("key_password", newPassword).commit();
+
+        if(newPassword.length() == 0) {
+            new Logger(this).log("[USER]", "Password was set to empty");
+        }
+
         new Locker(this, "[USER_TRIGGERED]").handleLocking(false);
         
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
