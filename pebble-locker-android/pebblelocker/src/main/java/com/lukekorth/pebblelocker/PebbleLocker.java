@@ -116,9 +116,9 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 		mWatchApp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				if(!mPrefs.getBoolean("donated", false))
-					requirePremiumPurchase();
-				else {
+				if(!PebbleLocker.this.hasPurchased()) {
+                    requirePremiumPurchase();
+                } else {
 					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://ofkorth.net/pebble/pebble-locker-1.pbw"));
 				    startActivity(intent);
 				}
