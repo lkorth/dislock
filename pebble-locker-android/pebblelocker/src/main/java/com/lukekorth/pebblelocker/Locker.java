@@ -1,8 +1,5 @@
 package com.lukekorth.pebblelocker;
 
-import java.util.ArrayList;
-import java.util.Set;
-
 import android.app.KeyguardManager;
 import android.app.admin.DevicePolicyManager;
 import android.bluetooth.BluetoothAdapter;
@@ -21,6 +18,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.lukekorth.pebblelocker.PebbleLocker.CustomDeviceAdminReceiver;
+
+import java.util.ArrayList;
+import java.util.Set;
 
 public class Locker {
 
@@ -73,27 +73,29 @@ public class Locker {
 		if (!enabled())
 			return;
 
-		if (isDeviceOnLockscreen()) {
+		if (isDeviceOnLockscreen() && isScreenOn()) {
 			mPrefs.edit().putBoolean(ConnectionReceiver.UNLOCK, true).commit();
 			mLogger.log("Screen is on lockscreen, setting unlock true for future unlock");
 		} else {
 			boolean passwordChanged = false;
+            boolean screen = isScreenOn();
 
 			try {
 				passwordChanged = mDPM.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-
 				mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, false).commit();
 			} catch (IllegalArgumentException e) {
                 boolean passwordReset = mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-
                 mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).commit();
-
                 mLogger.log("There was an exception when setting the password to blank, setting it back. Successfully reset: " + passwordReset + " " + Log.getStackTraceString(e));
+            }
+
+            if(!screen && isScreenOn() && passwordChanged) {
+                mDPM.lockNow();
             }
 
 			mPrefs.edit().putBoolean(ConnectionReceiver.UNLOCK, false).commit();
 
-			mLogger.log("Sucessfully unlocked: " + passwordChanged);
+			mLogger.log("Successfully unlocked: " + passwordChanged);
 		}
 
         sendBroadcast();
@@ -116,12 +118,15 @@ public class Locker {
 
 	private boolean isDeviceOnLockscreen() {
 		boolean keyguard = ((KeyguardManager) mContext.getSystemService(Context.KEYGUARD_SERVICE)).inKeyguardRestrictedInputMode();
-		boolean screen = ((PowerManager) mContext.getSystemService(Context.POWER_SERVICE)).isScreenOn();
-
-		mLogger.log("Keyguard is showing: " + keyguard + " Screen is on: " + screen);
-
-		return keyguard && screen;
+		mLogger.log("Keyguard is showing: " + keyguard);
+		return keyguard;
 	}
+
+    private boolean isScreenOn() {
+        boolean screen = ((PowerManager) mContext.getSystemService(Context.POWER_SERVICE)).isScreenOn();
+        mLogger.log("Screen is on: " + screen);
+        return screen;
+    }
 
     private boolean isLocked(boolean defaultValue) {
         boolean locked = mPrefs.getBoolean(ConnectionReceiver.LOCKED, defaultValue);
