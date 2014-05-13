@@ -28,6 +28,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
+import fr.nicolaspomepuy.discreetapprate.AppRate;
+import fr.nicolaspomepuy.discreetapprate.AppRateTheme;
+import fr.nicolaspomepuy.discreetapprate.RetryPolicy;
+
 public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickListener {
 
 	private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
@@ -131,6 +135,13 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 		};
 		
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        AppRate.with(this)
+                .text("Rate Pebble Locker")
+                .initialLaunchCount(3)
+                .retryPolicy(RetryPolicy.EXPONENTIAL)
+                .theme(AppRateTheme.LIGHT)
+                .checkAndShow();
 	}
 	
 	public void onResume() {
