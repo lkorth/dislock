@@ -153,9 +153,11 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 		LocalBroadcastManager.getInstance(this)
 			.registerReceiver(mStatusReceiver, new IntentFilter(ConnectionReceiver.STATUS_CHANGED_INTENT));
 		
-		if(!mPrefs.getString("key_password", "").equals("") && timeStamp < (System.currentTimeMillis() - 60000) &&
-				mPrefs.getBoolean(ConnectionReceiver.LOCKED, true))
+		if(!mPrefs.getString("key_password", "").equals("") &&
+                timeStamp < (System.currentTimeMillis() - 60000) &&
+				mPrefs.getBoolean(ConnectionReceiver.LOCKED, true)) {
             requestPassword();
+        }
 	}
 	
 	public void onPause() {
@@ -198,12 +200,14 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 	@SuppressLint("NewApi")
 	private void checkForRequiredPasswordByOtherApps() {
 		int encryptionStatus = -1;
-		if(Build.VERSION.SDK_INT >= 11)
-			encryptionStatus = mDPM.getStorageEncryptionStatus();
+		if(Build.VERSION.SDK_INT >= 11) {
+            encryptionStatus = mDPM.getStorageEncryptionStatus();
+        }
 		
-		boolean encryptionEnabled = 
-				encryptionStatus == DevicePolicyManager.ENCRYPTION_STATUS_ACTIVATING || 
-				encryptionStatus == DevicePolicyManager.ENCRYPTION_STATUS_ACTIVE;
+		boolean encryptionEnabled = (
+                encryptionStatus == DevicePolicyManager.ENCRYPTION_STATUS_ACTIVATING ||
+				encryptionStatus == DevicePolicyManager.ENCRYPTION_STATUS_ACTIVE
+        );
 		
 		if((mDPM.getPasswordMinimumLength(null) > 0 || encryptionEnabled) && !mPrefs.getBoolean("ignore_warning", false)) {
 			String warning = "Your device is encrypted or there are other apps installed that require a password or pin to be set. " +
