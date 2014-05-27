@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.lukekorth.pebblelocker.util;
+package com.lukekorth.pebblelocker.billing;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.os.Handler;

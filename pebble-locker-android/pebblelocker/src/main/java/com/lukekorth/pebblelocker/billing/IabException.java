@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.lukekorth.pebblelocker.util;
+package com.lukekorth.pebblelocker.billing;
 
 /**
  * Exception thrown when something went wrong with in-app billing.

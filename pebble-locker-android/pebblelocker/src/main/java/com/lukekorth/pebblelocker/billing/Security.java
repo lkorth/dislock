@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.lukekorth.pebblelocker.util;
+package com.lukekorth.pebblelocker.billing;
 
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;

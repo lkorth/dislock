@@ -1,7 +1,5 @@
 package com.lukekorth.pebblelocker;
 
-import java.util.List;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,10 +11,11 @@ import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
-import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.provider.Settings;
 import android.util.Base64;
+
+import java.util.List;
 
 public class WiFiNetworks extends PreferenceActivity {
 

@@ -7,11 +7,11 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
-import com.lukekorth.pebblelocker.util.IabHelper;
-import com.lukekorth.pebblelocker.util.IabHelper.OnIabSetupFinishedListener;
-import com.lukekorth.pebblelocker.util.IabResult;
-import com.lukekorth.pebblelocker.util.Inventory;
-import com.lukekorth.pebblelocker.util.Purchase;
+import com.lukekorth.pebblelocker.billing.IabHelper;
+import com.lukekorth.pebblelocker.billing.IabHelper.OnIabSetupFinishedListener;
+import com.lukekorth.pebblelocker.billing.IabResult;
+import com.lukekorth.pebblelocker.billing.Inventory;
+import com.lukekorth.pebblelocker.billing.Purchase;
 
 import java.util.UUID;
 
