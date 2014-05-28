@@ -28,6 +28,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
+import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
+import com.lukekorth.pebblelocker.helpers.PebbleHelper;
+import com.lukekorth.pebblelocker.helpers.WifiHelper;
+
 import fr.nicolaspomepuy.discreetapprate.AppRate;
 import fr.nicolaspomepuy.discreetapprate.RetryPolicy;
 
@@ -184,11 +188,10 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 
         new Locker(this, "[USER_TRIGGERED]").handleLocking(false);
         
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        String message = getString(R.string.reset_password_warning, newPassword);
-        builder.setMessage(message);
-        builder.setPositiveButton("Don't Forget It!", null);
-        builder.show();
+        new AlertDialog.Builder(this)
+            .setMessage(getString(R.string.reset_password_warning, newPassword))
+            .setPositiveButton("Don't Forget It!", null)
+            .show();
     }
 	
 	private void enableOptions(boolean isEnabled) {
@@ -263,29 +266,17 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 			break;
 		}
 		
-		Locker locker = new Locker(this, "[LOADING_STATUS]");
-		String connectionStatus = "";
-		
-		if(locker.checkPebbleConnectionStatus())
-			connectionStatus += "Pebble watch connected";
-		else
-			connectionStatus += "Pebble watch disconnected";
-		
+        Logger logger = new Logger(this, "[LOADING-STATUS]");
+        StringBuilder connectionStatusBuilder = new StringBuilder();
+        connectionStatusBuilder.append(new PebbleHelper(this, logger).getConnectionStatus());
+
 		if(mPrefs.getBoolean("donated", false)) {
-			if(locker.isTrustedBluetoothDeviceConnected()) {
-				String deviceNames = locker.getConnectedBluetoothDeviceNames();
-				connectionStatus += "\n" + "Trusted bluetooth device connected \n\t" + deviceNames + "\n";
-			} else
-				connectionStatus += "\n" + "No trusted bluetooth device connected" + "\n";
-			
-			if(locker.isTrustedWifiConnected()) {
-				connectionStatus += "Trusted WiFi network connected \n\t(" + locker.getConnectedWifiSsid() + ")";
-			} else
-				connectionStatus += "No trusted WiFi network connected";
+            connectionStatusBuilder.append(new BluetoothHelper(this, logger).getConnectionStatus());
+            connectionStatusBuilder.append(new WifiHelper(this, logger).getConnectionStatus());
 		}
 		
 		mStatus.setTitle(statusMessage);
-		mStatus.setSummary(connectionStatus);
+		mStatus.setSummary(connectionStatusBuilder.toString());
 	}
 	
 	private void requestPassword() {
@@ -323,7 +314,26 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 	        requirePassword.show();
 		}
 	}
-	
+
+    @Override
+    public boolean onPreferenceClick(Preference preference) {
+        if(preference.getKey().equals("other_bluetooth_devices") || preference.getKey().equals("wifi")) {
+            if(!hasPurchased()) {
+                requirePremiumPurchase();
+            } else {
+                if(preference.getKey().equals("other_bluetooth_devices")) {
+                    startActivity(new Intent(this, BluetoothDevices.class));
+                } else {
+                    startActivity(new Intent(this, WiFiNetworks.class));
+                }
+            }
+        } else if(preference.getKey().equals("contact")) {
+            new LogReporting(PebbleLocker.this).collectAndSendLogs();
+        }
+
+        return true;
+    }
+
 	/**
      * If the "user" is a monkey, post an alert and notify the caller.  This prevents automated
      * test frameworks from stumbling into annoying or dangerous operations.
@@ -335,24 +345,6 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
         } else {
             return false;
         }
-    }
-
-    @Override
-    public boolean onPreferenceClick(Preference preference) {
-        if(preference.getKey().equals("other_bluetooth_devices") || preference.getKey().equals("wifi")) {
-            if(!hasPurchased()) {
-                requirePremiumPurchase();
-            } else {
-                if(preference.getKey().equals("other_bluetooth_devices"))
-                    startActivity(new Intent(this, BluetoothDevices.class));
-                else
-                    startActivity(new Intent(this, WiFiNetworks.class));
-            }
-        } else if(preference.getKey().equals("contact")) {
-            new LogReporting(PebbleLocker.this).collectAndSendLogs();
-        }
-
-        return true;
     }
 
     /**

@@ -1,38 +1,38 @@
 package com.lukekorth.pebblelocker;
 
-import android.app.KeyguardManager;
 import android.app.admin.DevicePolicyManager;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.net.Uri;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.os.PowerManager;
 import android.preference.PreferenceManager;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.lukekorth.pebblelocker.PebbleLocker.CustomDeviceAdminReceiver;
-
-import java.util.ArrayList;
-import java.util.Set;
+import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
+import com.lukekorth.pebblelocker.helpers.DeviceHelper;
+import com.lukekorth.pebblelocker.helpers.PebbleHelper;
+import com.lukekorth.pebblelocker.helpers.WifiHelper;
 
 public class Locker {
 
 	private Context mContext;
 	private SharedPreferences mPrefs;
-	private Logger mLogger;
+
+    private Logger mLogger;
+    private DeviceHelper mDeviceHelper;
+    private WifiHelper mWifiHelper;
+    private BluetoothHelper mBluetoothHelper;
+    private PebbleHelper mPebbleHelper;
 	private DevicePolicyManager mDPM;
 
 	public Locker(Context context, String tag) {
 		mContext = context;
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		mLogger = new Logger(context, tag);
+        mDeviceHelper = new DeviceHelper(context, mLogger);
+        mWifiHelper = new WifiHelper(context, mLogger);
+        mBluetoothHelper = new BluetoothHelper(context, mLogger);
+        mPebbleHelper = new PebbleHelper(context, mLogger);
 		mDPM = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
 	}
 
@@ -41,13 +41,14 @@ public class Locker {
 	}
 
 	public void handleLocking(boolean forceLock) {
-        boolean connectedToDeviceOrWifi = connectedToDeviceOrWifi();
-		if (connectedToDeviceOrWifi && isLocked(true))
-			unlock();
-		else if (!connectedToDeviceOrWifi && !isLocked(false))
-			lock(forceLock);
-        else
-            sendBroadcast();
+        boolean connectedToDeviceOrWifi = isConnectedToDeviceOrWifi();
+		if (connectedToDeviceOrWifi && mDeviceHelper.isLocked(true)) {
+            unlock();
+        } else if (!connectedToDeviceOrWifi && !mDeviceHelper.isLocked(false)) {
+            lock(forceLock);
+        } else {
+            mDeviceHelper.sendLockStatusChangedBroadcast();
+        }
 	}
 
 	public void lock() {
@@ -66,19 +67,19 @@ public class Locker {
 		if (forceLock && mPrefs.getBoolean("key_force_lock", false))
 			mDPM.lockNow();
 
-        sendBroadcast();
+        mDeviceHelper.sendLockStatusChangedBroadcast();
 	}
 
 	public void unlock() {
 		if (!enabled())
 			return;
 
-		if (isDeviceOnLockscreen() && isScreenOn()) {
+		if (mDeviceHelper.isOnLockscreen() && mDeviceHelper.isScreenOn()) {
 			mPrefs.edit().putBoolean(ConnectionReceiver.UNLOCK, true).commit();
 			mLogger.log("Screen is on lockscreen, setting unlock true for future unlock");
 		} else {
 			boolean passwordChanged = false;
-            boolean screen = isScreenOn();
+            boolean screen = mDeviceHelper.isScreenOn();
 
 			try {
 				passwordChanged = mDPM.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
@@ -89,7 +90,7 @@ public class Locker {
                 mLogger.log("There was an exception when setting the password to blank, setting it back. Successfully reset: " + passwordReset + " " + Log.getStackTraceString(e));
             }
 
-            if(!screen && isScreenOn() && passwordChanged) {
+            if(!screen && mDeviceHelper.isScreenOn() && passwordChanged) {
                 mDPM.lockNow();
             }
 
@@ -98,7 +99,7 @@ public class Locker {
 			mLogger.log("Successfully unlocked: " + passwordChanged);
 		}
 
-        sendBroadcast();
+        mDeviceHelper.sendLockStatusChangedBroadcast();
 	}
 
 	public boolean enabled() {
@@ -116,127 +117,13 @@ public class Locker {
 		return activeAdmin && enabled && password;
 	}
 
-	private boolean isDeviceOnLockscreen() {
-		boolean keyguard = ((KeyguardManager) mContext.getSystemService(Context.KEYGUARD_SERVICE)).inKeyguardRestrictedInputMode();
-		mLogger.log("Keyguard is showing: " + keyguard);
-		return keyguard;
-	}
-
-    private boolean isScreenOn() {
-        boolean screen = ((PowerManager) mContext.getSystemService(Context.POWER_SERVICE)).isScreenOn();
-        mLogger.log("Screen is on: " + screen);
-        return screen;
-    }
-
-    private boolean isLocked(boolean defaultValue) {
-        boolean locked = mPrefs.getBoolean(ConnectionReceiver.LOCKED, defaultValue);
-        mLogger.log("Locked: " + locked);
-
-        return locked;
-    }
-
-    private void sendBroadcast() {
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ConnectionReceiver.STATUS_CHANGED_INTENT));
-    }
-
-	public boolean connectedToDeviceOrWifi() {
-		boolean pebble = isPebbleWatchConnected();
-		boolean bluetooth = isTrustedBluetoothDeviceConnected();
-		boolean wifi = isTrustedWifiConnected();
+	public boolean isConnectedToDeviceOrWifi() {
+		boolean pebble = mPebbleHelper.isEnabledAndConnected();
+		boolean bluetooth = mBluetoothHelper.isTrustedDeviceConnected();
+		boolean wifi = mWifiHelper.isTrustedWifiConnected();
 
 		mLogger.log("Pebble: " + pebble + " Bluetooth: " + bluetooth + " Wifi: " + wifi);
 
 		return (pebble || bluetooth || wifi);
-	}
-
-	public boolean isPebbleWatchConnected() {
-		if (mPrefs.getBoolean("pebble", true)) {
-			return checkPebbleConnectionStatus();
-		} else {
-			mLogger.log("Unlock via any Pebble is not enabled");
-			return false;
-		}
-	}
-	
-	public boolean checkPebbleConnectionStatus() {
-		Cursor c = null;
-		try {
-			c = mContext.getApplicationContext().getContentResolver().query(Uri.parse("content://com.getpebble.android.provider/state"), null, null, null, null);
-		} catch (Exception e) {
-			mLogger.log("Exception getting Pebble connection status: " + e);
-		}
-
-		if (c == null)
-			return false;
-
-		if (!c.moveToNext()) {
-			c.close();
-			return false;
-		}
-
-		boolean connected = (c.getInt(0) == 1);
-		c.close();
-		return connected;
-	}
-
-	public boolean isTrustedBluetoothDeviceConnected() {
-		ArrayList<String> connectedBluetoothDevices = new DatabaseHelper(mContext).connectedDevices();
-
-		for (String address : connectedBluetoothDevices) {
-			mLogger.log("Connected bluetooth address: " + address);
-
-			if (mPrefs.getBoolean(address, false))
-				return true;
-		}
-
-		return false;
-	}
-	
-	public String getConnectedBluetoothDeviceNames() {
-		ArrayList<String> connectedBluetoothDevices = new DatabaseHelper(mContext).connectedDevices();
-		Set<BluetoothDevice> pairedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
-		
-		String deviceNames = "";
-		if (connectedBluetoothDevices.size() > 0 && pairedDevices.size() > 0) {
-			for (BluetoothDevice device : pairedDevices) {
-				if (connectedBluetoothDevices.contains(device.getAddress())) {
-					if(deviceNames.length() == 0)
-						deviceNames += "(";
-					deviceNames += device.getName() + ",";
-				}
-			}
-			
-			if(deviceNames.length() > 0)
-				deviceNames = deviceNames.substring(0, deviceNames.length() - 1) + ")";
-		}
-		
-		return deviceNames;
-	}
-
-	public boolean isTrustedWifiConnected() {
-		String ssid        = getConnectedWifiSsid();
-		String encodedSsid = WiFiNetworks.base64Encode(ssid);
-
-		mLogger.log("Wifi network " + ssid + " is connected: " + encodedSsid);
-
-		if (mPrefs.getBoolean(encodedSsid, false))
-			return true;
-
-		return false;
-	}
-
-	public String getConnectedWifiSsid() {
-		WifiInfo wifiInfo = ((WifiManager) mContext.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo();
-		if (wifiInfo != null) {
-			if (wifiInfo.getSSID() != null) {
-				return WiFiNetworks.stripQuotes(wifiInfo.getSSID());
-			} else {
-				mLogger.log("wifiInfo.getSSID is null");
-			}
-		} else {
-			mLogger.log("wifiInfo is null");
-		}
-
-		return "";
 	}
 }

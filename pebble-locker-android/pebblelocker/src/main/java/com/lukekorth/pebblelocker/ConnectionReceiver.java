@@ -1,7 +1,5 @@
 package com.lukekorth.pebblelocker;
 
-import java.util.UUID;
-
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -11,7 +9,10 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
-import android.support.v4.content.LocalBroadcastManager;
+
+import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
+
+import java.util.UUID;
 
 public class ConnectionReceiver extends BroadcastReceiver {
 
@@ -82,11 +83,9 @@ public class ConnectionReceiver extends BroadcastReceiver {
 
 	private void checkForBluetoothDevice(BluetoothDevice device) {
 		if (mAction.equals(BLUETOOTH_CONNECTED)) {
-			new DatabaseHelper(mContext).setStatus(device.getAddress(), true);
-			mLogger.log(mUniq, "Bluetooth device connected: " + device.getName() + " " + device.getAddress());
+			new BluetoothHelper(mContext, mLogger).setDeviceStatus(device.getName(), device.getAddress(), true);
 		} else if (mAction.equals(BLUETOOTH_DISCONNECTED)) {
-			new DatabaseHelper(mContext).setStatus(device.getAddress(), false);
-			mLogger.log(mUniq, "Bluetooth device disconnected: " + device.getName() + " " + device.getAddress());
+			new BluetoothHelper(mContext, mLogger).setDeviceStatus(device.getName(), device.getAddress(), false);
 		}
 	}
 

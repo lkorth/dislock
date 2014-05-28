@@ -1,21 +1,21 @@
 package com.lukekorth.pebblelocker;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.provider.Settings;
-import android.util.Base64;
+
+import com.lukekorth.pebblelocker.helpers.WifiHelper;
 
 import java.util.List;
+import java.util.Map;
 
 public class WiFiNetworks extends PreferenceActivity {
 
@@ -29,51 +29,37 @@ public class WiFiNetworks extends PreferenceActivity {
         inlinePrefCat.setTitle("WiFi Networks");
         root.addPreference(inlinePrefCat);
 
-        // List stored networks
-        List<WifiConfiguration> configs = ((WifiManager) getSystemService(Context.WIFI_SERVICE)).getConfiguredNetworks();
+        WifiHelper wifiHelper = new WifiHelper(this);
 
-        if (configs == null) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Wifi must be enabled to get a list of saved networks, please enable it before using this feature");
-            builder.setCancelable(false);
-            builder.setPositiveButton("Open Wifi Settings", new OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
-                }
-            });
-            builder.setNegativeButton("Cancel", new OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    WiFiNetworks.this.finish();
-                }
-            });
-            builder.show();
+        List<WifiConfiguration> networks = wifiHelper.getStoredNetworks();
+        if (networks == null) {
+            new AlertDialog.Builder(this)
+                .setMessage("Wifi must be enabled to get a list of saved networks, please enable it before using this feature")
+                .setCancelable(false)
+                .setPositiveButton("Open Wifi Settings", new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                    }
+                })
+                .setNegativeButton("Cancel", new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        WiFiNetworks.this.finish();
+                    }
+                })
+                .show();
         } else {
-            for (WifiConfiguration config : configs) {
-                String ssid = WiFiNetworks.stripQuotes(config.SSID);
-
-                if (ssid != null && ssid != "") {
-                    // Checkbox preference
-                    CheckBoxPreference checkboxPref = new CheckBoxPreference(this);
-                    checkboxPref.setKey(WiFiNetworks.base64Encode(ssid));
-                    checkboxPref.setTitle(ssid);
-                    inlinePrefCat.addPreference(checkboxPref);
-                }
+            Map<String, String> printableNetworks = wifiHelper.getPrintableNetworks();
+            for (Map.Entry<String, String> entry : printableNetworks.entrySet()) {
+                // Checkbox preference
+                CheckBoxPreference checkboxPref = new CheckBoxPreference(this);
+                checkboxPref.setKey(entry.getValue());
+                checkboxPref.setTitle(entry.getKey());
+                inlinePrefCat.addPreference(checkboxPref);
             }
 
             setPreferenceScreen(root);
         }
-    }
-
-    public static String stripQuotes(String input) {
-        if (input != null && input.startsWith("\"") && input.endsWith("\""))
-            return input.substring(1, input.length() - 1);
-        else
-            return input;
-    }
-
-    public static String base64Encode(String input) {
-        return Base64.encodeToString(input.getBytes(), Base64.DEFAULT).trim();
     }
 }
