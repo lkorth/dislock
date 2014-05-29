@@ -122,7 +122,7 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 				if(!PebbleLocker.this.hasPurchased()) {
                     requirePremiumPurchase();
                 } else {
-					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://ofkorth.net/pebble/pebble-locker-1.pbw"));
+					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("pebble://appstore/5386a0646189a1be8200007a"));
 				    startActivity(intent);
 				}
 
