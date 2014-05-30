@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 
 import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
@@ -31,6 +32,7 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	public  static final int    MANUAL_LOCKED          = 2;
 
 	private Context mContext;
+    private PowerManager.WakeLock mWakeLock;
 	private SharedPreferences mPrefs;
 	private Logger mLogger;
 	private String mUniq;
@@ -40,12 +42,15 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		mContext = context;
-		mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-		mLogger = new Logger(context);
-		mUniq = "[" + UUID.randomUUID().toString().split("-")[1] + "]";
+        mUniq = "[" + UUID.randomUUID().toString().split("-")[1] + "]";
+        mLogger = new Logger(context, mUniq);
+
+        acquireWakeLock();
+
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		mAction = intent.getAction().toLowerCase();
 
-		mLogger.log(mUniq, "ConnectionReceiver: " + mAction);
+		mLogger.log("ConnectionReceiver: " + mAction);
 
 		int lockState = mPrefs.getInt(LOCK_STATE, AUTO);
 		if (lockState == AUTO) {
@@ -53,19 +58,35 @@ public class ConnectionReceiver extends BroadcastReceiver {
 			boolean isWifiConnected = isWifiConnected();
 
 			if (mAction.equals(USER_PRESENT) && needToUnlock()) {
-				mLogger.log(mUniq, "User present and need to unlock...attempting to unlock");
+				mLogger.log("User present and need to unlock...attempting to unlock");
 				new Locker(context, mUniq).handleLocking();
 			} else if ((mAction.equals(PEBBLE_CONNECTED) || mAction.equals(BLUETOOTH_CONNECTED) || (mAction.equals(CONNECTIVITY_CHANGE) && isWifiConnected)) && isLocked(true)) {
-				mLogger.log(mUniq, "Attempting unlock");
+				mLogger.log("Attempting unlock");
 				new Locker(context, mUniq).handleLocking();
 			} else if ((mAction.equals(PEBBLE_DISCONNECTED) || mAction.equals(BLUETOOTH_DISCONNECTED) || (mAction.equals(CONNECTIVITY_CHANGE) && !isWifiConnected)) && !isLocked(false)) {
-				mLogger.log(mUniq, "Attempting lock");
+				mLogger.log("Attempting lock");
 				new Locker(context, mUniq).handleLocking();
 			}
 		} else {
-			mLogger.log(mUniq, "Lock state was manually set to " + getLockStateName(lockState));
+			mLogger.log("Lock state was manually set to " + getLockStateName(lockState));
 		}
+
+        releaseWakeLock();
 	}
+
+    private void acquireWakeLock() {
+        mWakeLock = ((PowerManager) mContext.getSystemService(Context.POWER_SERVICE))
+                .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "PebbleLockerConnectionReceiver");
+
+        mLogger.log("Acquiring wakelock");
+
+        mWakeLock.acquire();
+    }
+
+    private void releaseWakeLock() {
+        mLogger.log("Releasing wakelock");
+        mWakeLock.release();
+    }
 
     private boolean isLocked(boolean defaultValue) {
 		boolean locked = mPrefs.getBoolean(LOCKED, defaultValue);
