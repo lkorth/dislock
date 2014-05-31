@@ -94,6 +94,8 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
                 } else {
                     mDPM.removeActiveAdmin(mDeviceAdmin);
                     PebbleLocker.this.enableOptions(false);
+                    mEnable.setChecked(false);
+                    removePassword();
                     
                     return true;
                 }
@@ -112,10 +114,12 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 			@Override
 			public boolean onPreferenceChange(Preference preference, Object newValue) {
 				if(Boolean.parseBoolean(newValue.toString())) {
+                    enableLockOptions(true);
                     showAlert("Pebble Locker has been enabled, you must now set a password");
                 } else {
+                    enableLockOptions(false);
+                    removePassword();
                     showAlert("Pebble Locker has been disabled, your password has been cleared");
-                    mPassword.setText("");
                 }
 				
 				return true;
@@ -204,14 +208,37 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
         }
 
         new Locker(this, "[USER_TRIGGERED]").handleLocking(false);
-        
     }
-	
-	private void enableOptions(boolean isEnabled) {
-		mPassword.setEnabled(isEnabled);
-		mEnable.setEnabled(isEnabled);
-		mForceLock.setEnabled(isEnabled);
+
+    private void removePassword() {
+        mPassword.setText("");
+    }
+
+    private void checkForActiveAdmin() {
+        if(mDPM.isAdminActive(mDeviceAdmin)) {
+            mAdmin.setChecked(true);
+            enableOptions(true);
+
+            if (mPrefs.getBoolean("key_enable_locker", false)) {
+                enableLockOptions(true);
+            } else {
+                enableLockOptions(false);
+            }
+        } else {
+            mAdmin.setChecked(false);
+            enableOptions(false);
+        }
+    }
+
+    private void enableOptions(boolean enabled) {
+		mEnable.setEnabled(enabled);
+        enableLockOptions(enabled);
 	}
+
+    private void enableLockOptions(boolean enabled) {
+        mPassword.setEnabled(enabled);
+        mForceLock.setEnabled(enabled);
+    }
 	
 	@SuppressLint("NewApi")
 	private void checkForRequiredPasswordByOtherApps() {
@@ -248,16 +275,6 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
                         }
                     })
                     .show();
-		}
-	}
-	
-	private void checkForActiveAdmin() {
-		if(mDPM.isAdminActive(mDeviceAdmin)) {
-			mAdmin.setChecked(true);
-			enableOptions(true);
-		} else {
-			mAdmin.setChecked(false);
-			enableOptions(false);
 		}
 	}
 	
