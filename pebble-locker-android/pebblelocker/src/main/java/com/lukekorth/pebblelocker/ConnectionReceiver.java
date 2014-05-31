@@ -27,9 +27,6 @@ public class ConnectionReceiver extends BroadcastReceiver {
 	public  static final String LOCKED                 = "locked";
 	public  static final String UNLOCK                 = "unlock";
 	public  static final String LOCK_STATE             = "state";
-	public  static final int    AUTO                   = 0;
-	public  static final int    MANUAL_UNLOCKED        = 1;
-	public  static final int    MANUAL_LOCKED          = 2;
 
 	private Context mContext;
     private PowerManager.WakeLock mWakeLock;
@@ -52,8 +49,9 @@ public class ConnectionReceiver extends BroadcastReceiver {
 
 		mLogger.log("ConnectionReceiver: " + mAction);
 
-		int lockState = mPrefs.getInt(LOCK_STATE, AUTO);
-		if (lockState == AUTO) {
+		LockState lockState =
+                LockState.getInstance(mPrefs.getInt(LOCK_STATE, LockState.AUTO.getState()));
+		if (lockState == LockState.AUTO) {
 			checkForBluetoothDevice(((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)));
 			boolean isWifiConnected = isWifiConnected();
 
@@ -68,7 +66,7 @@ public class ConnectionReceiver extends BroadcastReceiver {
 				new Locker(context, mUniq).handleLocking();
 			}
 		} else {
-			mLogger.log("Lock state was manually set to " + getLockStateName(lockState));
+			mLogger.log("Lock state was manually set to " + lockState.getDisplayName());
 		}
 
         releaseWakeLock();
@@ -124,23 +122,4 @@ public class ConnectionReceiver extends BroadcastReceiver {
 
 		return false;
 	}
-
-    private String getLockStateName(int lockState) {
-        String lockStateString;
-        switch (lockState) {
-            case AUTO:
-                lockStateString = "Auto";
-                break;
-            case MANUAL_UNLOCKED:
-                lockStateString = "Manual Unlocked";
-                break;
-            case MANUAL_LOCKED:
-                lockStateString = "Manual Locked";
-                break;
-            default:
-                lockStateString = "Error";
-                break;
-        }
-        return lockStateString;
-    }
 }

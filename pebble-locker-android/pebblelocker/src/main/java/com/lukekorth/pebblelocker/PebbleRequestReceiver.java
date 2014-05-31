@@ -1,18 +1,16 @@
 package com.lukekorth.pebblelocker;
 
-import java.util.UUID;
-
-import org.json.JSONException;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import com.getpebble.android.kit.Constants;
 import com.getpebble.android.kit.PebbleKit;
 import com.getpebble.android.kit.util.PebbleDictionary;
+
+import org.json.JSONException;
+
+import java.util.UUID;
 
 public class PebbleRequestReceiver extends BroadcastReceiver {
 
@@ -22,7 +20,8 @@ public class PebbleRequestReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-        Logger logger = new Logger(context, "[" + UUID.randomUUID().toString().split("-")[1] + "]");
+        String tag = "[" + UUID.randomUUID().toString().split("-")[1] + "]";
+        Logger logger = new Logger(context, tag);
 
         UUID uuid = (UUID) intent.getSerializableExtra(Constants.APP_UUID);
 
@@ -47,51 +46,31 @@ public class PebbleRequestReceiver extends BroadcastReceiver {
 					PebbleDictionary pebbleDictionary = PebbleDictionary.fromJson(data);
 					PebbleDictionary responseDictionary = new PebbleDictionary();
 
-                    Locker locker = new Locker(context, "[MANUAL]");
-
-                    if (!locker.enabled())
+                    if (!new Locker(context, tag).enabled()) {
                         responseDictionary.addInt32(SET_STATE, 3);
-					else if (pebbleDictionary.getInteger(GET_STATE) != null)
-						responseDictionary.addInt32(SET_STATE, getState(context, logger));
-					else if (pebbleDictionary.getInteger(SET_STATE) != null)
-						responseDictionary.addInt32(SET_STATE, setState(context, logger, locker, (int) ((long) pebbleDictionary.getInteger(SET_STATE))));
+                    } else if (pebbleDictionary.getInteger(GET_STATE) != null) {
+                        responseDictionary.addInt32(SET_STATE, getState(context, logger));
+                    } else if (pebbleDictionary.getInteger(SET_STATE) != null) {
+                        int state = (int) ((long) pebbleDictionary.getInteger(SET_STATE));
+                        responseDictionary.addInt32(SET_STATE,
+                                LockState.setCurrentState(context, logger, true, state).getState());
+                    }
 
 					if (responseDictionary.size() > 0) {
                         logger.log("Sending response to Pebble: " + responseDictionary.toJsonString());
                         PebbleKit.sendDataToPebble(context, PEBBLE_APP_UUID, responseDictionary);
                     }
-				} catch (JSONException e) {}
+				} catch (JSONException e) {
+                    logger.log("JSON exception will handling Pebble request");
+                }
 			}
 		}
 	}
 
 	private int getState(Context context, Logger logger) {
-        int state = getSharedPrefs(context).getInt(ConnectionReceiver.LOCK_STATE, ConnectionReceiver.AUTO);
-        logger.log("Getting current lock state: " + state);
+        LockState state = LockState.getCurrentState(context);
+        logger.log("Getting current lock state: " + state.getDisplayName());
 
-		return state;
-	}
-
-	private int setState(Context context, Logger logger, Locker locker, int state) {
-        logger.log("Setting lock state: " + state);
-		getSharedPrefs(context).edit().putInt(ConnectionReceiver.LOCK_STATE, state).commit();
-
-		switch (state) {
-		case ConnectionReceiver.AUTO:
-			locker.handleLocking();
-			break;
-		case ConnectionReceiver.MANUAL_UNLOCKED:
-			locker.unlock();
-			break;
-		case ConnectionReceiver.MANUAL_LOCKED:
-			locker.lock();
-			break;
-		}
-
-		return state;
-	}
-
-	private SharedPreferences getSharedPrefs(Context context) {
-		return PreferenceManager.getDefaultSharedPreferences(context);
+		return state.getState();
 	}
 }

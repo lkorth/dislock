@@ -139,6 +139,16 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 				return true;
 			}
 		});
+
+        mStatus.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                LockState.switchToNextState(PebbleLocker.this,
+                        new Logger(PebbleLocker.this, "[IN_APP_MANUAL]"), false);
+                updateStatus();
+                return true;
+            }
+        });
 		
 		mStatusReceiver = new BroadcastReceiver() {
 			@Override
@@ -279,24 +289,19 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 	}
 	
 	private void updateStatus() {
-		int lockState = mPrefs.getInt(ConnectionReceiver.LOCK_STATE, ConnectionReceiver.AUTO);
+		LockState lockState = LockState.getCurrentState(this);
 		String statusMessage = "";
-		
-		switch(lockState) {
-		case ConnectionReceiver.AUTO:
-			if(mPrefs.getBoolean(ConnectionReceiver.LOCKED, false))
-				statusMessage = "Locked (Automatic)";
-			else
-				statusMessage = "Unlocked (Automatic)";
-			break;
-		case ConnectionReceiver.MANUAL_UNLOCKED:
-			statusMessage = "Manually unlocked via watch app";
-			break;
-		case ConnectionReceiver.MANUAL_LOCKED:
-			statusMessage = "Manually locked via watch app";
-			break;
-		}
-		
+
+        if (lockState == LockState.AUTO) {
+            if(mPrefs.getBoolean(ConnectionReceiver.LOCKED, false)) {
+                statusMessage = "Locked (Automatic)";
+            } else {
+                statusMessage = "Unlocked (Automatic)";
+            }
+        } else {
+            statusMessage = lockState.getDisplayName();
+        }
+
         Logger logger = new Logger(this, "[LOADING-STATUS]");
         StringBuilder connectionStatusBuilder = new StringBuilder();
         connectionStatusBuilder.append(new PebbleHelper(this, logger).getConnectionStatus());
@@ -305,6 +310,8 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
             connectionStatusBuilder.append(new BluetoothHelper(this, logger).getConnectionStatus());
             connectionStatusBuilder.append(new WifiHelper(this, logger).getConnectionStatus());
 		}
+
+        connectionStatusBuilder.append("\nClick to change");
 		
 		mStatus.setTitle(statusMessage);
 		mStatus.setSummary(connectionStatusBuilder.toString());
