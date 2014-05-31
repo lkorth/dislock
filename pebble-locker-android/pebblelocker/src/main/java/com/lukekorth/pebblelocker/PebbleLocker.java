@@ -61,7 +61,9 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.layout.main);
-		
+
+        checkForPreviousPurchases();
+
 		mStatus    = findPreference("visible_status");
 		mAdmin     = (CheckBoxPreference) findPreference("key_enable_admin");
 		mPassword  = (EditTextPreference) findPreference("key_password");
@@ -156,7 +158,6 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
         mPrefs.registerOnSharedPreferenceChangeListener(this);
 
 		checkForRequiredPasswordByOtherApps();
-		checkForPreviousPurchases();
 		checkForActiveAdmin();
 		updateStatus();
 		
