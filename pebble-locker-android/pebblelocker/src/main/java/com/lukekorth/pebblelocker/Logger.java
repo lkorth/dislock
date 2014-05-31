@@ -1,8 +1,5 @@
 package com.lukekorth.pebblelocker;
 
-import java.sql.Timestamp;
-import java.util.Date;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -10,9 +7,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 public class Logger extends SQLiteOpenHelper {
 
-    private String mTag;
+    private String mTag = "[NO_TAG]";
 	
     public Logger(Context context) {
     	super(context, "pebble-locker-logger", null, BuildConfig.VERSION_CODE);

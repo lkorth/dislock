@@ -24,6 +24,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -35,7 +36,8 @@ import com.lukekorth.pebblelocker.helpers.WifiHelper;
 import fr.nicolaspomepuy.discreetapprate.AppRate;
 import fr.nicolaspomepuy.discreetapprate.RetryPolicy;
 
-public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickListener {
+public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickListener,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
 	
@@ -148,7 +150,9 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 	
 	public void onResume() {
 		super.onResume();
-		
+
+        mPrefs.registerOnSharedPreferenceChangeListener(this);
+
 		checkForRequiredPasswordByOtherApps();
 		checkForPreviousPurchases();
 		checkForActiveAdmin();
@@ -166,7 +170,9 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 	
 	public void onPause() {
 		super.onPause();
-		LocalBroadcastManager.getInstance(this).unregisterReceiver(mStatusReceiver);
+
+        mPrefs.unregisterOnSharedPreferenceChangeListener(this);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mStatusReceiver);
 	}
 	
 	/**
@@ -332,6 +338,22 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
         }
 
         return true;
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        String message;
+        if (key.equals("key_password")) {
+            if (TextUtils.isEmpty(sharedPreferences.getString("key_password", ""))) {
+                message = "User changed their password to empty";
+            } else {
+                message = "User changed their password";
+            }
+        } else {
+            message = "User changed " + key;
+        }
+
+        new Logger(this, "[SETTINGS_CHANGED]").log(message);
     }
 
 	/**
