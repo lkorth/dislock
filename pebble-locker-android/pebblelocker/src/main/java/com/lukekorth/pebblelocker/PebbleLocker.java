@@ -109,10 +109,12 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 		mEnable.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 			@Override
 			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				if(Boolean.parseBoolean(newValue.toString()))
-					showAlert("Pebble Locker is enabled, please set your password");
-				else
-					mPrefs.edit().putString("key_password", "").commit();
+				if(Boolean.parseBoolean(newValue.toString())) {
+                    showAlert("Pebble Locker has been enabled, you must now set a password");
+                } else {
+                    showAlert("Pebble Locker has been disabled, your password has been cleared");
+                    mPassword.setText("");
+                }
 				
 				return true;
 			}
@@ -185,7 +187,7 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
         }
 
         // hack because we need the new password to be
-        // sent in shared prefs before this method returns
+        // set in shared prefs before this method returns
         mPrefs.edit().putString("key_password", newPassword).commit();
 
         if(newPassword.length() == 0) {
@@ -195,6 +197,7 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
         new Locker(this, "[USER_TRIGGERED]").handleLocking(false);
         
         new AlertDialog.Builder(this)
+            .setCancelable(false)
             .setMessage(getString(R.string.reset_password_warning, newPassword))
             .setPositiveButton("Don't Forget It!", null)
             .show();
@@ -227,6 +230,7 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 
             new AlertDialog.Builder(this)
                     .setMessage(warning)
+                    .setCancelable(false)
                     .setPositiveButton("Do not use", new OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {

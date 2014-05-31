@@ -128,6 +128,7 @@ public class PremiumFeatures extends PreferenceActivity {
 	public void showAlert(String message, OnClickListener onClickListener) {
 		new AlertDialog.Builder(this)
             .setMessage(message)
+            .setCancelable(false)
             .setPositiveButton("Ok", onClickListener)
             .show();
 	}
