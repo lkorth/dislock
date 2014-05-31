@@ -192,15 +192,18 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 
         if(newPassword.length() == 0) {
             new Logger(this).log("[USER]", "Password was set to empty");
+            mEnable.setChecked(false);
+            showAlert("Your password has been removed and Pebble Locker has been disabled");
+        } else {
+            new AlertDialog.Builder(this)
+                    .setCancelable(false)
+                    .setMessage(getString(R.string.reset_password_warning, newPassword))
+                    .setPositiveButton("Don't Forget It!", null)
+                    .show();
         }
 
         new Locker(this, "[USER_TRIGGERED]").handleLocking(false);
         
-        new AlertDialog.Builder(this)
-            .setCancelable(false)
-            .setMessage(getString(R.string.reset_password_warning, newPassword))
-            .setPositiveButton("Don't Forget It!", null)
-            .show();
     }
 	
 	private void enableOptions(boolean isEnabled) {
