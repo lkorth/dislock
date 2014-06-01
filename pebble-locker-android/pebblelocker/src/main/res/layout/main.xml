@@ -35,6 +35,12 @@
             android:key="key_force_lock"
             android:title="Turn off screen on disconnect"
             android:summary="Turn off the screen when your device disconnects from a trusted watch, bluetooth device or WiFi network" />
+
+        <ListPreference
+            android:key="key_grace_period"
+            android:title="Grace Period"
+            android:entries="@array/grace_period_entries"
+            android:entryValues="@array/grace_period_entry_values" />
     </PreferenceCategory>
     
     <PreferenceCategory

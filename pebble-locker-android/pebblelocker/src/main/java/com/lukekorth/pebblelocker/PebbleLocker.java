@@ -18,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
@@ -49,6 +50,7 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 	private EditTextPreference mPassword;
 	private CheckBoxPreference mEnable;
 	private CheckBoxPreference mForceLock;
+    private ListPreference     mGracePeriod;
 	private Preference         mWatchApp;
 	
 	private SharedPreferences mPrefs;
@@ -69,6 +71,7 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 		mPassword  = (EditTextPreference) findPreference("key_password");
 		mEnable    = (CheckBoxPreference) findPreference("key_enable_locker");
 		mForceLock = (CheckBoxPreference) findPreference("key_force_lock");
+        mGracePeriod = (ListPreference) findPreference("key_grace_period");
 		mWatchApp  = findPreference("pebble_watch_app");
 		
 		mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
@@ -125,6 +128,17 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 				return true;
 			}
 		});
+
+        mGracePeriod.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                // Save early so we can use it before returning
+                mPrefs.edit().putString("key_grace_period", newValue.toString()).commit();
+                setGracePeriodSummary();
+
+                return true;
+            }
+        });
 		
 		mWatchApp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			@Override
@@ -173,8 +187,9 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 
 		checkForRequiredPasswordByOtherApps();
 		checkForActiveAdmin();
-		updateStatus();
-		
+        setGracePeriodSummary();
+
+        updateStatus();
 		LocalBroadcastManager.getInstance(this)
 			.registerReceiver(mStatusReceiver, new IntentFilter(ConnectionReceiver.STATUS_CHANGED_INTENT));
 		
@@ -316,6 +331,21 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 		mStatus.setTitle(statusMessage);
 		mStatus.setSummary(connectionStatusBuilder.toString());
 	}
+
+    private void setGracePeriodSummary() {
+        String seconds = mPrefs.getString("key_grace_period", "2");
+
+        String time;
+        if (seconds.equals("0")) {
+            time = "instantly";
+        } else if (seconds.equals("60")) {
+           time = "1 minute";
+        } else {
+            time = seconds + " seconds";
+        }
+
+        mGracePeriod.setSummary("Lock " + time + " after disconnection");
+    }
 	
 	private void requestPassword() {
 		if(requirePassword == null || !requirePassword.isShowing()) {

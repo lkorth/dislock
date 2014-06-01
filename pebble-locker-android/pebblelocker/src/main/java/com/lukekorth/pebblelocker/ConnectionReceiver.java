@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 
 import com.lukekorth.pebblelocker.helpers.BaseBroadcastReceiver;
@@ -53,7 +54,7 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 				new Locker(context, mTag).handleLocking();
 			} else if ((mAction.equals(PEBBLE_DISCONNECTED) || mAction.equals(BLUETOOTH_DISCONNECTED) || (mAction.equals(CONNECTIVITY_CHANGE) && !isWifiConnected)) && !isLocked(false)) {
 				mLogger.log("Attempting lock");
-				new Locker(context, mTag).handleLocking();
+                lockWithDelay();
 			}
 		} else {
 			mLogger.log("Lock state was manually set to " + lockState.getDisplayName());
@@ -61,6 +62,18 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 
         releaseWakeLock();
 	}
+
+    private void lockWithDelay() {
+        int delay = Integer.parseInt(mPrefs.getString("key_grace_period", "2"));
+
+        if (delay != 0) {
+            mLogger.log("Sleeping for " + delay + " seconds");
+            SystemClock.sleep(delay * 1000);
+        }
+
+        mLogger.log("Locking...");
+        new Locker(mContext, mTag).handleLocking();
+    }
 
     private boolean isLocked(boolean defaultValue) {
 		boolean locked = mPrefs.getBoolean(LOCKED, defaultValue);
