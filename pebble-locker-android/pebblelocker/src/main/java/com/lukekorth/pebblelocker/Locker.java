@@ -107,12 +107,15 @@ public class Locker {
 		boolean enabled = mPrefs.getBoolean("key_enable_locker", false);
         boolean password = !(mPrefs.getString("key_password", "").equals(""));
 
-		if (!activeAdmin)
-			mLogger.log("Not an active admin");
-		if (!enabled)
-			mLogger.log("key_enable_locker is false");
-        if (!password)
+		if (!activeAdmin) {
+            mLogger.log("Not an active admin");
+        }
+		if (!enabled) {
+            mLogger.log("key_enable_locker is false");
+        }
+        if (!password) {
             mLogger.log("User's password is empty");
+        }
 
 		return activeAdmin && enabled && password;
 	}
