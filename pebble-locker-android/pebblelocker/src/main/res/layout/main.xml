@@ -20,17 +20,17 @@
     
     <PreferenceCategory
         android:title="Options" >
-        
-        <EditTextPreference
-            android:key="key_password"
-            android:title="Pin/Password"
-            android:dialogTitle="Set your pin or password" />
-        
+
         <CheckBoxPreference
             android:key="key_enable_locker"
             android:title="Enable Pebble Locker"
             android:summary="Lock or unlock your phone based on your device's connection status" />
-        
+
+        <EditTextPreference
+            android:key="key_password"
+            android:title="Pin/Password"
+            android:dialogTitle="Set your pin or password" />
+
         <CheckBoxPreference
             android:key="key_force_lock"
             android:title="Turn off screen on disconnect"
