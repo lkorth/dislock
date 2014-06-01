@@ -36,6 +36,19 @@ public class Locker {
 		mDPM = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
 	}
 
+    public Locker(Context context, String tag, DeviceHelper deviceHelper, WifiHelper wifiHelper,
+                  BluetoothHelper bluetoothHelper, PebbleHelper pebbleHelper,
+                  DevicePolicyManager dpm) {
+        mContext = context;
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        mLogger = new Logger(context, tag);
+        mDeviceHelper = deviceHelper;
+        mWifiHelper = wifiHelper;
+        mBluetoothHelper = bluetoothHelper;
+        mPebbleHelper = pebbleHelper;
+        mDPM = dpm;
+    }
+
 	public void handleLocking() {
 		handleLocking(true);
 	}

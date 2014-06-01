@@ -37,6 +37,10 @@ dependencies {
     compile 'com.android.support:appcompat-v7:+'
     compile project(':libraries:PebbleKit')
     compile 'fr.nicolaspomepuy:discreetapprate:2.0+@aar'
+
+    androidTestCompile 'org.mockito:mockito-core:1.9.5'
+    androidTestCompile 'com.google.dexmaker:dexmaker:1.1'
+    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.1'
 }
 
 
