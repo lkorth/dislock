@@ -5,14 +5,13 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 
 import com.lukekorth.pebblelocker.helpers.BaseBroadcastReceiver;
 import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
+import com.lukekorth.pebblelocker.helpers.WifiHelper;
 
 public class ConnectionReceiver extends BaseBroadcastReceiver {
 
@@ -47,7 +46,7 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
                 LockState.getInstance(mPrefs.getInt(LOCK_STATE, LockState.AUTO.getState()));
 		if (lockState == LockState.AUTO) {
 			checkForBluetoothDevice(((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)));
-			boolean isWifiConnected = isWifiConnected();
+			boolean isWifiConnected = new WifiHelper(context, mLogger).isTrustedWifiConnected();
 
 			if (mAction.equals(USER_PRESENT) && deviceHelper.isUnlockNeeded()) {
 				mLogger.log("User present and need to unlock...attempting to unlock");
@@ -87,20 +86,5 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 		} else if (mAction.equals(BLUETOOTH_DISCONNECTED)) {
 			new BluetoothHelper(mContext, mLogger).setDeviceStatus(device.getName(), device.getAddress(), false);
 		}
-	}
-
-	private boolean isWifiConnected() {
-		NetworkInfo networkInfo = ((ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
-		if (networkInfo != null) {
-			if (networkInfo.isConnected() && networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-				return true;
-			} else {
-				mLogger.log("Network is not connected to wifi");
-			}
-		} else {
-			mLogger.log("NetworkInfo is null");
-		}
-
-		return false;
 	}
 }
