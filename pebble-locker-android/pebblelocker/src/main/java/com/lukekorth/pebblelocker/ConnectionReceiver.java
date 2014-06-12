@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 
 import com.lukekorth.pebblelocker.helpers.BaseBroadcastReceiver;
 import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
+import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 
 public class ConnectionReceiver extends BaseBroadcastReceiver {
 
@@ -34,6 +35,8 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
         acquireWakeLock();
+
+        new DeviceHelper(context, mLogger).sendLockStatusChangedBroadcast();
 
         mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		mAction = intent.getAction().toLowerCase();

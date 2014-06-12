@@ -59,8 +59,6 @@ public class Locker {
             unlock();
         } else if (!connectedToDeviceOrWifi && !mDeviceHelper.isLocked(false)) {
             lock(forceLock);
-        } else {
-            mDeviceHelper.sendLockStatusChangedBroadcast();
         }
 	}
 
