@@ -49,6 +49,66 @@ public class LockerTest extends AndroidTestCase {
         mPrefs.edit().clear().commit();
     }
 
+    public void testHandleLockingDefaultsToForceLocking() {
+        setEnabled();
+        mPrefs.edit().putBoolean("key_force_lock", true).commit();
+
+        mLocker.handleLocking();
+
+        verify(mDPM, times(1)).lockNow();
+    }
+
+    public void testHandleLockingProxiesForceLockOption() {
+        setEnabled();
+        mPrefs.edit().putBoolean("key_force_lock", true).commit();
+
+        mLocker.handleLocking(false);
+        verify(mDPM, never()).lockNow();
+
+        mLocker.handleLocking(true);
+        verify(mDPM, times(1)).lockNow();
+    }
+
+    public void testHandleLockingUnlocksWhenConnectedAndLocked() {
+        setEnabled();
+        setConnected(true);
+        when(mDeviceHelper.isLocked(true)).thenReturn(true);
+
+        mLocker.handleLocking();
+
+        verify(mDPM, times(1)).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+    }
+
+    public void testHandleLockingDoesNotExcessivelyUnlock() {
+        setEnabled();
+        setConnected(true);
+        when(mDeviceHelper.isLocked(true)).thenReturn(false);
+
+        mLocker.handleLocking();
+
+        verify(mDPM, never()).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+    }
+
+    public void testHandleLockingLocksWhenNotConnectedAndNotLocked() {
+        setEnabled();
+        setConnected(false);
+        when(mDeviceHelper.isLocked(false)).thenReturn(false);
+
+        mLocker.handleLocking();
+
+        verify(mDPM, times(1)).resetPassword("1234", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+    }
+
+    public void testHandleLockingDoesNotExcessivelyLock() {
+        setEnabled();
+        setConnected(false);
+        when(mDeviceHelper.isLocked(false)).thenReturn(true);
+
+        mLocker.handleLocking();
+
+        verify(mDPM, never()).resetPassword("1234", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+    }
+
     public void testLockReturnsEarlyIfNotEnabled() {
         mLocker.lock();
 
@@ -105,6 +165,57 @@ public class LockerTest extends AndroidTestCase {
         verify(mDPM, times(1)).lockNow();
     }
 
+    public void testUnlockReturnsEarlyIfNotEnabled() {
+        mLocker.unlock();
+
+        verify(mDPM, never()).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+    }
+
+    public void testSetsNeedToUnlockToTrueWhenScreenIsOnAndOnLockscreen() {
+        setEnabled();
+
+        when(mDeviceHelper.isOnLockscreen()).thenReturn(true);
+        when(mDeviceHelper.isScreenOn()).thenReturn(true);
+
+        mLocker.unlock();
+
+        assertTrue(mPrefs.getBoolean(ConnectionReceiver.UNLOCK, false));
+        verify(mDPM, never()).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+        verify(mDeviceHelper, times(1)).sendLockStatusChangedBroadcast();
+    }
+
+    public void testUnlockUnlocksAndSendsBroadcast() {
+        setEnabled();
+
+        mLocker.unlock();
+
+        verify(mDPM, times(1)).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+        assertFalse(mPrefs.getBoolean(ConnectionReceiver.UNLOCK, true));
+        verify(mDeviceHelper, times(1)).sendLockStatusChangedBroadcast();
+    }
+
+    public void testUnlockRestoresPasswordWhenUnlockFails() {
+        setEnabled();
+        when(mDPM.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY)).thenThrow(new IllegalArgumentException());
+
+        mLocker.unlock();
+
+        verify(mDPM, times(1)).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+        verify(mDPM, times(1)).resetPassword("1234", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+    }
+
+    public void testUnlockTurnsOffScreenIfItWasTurnedOnDuringUnlock() {
+        setEnabled();
+        when(mDeviceHelper.isOnLockscreen()).thenReturn(true);
+        when(mDeviceHelper.isScreenOn()).thenReturn(false).thenReturn(false).thenReturn(true);
+        when(mDPM.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY)).thenReturn(true);
+
+        mLocker.unlock();
+
+        verify(mDPM, times(1)).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+        verify(mDPM, times(1)).lockNow();
+    }
+
     public void testEnabledIsTrueWhenAllConditionsAreMet() {
         setEnabled();
         assertTrue(mLocker.enabled());
@@ -146,5 +257,9 @@ public class LockerTest extends AndroidTestCase {
         when(mDPM.isAdminActive(new ComponentName(mContext, PebbleLocker.CustomDeviceAdminReceiver.class))).thenReturn(true);
         mPrefs.edit().putBoolean("key_enable_locker", true).commit();
         mPrefs.edit().putString("key_password", "1234").commit();
+    }
+
+    private void setConnected(boolean connected) {
+        when(mPebbleHelper.isEnabledAndConnected()).thenReturn(connected);
     }
 }
