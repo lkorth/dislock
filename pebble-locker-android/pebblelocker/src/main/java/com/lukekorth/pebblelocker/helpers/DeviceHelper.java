@@ -12,12 +12,10 @@ import com.lukekorth.pebblelocker.Logger;
 
 public class DeviceHelper {
 
+    public static final String NEED_TO_UNLOCK_KEY = "unlock";
+
     private Context mContext;
     private Logger mLogger;
-
-    public DeviceHelper(Context context) {
-        mContext = context;
-    }
 
     public DeviceHelper(Context context, Logger logger) {
         mContext = context;
@@ -43,6 +41,14 @@ public class DeviceHelper {
                 .getBoolean(ConnectionReceiver.LOCKED, defaultState);
         mLogger.log("Locked: " + locked);
         return locked;
+    }
+
+    public boolean isUnlockNeeded() {
+        boolean needToUnlock = PreferenceManager.getDefaultSharedPreferences(mContext)
+                .getBoolean(NEED_TO_UNLOCK_KEY, true);
+        mLogger.log("Need to unlock: " + needToUnlock);
+
+        return needToUnlock;
     }
 
     public void sendLockStatusChangedBroadcast() {

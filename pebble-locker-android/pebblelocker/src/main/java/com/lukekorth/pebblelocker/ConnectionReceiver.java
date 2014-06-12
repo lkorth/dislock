@@ -24,7 +24,6 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 	private static final String USER_PRESENT           = "android.intent.action.user_present";
 	public  static final String STATUS_CHANGED_INTENT  = "com.lukekorth.pebblelocker.STATUS_CHANGED";
 	public  static final String LOCKED                 = "locked";
-	public  static final String UNLOCK                 = "unlock";
 	public  static final String LOCK_STATE             = "state";
 
 	private SharedPreferences mPrefs;
@@ -36,12 +35,13 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
         super.onReceive(context, intent);
         acquireWakeLock();
 
-        new DeviceHelper(context, mLogger).sendLockStatusChangedBroadcast();
-
         mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-		mAction = intent.getAction().toLowerCase();
 
+	    mAction = intent.getAction().toLowerCase();
 		mLogger.log("ConnectionReceiver: " + mAction);
+
+        DeviceHelper deviceHelper = new DeviceHelper(context, mLogger);
+        deviceHelper.sendLockStatusChangedBroadcast();
 
 		LockState lockState =
                 LockState.getInstance(mPrefs.getInt(LOCK_STATE, LockState.AUTO.getState()));
@@ -49,13 +49,15 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 			checkForBluetoothDevice(((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)));
 			boolean isWifiConnected = isWifiConnected();
 
-			if (mAction.equals(USER_PRESENT) && needToUnlock()) {
+			if (mAction.equals(USER_PRESENT) && deviceHelper.isUnlockNeeded()) {
 				mLogger.log("User present and need to unlock...attempting to unlock");
 				new Locker(context, mTag).handleLocking();
-			} else if ((mAction.equals(PEBBLE_CONNECTED) || mAction.equals(BLUETOOTH_CONNECTED) || (mAction.equals(CONNECTIVITY_CHANGE) && isWifiConnected)) && isLocked(true)) {
+			} else if ((mAction.equals(PEBBLE_CONNECTED) || mAction.equals(BLUETOOTH_CONNECTED) ||
+                    (mAction.equals(CONNECTIVITY_CHANGE) && isWifiConnected)) && deviceHelper.isLocked(true)) {
 				mLogger.log("Attempting unlock");
 				new Locker(context, mTag).handleLocking();
-			} else if ((mAction.equals(PEBBLE_DISCONNECTED) || mAction.equals(BLUETOOTH_DISCONNECTED) || (mAction.equals(CONNECTIVITY_CHANGE) && !isWifiConnected)) && !isLocked(false)) {
+			} else if ((mAction.equals(PEBBLE_DISCONNECTED) || mAction.equals(BLUETOOTH_DISCONNECTED) ||
+                    (mAction.equals(CONNECTIVITY_CHANGE) && !isWifiConnected)) && !deviceHelper.isLocked(false)) {
 				mLogger.log("Attempting lock");
                 lockWithDelay();
 			}
@@ -78,19 +80,6 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
         new Locker(mContext, mTag).handleLocking();
     }
 
-    private boolean isLocked(boolean defaultValue) {
-		boolean locked = mPrefs.getBoolean(LOCKED, defaultValue);
-		mLogger.log("Locked: " + locked);
-
-		return locked;
-	}
-
-	private boolean needToUnlock() {
-		boolean needToUnlock = mPrefs.getBoolean(UNLOCK, true);
-		mLogger.log("Need to unlock: " + needToUnlock);
-
-		return needToUnlock;
-	}
 
 	private void checkForBluetoothDevice(BluetoothDevice device) {
 		if (mAction.equals(BLUETOOTH_CONNECTED)) {

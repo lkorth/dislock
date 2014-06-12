@@ -122,7 +122,7 @@ public class LockerTest extends AndroidTestCase {
 
         verify(mDPM).resetPassword("1234", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
         assertTrue(mPrefs.getBoolean(ConnectionReceiver.LOCKED, false));
-        assertFalse(mPrefs.getBoolean(ConnectionReceiver.UNLOCK, true));
+        assertFalse(mPrefs.getBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true));
         verify(mDeviceHelper).sendLockStatusChangedBroadcast();
     }
 
@@ -179,7 +179,7 @@ public class LockerTest extends AndroidTestCase {
 
         mLocker.unlock();
 
-        assertTrue(mPrefs.getBoolean(ConnectionReceiver.UNLOCK, false));
+        assertTrue(mPrefs.getBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false));
         verify(mDPM, never()).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
         verify(mDeviceHelper, times(1)).sendLockStatusChangedBroadcast();
     }
@@ -190,7 +190,7 @@ public class LockerTest extends AndroidTestCase {
         mLocker.unlock();
 
         verify(mDPM, times(1)).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-        assertFalse(mPrefs.getBoolean(ConnectionReceiver.UNLOCK, true));
+        assertFalse(mPrefs.getBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true));
         verify(mDeviceHelper, times(1)).sendLockStatusChangedBroadcast();
     }
 

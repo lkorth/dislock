@@ -71,7 +71,7 @@ public class Locker {
 			return;
 
 		boolean passwordChanged = mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-		mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).putBoolean(ConnectionReceiver.UNLOCK, false).commit();
+		mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false).commit();
 
 		mLogger.log("Successfully locked: " + passwordChanged);
 
@@ -86,7 +86,7 @@ public class Locker {
 			return;
 
 		if (mDeviceHelper.isOnLockscreen() && mDeviceHelper.isScreenOn()) {
-			mPrefs.edit().putBoolean(ConnectionReceiver.UNLOCK, true).commit();
+			mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true).commit();
 			mLogger.log("Screen is on lockscreen, setting unlock true for future unlock");
 		} else {
 			boolean passwordChanged = false;
@@ -105,7 +105,7 @@ public class Locker {
                 mDPM.lockNow();
             }
 
-			mPrefs.edit().putBoolean(ConnectionReceiver.UNLOCK, false).commit();
+			mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false).commit();
 
 			mLogger.log("Successfully unlocked: " + passwordChanged);
 		}
