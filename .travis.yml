@@ -12,4 +12,4 @@ env:
 before_script:
     - cd pebble-locker-android
     - chmod +x gradlew
-script: ./gradlew --info clean connectedAndroidTest
+script: ./gradlew --info --full-stacktrace clean connectedAndroidTest
