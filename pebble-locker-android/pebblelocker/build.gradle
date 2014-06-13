@@ -2,7 +2,7 @@ import groovy.swing.SwingBuilder
 
 apply plugin: 'android'
 
-def keystoreFile = System.getenv().containsKey('ANDROID_KEYSTORE') ? file(System.getenv('ANDROID_KEYSTORE')) : ""
+def keystoreFile = System.getenv().containsKey('ANDROID_KEYSTORE') ? file(System.getenv('ANDROID_KEYSTORE')) : file(".")
 def keystoreAlias = System.getenv().containsKey('ANDROID_KEYSTORE_ALIAS') ? System.getenv('ANDROID_KEYSTORE_ALIAS').replace("\"", "") : ""
 
 android {
