@@ -9,5 +9,7 @@ env:
     - ANDROID_SDKS=android-17 ANDROID_TARGET=android-17 ANDROID_ABI=armeabi-v7a
     - ANDROID_SDKS=android-16 ANDROID_TARGET=android-16 ANDROID_ABI=armeabi-v7a
     - ANDROID_SDKS=android-15 ANDROID_TARGET=android-15 ANDROID_ABI=armeabi-v7a
-before_script: cd pebble-locker-android
+before_script:
+    - cd pebble-locker-android
+    - chmod +x gradlew
 script: ./gradlew --info clean :pebblelocker:connectedAndroidTest
