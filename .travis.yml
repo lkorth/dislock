@@ -16,6 +16,6 @@ before_script:
     - echo no | android create avd --force -n pebbleLockerTest -t $ANDROID_TARGET --abi $ANDROID_ABI
     - emulator -avd pebbleLockerTest -no-skin -no-audio -no-window &
     - adb wait-for-device
-    - while [[ `adb shell pm path android` == 'Error'* ]]; do sleep 2 done
+    - while [[ `adb shell pm path android` == 'Error'* ]]; do sleep 2; done
     - adb shell input keyevent 82 &
 script: ./gradlew --info connectedAndroidTest
