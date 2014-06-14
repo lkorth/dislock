@@ -8,6 +8,8 @@ public enum LockState {
     MANUAL_UNLOCKED(1, "Manually unlocked"),
     MANUAL_LOCKED(2, "Manually locked");
 
+    public static final String LOCK_STATE = "state";
+
     private int mState;
     private String mDisplayName;
 
@@ -39,8 +41,8 @@ public enum LockState {
 
     public static LockState getCurrentState(Context context) {
         return getInstance(
-                PreferenceManager.getDefaultSharedPreferences(context).getInt(ConnectionReceiver.LOCK_STATE,
-                LockState.AUTO.getState()));
+                PreferenceManager.getDefaultSharedPreferences(context).getInt(LOCK_STATE,
+                        LockState.AUTO.getState()));
     }
 
     public static LockState switchToNextState(Context context, Logger logger, boolean forceLock) {
@@ -56,20 +58,25 @@ public enum LockState {
         return lockState;
     }
 
-    public static LockState setCurrentState(Context context, Logger logger, boolean forceLock, int state) {
+    public static LockState setCurrentState(Context context, Logger logger, Locker locker,
+                                            boolean forceLock, int state) {
         LockState lockState = LockState.getInstance(state);
         logger.log("Setting lock state: " + lockState.getDisplayName());
         PreferenceManager.getDefaultSharedPreferences(context)
-                .edit().putInt(ConnectionReceiver.LOCK_STATE, state).commit();
+                .edit().putInt(LOCK_STATE, state).commit();
 
         if (lockState == LockState.AUTO) {
-            new Locker(context, "[MANUAL]").handleLocking(forceLock);
+            locker.handleLocking(forceLock);
         } else if (lockState == LockState.MANUAL_UNLOCKED) {
-            new Locker(context, "[MANUAL]").unlock();
+            locker.unlock();
         } else if (lockState == LockState.MANUAL_LOCKED) {
-            new Locker(context, "[MANUAL]").lock(forceLock);
+            locker.lock(forceLock);
         }
 
         return lockState;
+    }
+
+    public static LockState setCurrentState(Context context, Logger logger, boolean forceLock, int state) {
+        return setCurrentState(context, logger, new Locker(context, "[MANUAL]"), forceLock, state);
     }
 }

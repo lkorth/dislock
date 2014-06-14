@@ -23,7 +23,6 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 	private static final String USER_PRESENT           = "android.intent.action.user_present";
 	public  static final String STATUS_CHANGED_INTENT  = "com.lukekorth.pebblelocker.STATUS_CHANGED";
 	public  static final String LOCKED                 = "locked";
-	public  static final String LOCK_STATE             = "state";
 
 	private SharedPreferences mPrefs;
 	private String mAction;
@@ -42,8 +41,7 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
         DeviceHelper deviceHelper = new DeviceHelper(context, mLogger);
         deviceHelper.sendLockStatusChangedBroadcast();
 
-		LockState lockState =
-                LockState.getInstance(mPrefs.getInt(LOCK_STATE, LockState.AUTO.getState()));
+		LockState lockState = LockState.getCurrentState(context);
 		if (lockState == LockState.AUTO) {
 			checkForBluetoothDevice(((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)));
 			boolean isWifiConnected = new WifiHelper(context, mLogger).isTrustedWifiConnected();
