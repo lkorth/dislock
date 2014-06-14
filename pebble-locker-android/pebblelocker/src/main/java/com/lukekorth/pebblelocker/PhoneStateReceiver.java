@@ -6,9 +6,18 @@ import android.content.Intent;
 
 public class PhoneStateReceiver extends BroadcastReceiver {
 
+    private final String SHUTDOWN_ACTION = "android.intent.action.ACTION_SHUTDOWN";
+    private final String TAG = "[PHONE-STATE]";
+
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		new Logger(context).log("[PHONESTATE]", "Received a PhoneState BroadcastIntent: " + intent.getAction());
-		new Locker(context, "[PHONESTATE]").handleLocking();
+        String action = intent.getAction();
+		new Logger(context).log(TAG, "Received a PhoneState BroadcastIntent: " + intent.getAction());
+
+        if (action.equals(SHUTDOWN_ACTION)) {
+            new Locker(context, TAG).lock(false);
+        } else {
+            new Locker(context, TAG).handleLocking();
+        }
 	}
 }
