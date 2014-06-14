@@ -2,9 +2,6 @@ import groovy.swing.SwingBuilder
 
 apply plugin: 'android'
 
-def keystoreFile = System.getenv().containsKey('ANDROID_KEYSTORE') ? file(System.getenv('ANDROID_KEYSTORE')) : file(".")
-def keystoreAlias = System.getenv().containsKey('ANDROID_KEYSTORE_ALIAS') ? System.getenv('ANDROID_KEYSTORE_ALIAS').replace("\"", "") : ""
-
 android {
     compileSdkVersion 19
     buildToolsVersion '19.1.0'
@@ -18,9 +15,9 @@ android {
 
     signingConfigs {
         release {
-            storeFile keystoreFile
+            storeFile System.getenv().containsKey('ANDROID_KEYSTORE') ? file(System.getenv('ANDROID_KEYSTORE')) : file(".")
             storePassword ""
-            keyAlias keystoreAlias
+            keyAlias System.getenv().containsKey('ANDROID_KEYSTORE_ALIAS') ? System.getenv('ANDROID_KEYSTORE_ALIAS').replace("\"", "") : ""
             keyPassword ""
         }
     }
