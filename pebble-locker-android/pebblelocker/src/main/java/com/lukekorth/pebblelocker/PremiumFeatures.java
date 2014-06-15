@@ -12,6 +12,7 @@ import com.lukekorth.pebblelocker.billing.IabHelper.OnIabSetupFinishedListener;
 import com.lukekorth.pebblelocker.billing.IabResult;
 import com.lukekorth.pebblelocker.billing.Inventory;
 import com.lukekorth.pebblelocker.billing.Purchase;
+import com.lukekorth.pebblelocker.logging.Logger;
 
 import java.util.UUID;
 

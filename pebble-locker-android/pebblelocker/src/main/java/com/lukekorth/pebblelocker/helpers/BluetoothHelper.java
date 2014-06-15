@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
 
 import com.lukekorth.pebblelocker.BuildConfig;
-import com.lukekorth.pebblelocker.Logger;
+import com.lukekorth.pebblelocker.logging.Logger;
 
 import java.util.ArrayList;
 import java.util.Set;

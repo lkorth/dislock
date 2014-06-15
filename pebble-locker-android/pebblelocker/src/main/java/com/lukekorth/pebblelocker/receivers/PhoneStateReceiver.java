@@ -1,8 +1,11 @@
-package com.lukekorth.pebblelocker;
+package com.lukekorth.pebblelocker.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+
+import com.lukekorth.pebblelocker.Locker;
+import com.lukekorth.pebblelocker.logging.Logger;
 
 public class PhoneStateReceiver extends BroadcastReceiver {
 

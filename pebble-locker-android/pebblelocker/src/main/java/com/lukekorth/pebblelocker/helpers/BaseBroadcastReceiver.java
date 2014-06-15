@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
 
-import com.lukekorth.pebblelocker.Logger;
+import com.lukekorth.pebblelocker.logging.Logger;
 
 import java.util.UUID;
 

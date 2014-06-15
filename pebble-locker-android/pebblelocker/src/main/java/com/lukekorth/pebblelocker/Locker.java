@@ -12,6 +12,8 @@ import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
+import com.lukekorth.pebblelocker.logging.Logger;
+import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 
 public class Locker {
 

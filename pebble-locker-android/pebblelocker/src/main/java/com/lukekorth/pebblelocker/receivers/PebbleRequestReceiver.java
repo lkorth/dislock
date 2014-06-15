@@ -1,4 +1,4 @@
-package com.lukekorth.pebblelocker;
+package com.lukekorth.pebblelocker.receivers;
 
 import android.content.Context;
 import android.content.Intent;
@@ -6,6 +6,9 @@ import android.content.Intent;
 import com.getpebble.android.kit.Constants;
 import com.getpebble.android.kit.PebbleKit;
 import com.getpebble.android.kit.util.PebbleDictionary;
+import com.lukekorth.pebblelocker.LockState;
+import com.lukekorth.pebblelocker.Locker;
+import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.helpers.BaseBroadcastReceiver;
 
 import org.json.JSONException;

@@ -1,4 +1,4 @@
-package com.lukekorth.pebblelocker;
+package com.lukekorth.pebblelocker.logging;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.lukekorth.pebblelocker.BuildConfig;
 
 import java.sql.Timestamp;
 import java.util.Date;

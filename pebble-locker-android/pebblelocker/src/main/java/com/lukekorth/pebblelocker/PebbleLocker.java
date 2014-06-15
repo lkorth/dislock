@@ -33,6 +33,9 @@ import android.widget.EditText;
 import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
+import com.lukekorth.pebblelocker.logging.LogReporting;
+import com.lukekorth.pebblelocker.logging.Logger;
+import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 
 import fr.nicolaspomepuy.discreetapprate.AppRate;
 import fr.nicolaspomepuy.discreetapprate.RetryPolicy;

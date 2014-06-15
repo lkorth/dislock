@@ -7,8 +7,8 @@ import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.lukekorth.pebblelocker.ConnectionReceiver;
-import com.lukekorth.pebblelocker.Logger;
+import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
+import com.lukekorth.pebblelocker.logging.Logger;
 
 public class DeviceHelper {
 

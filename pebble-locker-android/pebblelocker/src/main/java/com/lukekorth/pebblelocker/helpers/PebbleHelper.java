@@ -5,7 +5,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 
-import com.lukekorth.pebblelocker.Logger;
+import com.lukekorth.pebblelocker.logging.Logger;
 
 public class PebbleHelper {
 

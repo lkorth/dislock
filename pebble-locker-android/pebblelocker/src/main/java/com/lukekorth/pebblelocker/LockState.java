@@ -3,6 +3,8 @@ package com.lukekorth.pebblelocker;
 import android.content.Context;
 import android.preference.PreferenceManager;
 
+import com.lukekorth.pebblelocker.logging.Logger;
+
 public enum LockState {
     AUTO(0, "Auto"),
     MANUAL_UNLOCKED(1, "Manually unlocked"),

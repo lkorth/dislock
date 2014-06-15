@@ -1,4 +1,4 @@
-package com.lukekorth.pebblelocker;
+package com.lukekorth.pebblelocker.receivers;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
@@ -8,6 +8,8 @@ import android.content.SharedPreferences;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 
+import com.lukekorth.pebblelocker.LockState;
+import com.lukekorth.pebblelocker.Locker;
 import com.lukekorth.pebblelocker.helpers.BaseBroadcastReceiver;
 import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;

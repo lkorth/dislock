@@ -8,7 +8,7 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import com.lukekorth.pebblelocker.Logger;
+import com.lukekorth.pebblelocker.logging.Logger;
 
 import java.util.HashMap;
 import java.util.List;

@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.test.AndroidTestCase;
 
-import com.lukekorth.pebblelocker.ConnectionReceiver;
+import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 import com.lukekorth.pebblelocker.Locker;
 import com.lukekorth.pebblelocker.PebbleLocker;
 import com.lukekorth.pebblelocker.helpers.BluetoothHelper;

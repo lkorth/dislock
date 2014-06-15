@@ -5,7 +5,7 @@ import android.test.AndroidTestCase;
 
 import com.lukekorth.pebblelocker.LockState;
 import com.lukekorth.pebblelocker.Locker;
-import com.lukekorth.pebblelocker.Logger;
+import com.lukekorth.pebblelocker.logging.Logger;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;

@@ -1,11 +1,4 @@
-package com.lukekorth.pebblelocker;
-
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Map;
-import java.util.zip.GZIPOutputStream;
+package com.lukekorth.pebblelocker.logging;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
@@ -18,6 +11,13 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.preference.PreferenceManager;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Map;
+import java.util.zip.GZIPOutputStream;
 
 public class LogReporting {
 
