@@ -4,17 +4,17 @@ android:
     - build-tools-19.1.0
 env:
     matrix:
-    - ANDROID_SDKS=android-19 ANDROID_TARGET=android-19 ANDROID_ABI=x86
-    - ANDROID_SDKS=android-18 ANDROID_TARGET=android-18 ANDROID_ABI=x86
-    - ANDROID_SDKS=android-17 ANDROID_TARGET=android-17 ANDROID_ABI=x86
-    - ANDROID_SDKS=android-16 ANDROID_TARGET=android-16 ANDROID_ABI=x86
-    - ANDROID_SDKS=android-15 ANDROID_TARGET=android-15 ANDROID_ABI=x86
+    - ANDROID_SDKS=android-19 ANDROID_TARGET=android-19 ANDROID_ABI=armeabi-v7a
+    - ANDROID_SDKS=android-18 ANDROID_TARGET=android-18 ANDROID_ABI=armeabi-v7a
+    - ANDROID_SDKS=android-17 ANDROID_TARGET=android-17 ANDROID_ABI=armeabi-v7a
+    - ANDROID_SDKS=android-16 ANDROID_TARGET=android-16 ANDROID_ABI=armeabi-v7a
+    - ANDROID_SDKS=android-15 ANDROID_TARGET=android-15 ANDROID_ABI=armeabi-v7a
 
 before_script:
     - cd pebble-locker-android
     - chmod +x gradlew
     - echo no | android create avd --force -n pebbleLockerTest -t $ANDROID_TARGET --abi $ANDROID_ABI
-    - emulator -avd pebbleLockerTest -no-boot-anim -no-skin -no-audio -no-window -qemu -enable-kvm &
+    - emulator -avd pebbleLockerTest -no-skin -no-audio -no-window &
     - adb wait-for-device
     - while [[ `adb shell pm path android` == 'Error'* ]]; do sleep 2; done
     - adb shell input keyevent 82 &
