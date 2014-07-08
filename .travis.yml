@@ -2,6 +2,8 @@ language: android
 android:
   components:
     - build-tools-19.1.0
+  licenses:
+    - 'android-sdk-license-.*'
 env:
     matrix:
     - ANDROID_SDKS=android-19 ANDROID_TARGET=android-19 ANDROID_ABI=armeabi-v7a
