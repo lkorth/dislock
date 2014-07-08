@@ -1,6 +1,6 @@
 import groovy.swing.SwingBuilder
 
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 19
@@ -34,7 +34,6 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:+'
     compile project(':libraries:PebbleKit')
     compile 'fr.nicolaspomepuy:discreetapprate:2.0+@aar'
 
