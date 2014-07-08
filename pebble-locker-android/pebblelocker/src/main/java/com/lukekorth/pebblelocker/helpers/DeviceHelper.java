@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
-import android.support.v4.content.LocalBroadcastManager;
-
 import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 import com.lukekorth.pebblelocker.logging.Logger;
 
@@ -52,7 +50,6 @@ public class DeviceHelper {
     }
 
     public void sendLockStatusChangedBroadcast() {
-        LocalBroadcastManager.getInstance(mContext)
-                .sendBroadcast(new Intent(ConnectionReceiver.STATUS_CHANGED_INTENT));
+        mContext.sendBroadcast(new Intent(ConnectionReceiver.STATUS_CHANGED_INTENT));
     }
 }

@@ -23,7 +23,6 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceManager;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -193,8 +192,7 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
         setGracePeriodSummary();
 
         updateStatus();
-		LocalBroadcastManager.getInstance(this)
-			.registerReceiver(mStatusReceiver, new IntentFilter(ConnectionReceiver.STATUS_CHANGED_INTENT));
+		registerReceiver(mStatusReceiver, new IntentFilter(ConnectionReceiver.STATUS_CHANGED_INTENT));
 		
 		if(!mPrefs.getString("key_password", "").equals("") &&
                 timeStamp < (System.currentTimeMillis() - 60000) &&
@@ -207,7 +205,7 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 		super.onPause();
 
         mPrefs.unregisterOnSharedPreferenceChangeListener(this);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mStatusReceiver);
+        unregisterReceiver(mStatusReceiver);
 	}
 	
 	/**
