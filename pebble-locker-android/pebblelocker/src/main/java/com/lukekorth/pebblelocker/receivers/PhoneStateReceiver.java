@@ -9,17 +9,15 @@ import com.lukekorth.pebblelocker.logging.Logger;
 
 public class PhoneStateReceiver extends BroadcastReceiver {
 
-    private final String SHUTDOWN_ACTION = "android.intent.action.ACTION_SHUTDOWN";
-    private final String TAG = "[PHONE-STATE]";
+    private static final String BOOT_ACTION = "android.intent.action.BOOT_COMPLETED";
+    private static final String TAG = "[PHONE-STATE]";
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
 		new Logger(context).log(TAG, "Received a PhoneState BroadcastIntent: " + intent.getAction());
 
-        if (action.equals(SHUTDOWN_ACTION)) {
-            new Locker(context, TAG).lock(false);
-        } else {
+        if (action.equals(BOOT_ACTION)) {
             new Locker(context, TAG).handleLocking();
         }
 	}
