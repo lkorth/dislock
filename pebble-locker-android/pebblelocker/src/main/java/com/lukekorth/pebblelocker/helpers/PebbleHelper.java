@@ -9,7 +9,7 @@ import com.lukekorth.pebblelocker.logging.Logger;
 
 public class PebbleHelper {
 
-    private static final String ENABLED_KEY = "pebble";
+    public static final String ENABLED_KEY = "pebble";
 
     private Context mContext;
     private Logger mLogger;
@@ -23,8 +23,12 @@ public class PebbleHelper {
         mLogger = logger;
     }
 
+    public boolean isEnabled() {
+        return PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(ENABLED_KEY, true);
+    }
+
     public boolean isEnabledAndConnected() {
-        if (PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(ENABLED_KEY, true)) {
+        if (isEnabled()) {
             return isConnected();
         } else {
             mLogger.log("Unlock via any Pebble is not enabled");

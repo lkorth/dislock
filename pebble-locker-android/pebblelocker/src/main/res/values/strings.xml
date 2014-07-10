@@ -3,6 +3,15 @@
     <string name="bluetooth_devices">Select Devices</string>
     <string name="wifi_networks">Select WiFi Networks</string>
 
+    <string name="status">Status</string>
+    <string name="grace_period">Grace Period</string>
+
+    <string name="monkey">You can\'t reset my password, you are a monkey!</string>
+
+    <string name="pebble_locker_enabled">Pebble Locker has been enabled, you must now set a password</string>
+    <string name="pebble_locker_disabled">Pebble Locker has been disabled, your password has been cleared</string>
+    <string name="password_cleared">Your password has been removed and Pebble Locker has been disabled</string>
+
     <string name="reset_password_warning">
         You have just reset your lock screen password to \"%1$s\""</string>
         
@@ -13,6 +22,17 @@
     <string name="iab_setting_up">In app purchases are still loading, please try again in a minute. If this problem persists, please contact the developer</string>
     <string name="iab_setup_error">In app purchases are not possible at this time, please try again later. If this problem persists, please contact the developer.</string>
     <string name="iab_error">There was an error completing your purchase, please try again later. If this problem persists, please contact the developer.</string>
+
+    <string name="advanced_options">Advanced Options</string>
+
+    <string name="pebble_watch_app_title">Download Pebble Watch App</string>
+    <string name="pebble_watch_app_summary">Control the lock state from your Pebble watch. Options include automatic, locked and unlocked</string>
+
+    <string name="bluetooth_devices_preference_title">Other Bluetooth Devices</string>
+    <string name="bluetooth_devices_preference_summary">Select other bluetooth devices that will also unlock your device</string>
+
+    <string name="wifi_preference_title">WiFi</string>
+    <string name="wifi_preference_summary">Select WiFi networks that will unlock your device</string>
 
     <string name="help">Help</string>
     <string name="contact_title">Contact Developer</string>

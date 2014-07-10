@@ -5,23 +5,18 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.admin.DeviceAdminReceiver;
 import android.app.admin.DevicePolicyManager;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
-import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
-import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -29,36 +24,31 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
-import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
-import com.lukekorth.pebblelocker.helpers.PebbleHelper;
-import com.lukekorth.pebblelocker.helpers.WifiHelper;
-import com.lukekorth.pebblelocker.logging.LogReporting;
 import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
+import com.lukekorth.pebblelocker.views.BluetoothPreference;
+import com.lukekorth.pebblelocker.views.PebbleWatchAppDownload;
+import com.lukekorth.pebblelocker.views.Status;
+import com.lukekorth.pebblelocker.views.WifiPreference;
 
 import fr.nicolaspomepuy.discreetapprate.AppRate;
 import fr.nicolaspomepuy.discreetapprate.RetryPolicy;
 
-public class PebbleLocker extends PremiumFeaturesActivity implements OnPreferenceClickListener,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+public class PebbleLocker extends PremiumFeaturesActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
 	
 	private DevicePolicyManager mDPM;
 	private ComponentName mDeviceAdmin;
 	
-	private Preference         mStatus;
+	private Status mStatus;
 	private CheckBoxPreference mAdmin;
 	private EditTextPreference mPassword;
 	private CheckBoxPreference mEnable;
 	private CheckBoxPreference mForceLock;
-    private ListPreference     mGracePeriod;
-	private Preference         mWatchApp;
-	
+
 	private SharedPreferences mPrefs;
-	
-	private BroadcastReceiver mStatusReceiver;
-	
+
 	private AlertDialog requirePassword;
 	private long timeStamp;
 	
@@ -66,32 +56,29 @@ public class PebbleLocker extends PremiumFeaturesActivity implements OnPreferenc
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.layout.main);
 
-		mStatus    = findPreference("visible_status");
+        ((PebbleWatchAppDownload) findPreference("pebble_watch_app_download")).setActivity(this);
+        ((BluetoothPreference) findPreference("bluetooth_preference")).setActivity(this);
+        ((WifiPreference) findPreference("wifi_preference")).setActivity(this);
+
+		mStatus = (Status) findPreference("status");
 		mAdmin     = (CheckBoxPreference) findPreference("key_enable_admin");
 		mPassword  = (EditTextPreference) findPreference("key_password");
 		mEnable    = (CheckBoxPreference) findPreference("key_enable_locker");
 		mForceLock = (CheckBoxPreference) findPreference("key_force_lock");
-        mGracePeriod = (ListPreference) findPreference("key_grace_period");
-		mWatchApp  = findPreference("pebble_watch_app");
-		
+
 		mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 		mDeviceAdmin = new ComponentName(this, CustomDeviceAdminReceiver.class);
 
-        findPreference("other_bluetooth_devices").setOnPreferenceClickListener(this);
-        findPreference("wifi").setOnPreferenceClickListener(this);
-        findPreference("contact").setOnPreferenceClickListener(this);
-        findPreference("viewVersion").setSummary(BuildConfig.VERSION_NAME);
-		
 		mAdmin.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				if ((Boolean) newValue) {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if ((Boolean) newValue) {
                     // Launch the activity to have the user enable our admin.
                     Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
                     intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mDeviceAdmin);
                     intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Pebble Locker needs device admin access to lock your device on disconnect");
                     startActivityForResult(intent, REQUEST_CODE_ENABLE_ADMIN);
-                    
+
                     // return false - don't update checkbox until we're really active
                     return false;
                 } else {
@@ -99,78 +86,36 @@ public class PebbleLocker extends PremiumFeaturesActivity implements OnPreferenc
                     PebbleLocker.this.enableOptions(false);
                     mEnable.setChecked(false);
                     removePassword();
-                    
+
                     return true;
                 }
-			}
-		});
+            }
+        });
 		
 		mPassword.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				doResetPassword((String) newValue);
-				return true;
-			}
-		});
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                doResetPassword((String) newValue);
+                return true;
+            }
+        });
 		
 		mEnable.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 			@Override
 			public boolean onPreferenceChange(Preference preference, Object newValue) {
 				if(Boolean.parseBoolean(newValue.toString())) {
                     enableLockOptions(true);
-                    showAlert("Pebble Locker has been enabled, you must now set a password");
+                    showAlert(R.string.pebble_locker_enabled);
                 } else {
                     enableLockOptions(false);
                     removePassword();
-                    showAlert("Pebble Locker has been disabled, your password has been cleared");
+                    showAlert(R.string.pebble_locker_disabled);
                 }
 				
 				return true;
 			}
 		});
 
-        mGracePeriod.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                // Save early so we can use it before returning
-                mPrefs.edit().putString("key_grace_period", newValue.toString()).commit();
-                setGracePeriodSummary();
-
-                return true;
-            }
-        });
-		
-		mWatchApp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				if(!PebbleLocker.this.hasPurchased()) {
-                    requirePremiumPurchase();
-                } else {
-					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("pebble://appstore/5386a0646189a1be8200007a"));
-				    startActivity(intent);
-				}
-
-				return true;
-			}
-		});
-
-        mStatus.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                LockState.switchToNextState(PebbleLocker.this,
-                        new Logger(PebbleLocker.this, "[IN_APP_MANUAL]"), false);
-                updateStatus();
-                return true;
-            }
-        });
-		
-		mStatusReceiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				PebbleLocker.this.updateStatus();
-			}
-		};
-		
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         AppRate.with(this)
@@ -185,13 +130,13 @@ public class PebbleLocker extends PremiumFeaturesActivity implements OnPreferenc
 
         mPrefs.registerOnSharedPreferenceChangeListener(this);
 
+        ((PebbleWatchAppDownload) findPreference("pebble_watch_app_download")).refresh();
+
 		checkForRequiredPasswordByOtherApps();
 		checkForActiveAdmin();
-        setGracePeriodSummary();
 
-        updateStatus();
-		registerReceiver(mStatusReceiver, new IntentFilter(ConnectionReceiver.STATUS_CHANGED_INTENT));
-		
+        mStatus.registerListener();
+
 		if(!mPrefs.getString("key_password", "").equals("") &&
                 timeStamp < (System.currentTimeMillis() - 60000) &&
 				mPrefs.getBoolean(ConnectionReceiver.LOCKED, true)) {
@@ -201,9 +146,8 @@ public class PebbleLocker extends PremiumFeaturesActivity implements OnPreferenc
 	
 	public void onPause() {
 		super.onPause();
-
         mPrefs.unregisterOnSharedPreferenceChangeListener(this);
-        unregisterReceiver(mStatusReceiver);
+        mStatus.unregisterListener();
 	}
 	
 	/**
@@ -211,7 +155,7 @@ public class PebbleLocker extends PremiumFeaturesActivity implements OnPreferenc
      * remind the user after we do it.
      */
     private void doResetPassword(String newPassword) {
-        if (alertIfMonkey("You can't reset my password, you are a monkey!")) {
+        if (alertIfMonkey()) {
             return;
         }
 
@@ -222,7 +166,7 @@ public class PebbleLocker extends PremiumFeaturesActivity implements OnPreferenc
         if(newPassword.length() == 0) {
             new Logger(this).log("[USER]", "Password was set to empty");
             mEnable.setChecked(false);
-            showAlert("Your password has been removed and Pebble Locker has been disabled");
+            showAlert(R.string.password_cleared);
         } else {
             new AlertDialog.Builder(this)
                     .setCancelable(false)
@@ -302,50 +246,6 @@ public class PebbleLocker extends PremiumFeaturesActivity implements OnPreferenc
 		}
 	}
 	
-	private void updateStatus() {
-		LockState lockState = LockState.getCurrentState(this);
-		String statusMessage = "";
-
-        if (lockState == LockState.AUTO) {
-            if(mPrefs.getBoolean(ConnectionReceiver.LOCKED, false)) {
-                statusMessage = "Locked (Automatic)";
-            } else {
-                statusMessage = "Unlocked (Automatic)";
-            }
-        } else {
-            statusMessage = lockState.getDisplayName();
-        }
-
-        Logger logger = new Logger(this, "[LOADING-STATUS]");
-        StringBuilder connectionStatusBuilder = new StringBuilder();
-        connectionStatusBuilder.append(new PebbleHelper(this, logger).getConnectionStatus());
-
-		if(mPrefs.getBoolean("donated", false)) {
-            connectionStatusBuilder.append(new BluetoothHelper(this, logger).getConnectionStatus());
-            connectionStatusBuilder.append(new WifiHelper(this, logger).getConnectionStatus());
-		}
-
-        connectionStatusBuilder.append("\nClick to change");
-		
-		mStatus.setTitle(statusMessage);
-		mStatus.setSummary(connectionStatusBuilder.toString());
-	}
-
-    private void setGracePeriodSummary() {
-        String seconds = mPrefs.getString("key_grace_period", "2");
-
-        String time;
-        if (seconds.equals("0")) {
-            time = "instantly";
-        } else if (seconds.equals("60")) {
-           time = "1 minute";
-        } else {
-            time = seconds + " seconds";
-        }
-
-        mGracePeriod.setSummary("Lock " + time + " after disconnection");
-    }
-	
 	private void requestPassword() {
 		if(requirePassword == null || !requirePassword.isShowing()) {
 			LayoutInflater factory = LayoutInflater.from(this);
@@ -383,25 +283,6 @@ public class PebbleLocker extends PremiumFeaturesActivity implements OnPreferenc
 	}
 
     @Override
-    public boolean onPreferenceClick(Preference preference) {
-        if(preference.getKey().equals("other_bluetooth_devices") || preference.getKey().equals("wifi")) {
-            if(!hasPurchased()) {
-                requirePurchase();
-            } else {
-                if(preference.getKey().equals("other_bluetooth_devices")) {
-                    startActivity(new Intent(this, BluetoothDevices.class));
-                } else {
-                    startActivity(new Intent(this, WiFiNetworks.class));
-                }
-            }
-        } else if(preference.getKey().equals("contact")) {
-            new LogReporting(PebbleLocker.this).collectAndSendLogs();
-        }
-
-        return true;
-    }
-
-    @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         String message;
         if (key.equals("key_password")) {
@@ -421,9 +302,9 @@ public class PebbleLocker extends PremiumFeaturesActivity implements OnPreferenc
      * If the "user" is a monkey, post an alert and notify the caller.  This prevents automated
      * test frameworks from stumbling into annoying or dangerous operations.
      */
-    private boolean alertIfMonkey(String string) {
+    private boolean alertIfMonkey() {
         if (ActivityManager.isUserAMonkey()) {
-            showAlert(string);
+            showAlert(R.string.monkey);
             return true;
         } else {
             return false;
