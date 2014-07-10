@@ -39,7 +39,7 @@ import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 import fr.nicolaspomepuy.discreetapprate.AppRate;
 import fr.nicolaspomepuy.discreetapprate.RetryPolicy;
 
-public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickListener,
+public class PebbleLocker extends PremiumFeaturesActivity implements OnPreferenceClickListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
@@ -65,8 +65,6 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.layout.main);
-
-        checkForPreviousPurchases();
 
 		mStatus    = findPreference("visible_status");
 		mAdmin     = (CheckBoxPreference) findPreference("key_enable_admin");
@@ -388,7 +386,7 @@ public class PebbleLocker extends PremiumFeatures implements OnPreferenceClickLi
     public boolean onPreferenceClick(Preference preference) {
         if(preference.getKey().equals("other_bluetooth_devices") || preference.getKey().equals("wifi")) {
             if(!hasPurchased()) {
-                requirePremiumPurchase();
+                requirePurchase();
             } else {
                 if(preference.getKey().equals("other_bluetooth_devices")) {
                     startActivity(new Intent(this, BluetoothDevices.class));

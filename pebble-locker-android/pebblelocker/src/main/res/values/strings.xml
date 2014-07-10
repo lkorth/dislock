@@ -6,5 +6,16 @@
     <string name="reset_password_warning">
         You have just reset your lock screen password to \"%1$s\""</string>
         
-    <string name="billing_public_key">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmKCACsyFRONCbAFoNV+e1h+o9AXUTgiEZPDV24aaWyhTAixwK+sEHtcjlmElYHSO/9a6HBXa03JCsSNWc9Ngqpj3fTiZ+IZQ9HRLUt4mDWVh0/fKSiTfS9bEjGx8oHnteHTe+BvsTkkM5OR00n0zG+++a+948P8pv1B6f/QvJ1y9mgGyy5LR0CXVEnZrQJonqofPxBDaPvbNYNTGFkNSEepDk5xRfIfDpbftvgnDBtJya1BWc1aGksJURUyFZntj7fin3i05PbIiTztGWOKCGubegcJt+HIl304nvBZCbUVZpiSaOqWDQZO6kmloMoy5vC1GP1/WaN554XKNcDZ0rwIDAQAB</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="purchase_required">This option requires the premium version of the app, press Ok to purchase</string>
+    <string name="iab_setting_up">In app purchases are still loading, please try again in a minute. If this problem persists, please contact the developer</string>
+    <string name="iab_setup_error">In app purchases are not possible at this time, please try again later. If this problem persists, please contact the developer.</string>
+    <string name="iab_error">There was an error completing your purchase, please try again later. If this problem persists, please contact the developer.</string>
+
+    <string name="help">Help</string>
+    <string name="contact_title">Contact Developer</string>
+    <string name="contact_summary">If you are having problems, click here to contact the developer</string>
+    <string name="version">Version</string>
 </resources>
