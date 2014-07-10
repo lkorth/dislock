@@ -4,6 +4,7 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -51,7 +52,19 @@ public class Locker {
         mDPM = dpm;
     }
 
-	public void handleLocking() {
+    public void lockWithDelay() {
+        int delay = Integer.parseInt(mPrefs.getString("key_grace_period", "2"));
+
+        if (delay != 0) {
+            mLogger.log("Sleeping for " + delay + " seconds");
+            SystemClock.sleep(delay * 1000);
+        }
+
+        mLogger.log("Locking...");
+        handleLocking();
+    }
+
+    public void handleLocking() {
 		handleLocking(true);
 	}
 

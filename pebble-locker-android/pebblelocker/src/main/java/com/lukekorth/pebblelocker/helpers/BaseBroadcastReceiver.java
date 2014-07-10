@@ -25,7 +25,7 @@ public class BaseBroadcastReceiver extends BroadcastReceiver {
 
     protected void acquireWakeLock() {
         mWakeLock = ((PowerManager) mContext.getSystemService(Context.POWER_SERVICE))
-                .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "PebbleLockerConnectionReceiver");
+                .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "PebbleLockerReceiver");
 
         mLogger.log("Acquiring wakelock");
 

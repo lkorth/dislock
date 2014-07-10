@@ -13,8 +13,10 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.provider.Settings;
 
+import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
 import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
 
+import java.util.Map;
 import java.util.Set;
 
 public class BluetoothDevices extends PreferenceActivity {
@@ -34,10 +36,25 @@ public class BluetoothDevices extends PreferenceActivity {
         pebblePref.setChecked(PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pebble", true));
         pebble.addPreference(pebblePref);
 
-        // Inline preferences
-        PreferenceCategory inlinePrefCat = new PreferenceCategory(this);
-        inlinePrefCat.setTitle("Bluetooth Devices");
-        root.addPreference(inlinePrefCat);
+        // Android Wear
+        PreferenceCategory androidWear = new PreferenceCategory(this);
+        androidWear.setTitle("Android Wear");
+        root.addPreference(androidWear);
+
+        Map<String, String> knownWearDevices = new AndroidWearHelper(this).getKnownDevices();
+        if (knownWearDevices.size() > 0) {
+            for(String key : knownWearDevices.keySet()) {
+                CheckBoxPreference checkboxPref = new CheckBoxPreference(this);
+                checkboxPref.setKey(key);
+                checkboxPref.setTitle(knownWearDevices.get(key));
+                androidWear.addPreference(checkboxPref);
+            }
+        }
+
+        // Bluetooth Devices
+        PreferenceCategory bluetoothDevices = new PreferenceCategory(this);
+        bluetoothDevices.setTitle("Bluetooth Devices");
+        root.addPreference(bluetoothDevices);
 
         Set<BluetoothDevice> pairedDevices = new BluetoothHelper(this).getPairedDevices();
         if (pairedDevices.size() == 0) {
@@ -65,7 +82,7 @@ public class BluetoothDevices extends PreferenceActivity {
                 CheckBoxPreference checkboxPref = new CheckBoxPreference(this);
                 checkboxPref.setKey(device.getAddress());
                 checkboxPref.setTitle(device.getName());
-                inlinePrefCat.addPreference(checkboxPref);
+                bluetoothDevices.addPreference(checkboxPref);
             }
 
             setPreferenceScreen(root);

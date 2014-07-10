@@ -4,9 +4,6 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.SystemClock;
-import android.preference.PreferenceManager;
 
 import com.lukekorth.pebblelocker.LockState;
 import com.lukekorth.pebblelocker.Locker;
@@ -26,7 +23,6 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 	public  static final String STATUS_CHANGED_INTENT  = "com.lukekorth.pebblelocker.STATUS_CHANGED";
 	public  static final String LOCKED                 = "locked";
 
-	private SharedPreferences mPrefs;
 	private String mAction;
 
 	@SuppressLint("DefaultLocale")
@@ -34,8 +30,6 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
         acquireWakeLock();
-
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 
 	    mAction = intent.getAction().toLowerCase();
 		mLogger.log("ConnectionReceiver: " + mAction);
@@ -58,7 +52,7 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 			} else if ((mAction.equals(PEBBLE_DISCONNECTED) || mAction.equals(BLUETOOTH_DISCONNECTED) ||
                     (mAction.equals(CONNECTIVITY_CHANGE) && !isWifiConnected)) && !deviceHelper.isLocked(false)) {
 				mLogger.log("Attempting lock");
-                lockWithDelay();
+                new Locker(context, mTag).lockWithDelay();
 			}
 		} else {
 			mLogger.log("Lock state was manually set to " + lockState.getDisplayName());
@@ -66,19 +60,6 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 
         releaseWakeLock();
 	}
-
-    private void lockWithDelay() {
-        int delay = Integer.parseInt(mPrefs.getString("key_grace_period", "2"));
-
-        if (delay != 0) {
-            mLogger.log("Sleeping for " + delay + " seconds");
-            SystemClock.sleep(delay * 1000);
-        }
-
-        mLogger.log("Locking...");
-        new Locker(mContext, mTag).handleLocking();
-    }
-
 
 	private void checkForBluetoothDevice(BluetoothDevice device) {
 		if (mAction.equals(BLUETOOTH_CONNECTED)) {
