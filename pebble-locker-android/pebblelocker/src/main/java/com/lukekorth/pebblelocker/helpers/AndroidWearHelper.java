@@ -45,7 +45,9 @@ public class AndroidWearHelper {
         cursor.close();
         db.close();
 
-        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(mContext).build();
+        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(mContext)
+                .addApi(Wearable.API)
+                .build();
         NodeApi.GetConnectedNodesResult connectedNodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
         for (Node node : connectedNodes.getNodes()) {
             knownDevices.put(node.getId(), node.getDisplayName());
