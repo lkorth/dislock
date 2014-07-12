@@ -184,6 +184,17 @@ public class LockerTest extends AndroidTestCase {
         verify(mDeviceHelper, times(1)).sendLockStatusChangedBroadcast();
     }
 
+    public void testUnlockRequiresPasswordOnceOnReconnectIfOptionIsEnabled() {
+        setEnabled();
+        mPrefs.edit().putBoolean("key_require_password_on_reconnect", true).commit();
+        mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false).commit();
+
+        mLocker.unlock();
+
+        verify(mDPM, never()).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+        assertTrue(mPrefs.getBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false));
+    }
+
     public void testUnlockUnlocksAndSendsBroadcast() {
         setEnabled();
 
