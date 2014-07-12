@@ -69,7 +69,7 @@ public class Status extends Preference implements Preference.OnPreferenceClickLi
         StringBuilder connectionStatusBuilder = new StringBuilder();
 
         PebbleHelper pebbleHelper = new PebbleHelper(mContext, mLogger);
-        if (pebbleHelper.isEnabled()) {
+        if (pebbleHelper.isPebbleAppInstalled() && pebbleHelper.isEnabled()) {
             connectionStatusBuilder.append(pebbleHelper.getConnectionStatus());
         }
 

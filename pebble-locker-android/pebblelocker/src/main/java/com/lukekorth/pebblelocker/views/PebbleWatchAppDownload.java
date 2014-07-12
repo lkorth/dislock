@@ -2,13 +2,14 @@ package com.lukekorth.pebblelocker.views;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.preference.Preference;
 import android.util.AttributeSet;
 
 import com.lukekorth.pebblelocker.PremiumFeaturesActivity;
 import com.lukekorth.pebblelocker.R;
+import com.lukekorth.pebblelocker.helpers.PebbleHelper;
+import com.lukekorth.pebblelocker.logging.Logger;
 
 public class PebbleWatchAppDownload extends Preference implements Preference.OnPreferenceClickListener {
 
@@ -43,17 +44,8 @@ public class PebbleWatchAppDownload extends Preference implements Preference.OnP
     }
 
     public void refresh() {
-        setEnabled(isPebbleAppInstalled());
-    }
-
-    private boolean isPebbleAppInstalled() {
-        PackageManager packageManager = mContext.getPackageManager();
-        try {
-            packageManager.getPackageInfo("com.getpebble.android", PackageManager.GET_ACTIVITIES);
-            return true;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
+        setEnabled(new PebbleHelper(mContext, new Logger(mContext, "[PEBBLE-WATCH-DOWNLOAD]"))
+                .isPebbleAppInstalled());
     }
 
     @Override

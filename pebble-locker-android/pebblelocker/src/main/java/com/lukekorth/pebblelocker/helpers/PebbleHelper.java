@@ -1,6 +1,7 @@
 package com.lukekorth.pebblelocker.helpers;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
@@ -27,15 +28,6 @@ public class PebbleHelper {
         return PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(ENABLED_KEY, true);
     }
 
-    public boolean isEnabledAndConnected() {
-        if (isEnabled()) {
-            return isConnected();
-        } else {
-            mLogger.log("Unlock via any Pebble is not enabled");
-            return false;
-        }
-    }
-
     public boolean isConnected() {
         Cursor c = null;
         try {
@@ -58,6 +50,25 @@ public class PebbleHelper {
         boolean connected = (c.getInt(0) == 1);
         c.close();
         return connected;
+    }
+
+    public boolean isEnabledAndConnected() {
+        if (isEnabled()) {
+            return isConnected();
+        } else {
+            mLogger.log("Unlock via any Pebble is not enabled");
+            return false;
+        }
+    }
+
+    public boolean isPebbleAppInstalled() {
+        PackageManager packageManager = mContext.getPackageManager();
+        try {
+            packageManager.getPackageInfo("com.getpebble.android", PackageManager.GET_ACTIVITIES);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
 
     public String getConnectionStatus() {
