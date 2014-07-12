@@ -36,6 +36,11 @@
             android:title="Turn off screen on disconnect"
             android:summary="Turn off the screen when your device disconnects from a trusted watch, bluetooth device or WiFi network" />
 
+        <CheckBoxPreference
+            android:key="key_require_password_on_reconnect"
+            android:title="@string/require_password_title"
+            android:summary="@string/require_password_summary" />
+
         <com.lukekorth.pebblelocker.views.GracePeriod
             android:key="key_grace_period"
             android:entries="@array/grace_period_entries"

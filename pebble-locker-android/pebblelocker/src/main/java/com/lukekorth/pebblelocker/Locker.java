@@ -103,7 +103,10 @@ public class Locker {
 		if (mDeviceHelper.isOnLockscreen() && mDeviceHelper.isScreenOn()) {
 			mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true).commit();
 			mLogger.log("Screen is on lockscreen, setting unlock true for future unlock");
-		} else {
+		} else if (mPrefs.getBoolean("key_require_password_on_reconnect", false) && !mPrefs.getBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false)) {
+            mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true).commit();
+            mLogger.log("Requiring user to re-authenticate once before unlocking");
+        } else {
 			boolean passwordChanged = false;
             boolean screen = mDeviceHelper.isScreenOn();
 

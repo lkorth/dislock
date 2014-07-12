@@ -14,7 +14,10 @@
 
     <string name="reset_password_warning">
         You have just reset your lock screen password to \"%1$s\""</string>
-        
+
+    <string name="require_password_title">Require Unlock on Reconnect</string>
+    <string name="require_password_summary">Requires you to enter your pin or password once after a trusted device or WiFi network has connected</string>
+
     <string name="ok">Ok</string>
     <string name="cancel">Cancel</string>
 
