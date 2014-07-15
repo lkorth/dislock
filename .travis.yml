@@ -3,7 +3,7 @@ android:
   components:
     - build-tools-19.1.0
   licenses:
-    - /android-sdk-license-[0-9a-f]{8}/
+    - 'android-sdk-license-.*' 
 env:
     global:
     - TERM=dumb
