@@ -2,10 +2,11 @@ language: android
 android:
   components:
     - build-tools-19.1.0
-    - extra-google-google_play_services
   licenses:
-    - 'android-sdk-license-.*'
+    - /android-sdk-license-[0-9a-f]{8}/
 env:
+    global:
+    - TERM=dumb
     matrix:
     - ANDROID_SDKS=android-19 ANDROID_TARGET=android-19 ANDROID_ABI=armeabi-v7a
     - ANDROID_SDKS=android-18 ANDROID_TARGET=android-18 ANDROID_ABI=armeabi-v7a
