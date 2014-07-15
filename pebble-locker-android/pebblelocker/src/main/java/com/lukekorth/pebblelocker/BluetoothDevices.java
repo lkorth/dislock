@@ -1,17 +1,13 @@
 package com.lukekorth.pebblelocker;
 
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
-import android.provider.Settings;
 
 import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
 import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
@@ -19,7 +15,12 @@ import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
 import java.util.Map;
 import java.util.Set;
 
-public class BluetoothDevices extends PreferenceActivity {
+public class BluetoothDevices extends PreferenceActivity implements AndroidWearHelper.CallbackListener {
+
+    private PreferenceCategory mAndroidWear;
+    private Preference mAndroidWearStatus;
+    private PreferenceCategory mBluetooth;
+    private Preference mBluetoothStatus;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,44 +38,39 @@ public class BluetoothDevices extends PreferenceActivity {
         pebble.addPreference(pebblePref);
 
         // Android Wear
-        PreferenceCategory androidWear = new PreferenceCategory(this);
-        androidWear.setTitle("Android Wear");
-        root.addPreference(androidWear);
+        mAndroidWear = new PreferenceCategory(this);
+        mAndroidWear.setTitle("Android Wear - Beta");
+        root.addPreference(mAndroidWear);
 
-        Map<String, String> knownWearDevices = new AndroidWearHelper(this).getKnownDevices();
-        if (knownWearDevices.size() > 0) {
-            for(String key : knownWearDevices.keySet()) {
-                CheckBoxPreference checkboxPref = new CheckBoxPreference(this);
-                checkboxPref.setKey(key);
-                checkboxPref.setTitle(knownWearDevices.get(key));
-                androidWear.addPreference(checkboxPref);
-            }
+        // Bluetooth
+        mBluetooth = new PreferenceCategory(this);
+        mBluetooth.setTitle("Bluetooth Devices");
+        root.addPreference(mBluetooth);
+
+        setPreferenceScreen(root);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getAndroidWearDevices();
+        getBluetoothDevices();
+    }
+
+    private void getBluetoothDevices() {
+        if (mBluetoothStatus == null) {
+            mBluetoothStatus = new Preference(this);
+            mBluetoothStatus.setKey("bluetooth_status");
+            mBluetoothStatus.setTitle("Bluetooth unavailable");
+            mBluetoothStatus.setSummary("Bluetooth is turned off or you do not have any paired " +
+                    "devices. Please enable and/or pair a device.");
         }
 
-        // Bluetooth Devices
-        PreferenceCategory bluetoothDevices = new PreferenceCategory(this);
-        bluetoothDevices.setTitle("Bluetooth Devices");
-        root.addPreference(bluetoothDevices);
+        mBluetooth.removeAll();
 
         Set<BluetoothDevice> pairedDevices = new BluetoothHelper(this).getPairedDevices();
         if (pairedDevices.size() == 0) {
-            new AlertDialog.Builder(this)
-                .setMessage("Bluetooth is turned off or you do not have any paired devices. " +
-                    "Please enable it and/or pair a device before using this feature")
-                .setCancelable(false)
-                .setPositiveButton("Open Bluetooth Settings", new OnClickListener() {
-                @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
-                    }
-                })
-                .setNegativeButton("Cancel", new OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        BluetoothDevices.this.finish();
-                    }
-                })
-                .show();
+            mBluetooth.addPreference(mBluetoothStatus);
         } else {
             // Loop through paired devices
             for (BluetoothDevice device : pairedDevices) {
@@ -82,10 +78,38 @@ public class BluetoothDevices extends PreferenceActivity {
                 CheckBoxPreference checkboxPref = new CheckBoxPreference(this);
                 checkboxPref.setKey(device.getAddress());
                 checkboxPref.setTitle(device.getName());
-                bluetoothDevices.addPreference(checkboxPref);
+                mBluetooth.addPreference(checkboxPref);
             }
-
-            setPreferenceScreen(root);
         }
     }
+
+    private void getAndroidWearDevices() {
+        if (mAndroidWearStatus == null) {
+            mAndroidWearStatus = new Preference(this);
+            mAndroidWearStatus.setKey("android_wear_status");
+        }
+        mAndroidWearStatus.setTitle("Loading...");
+
+        mAndroidWear.removeAll();
+        mAndroidWear.addPreference(mAndroidWearStatus);
+        new AndroidWearHelper(this).getKnownDevices(this);
+    }
+
+    @Override
+    public void onKnownDevicesLoaded(Map<String, String> devices) {
+        mAndroidWear.removeAll();
+
+        if (devices.size() > 0) {
+            for(String key : devices.keySet()) {
+                CheckBoxPreference checkboxPref = new CheckBoxPreference(this);
+                checkboxPref.setKey(key);
+                checkboxPref.setTitle(devices.get(key));
+                mAndroidWear.addPreference(checkboxPref);
+            }
+        } else {
+            mAndroidWearStatus.setTitle("No devices found");
+            mAndroidWear.addPreference(mAndroidWearStatus);
+        }
+    }
+
 }
