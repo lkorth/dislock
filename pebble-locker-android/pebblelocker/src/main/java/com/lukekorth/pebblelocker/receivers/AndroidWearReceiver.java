@@ -7,6 +7,7 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.WearableListenerService;
 import com.lukekorth.pebblelocker.Locker;
 import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
+import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.logging.Logger;
 
 import java.util.UUID;
@@ -29,6 +30,7 @@ public class AndroidWearReceiver extends WearableListenerService {
         mLogger.log("Android Wear " + peer.getDisplayName() + " : " + peer.getId() +
                 " connected");
         new AndroidWearHelper(this).addDevice(peer);
+        DeviceHelper.sendLockStatusChangedBroadcast(this);
         new Locker(this, mTag).handleLocking();
         releaseWakeLock();
     }
@@ -38,6 +40,7 @@ public class AndroidWearReceiver extends WearableListenerService {
         init();
         mLogger.log("Android Wear " + peer.getDisplayName() + " : " + peer.getId() +
                 " disconnected");
+        DeviceHelper.sendLockStatusChangedBroadcast(this);
         new Locker(this, mTag).lockWithDelay();
         releaseWakeLock();
     }

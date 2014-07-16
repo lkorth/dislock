@@ -82,9 +82,9 @@ public class BluetoothHelper {
 
     public String getConnectionStatus() {
         if(isTrustedDeviceConnected()) {
-            return "\n" + "Trusted bluetooth device connected \n\t" + getConnectedDeviceNames() + "\n";
+            return "Trusted bluetooth device connected \n\t" + getConnectedDeviceNames();
         } else {
-            return "\n" + "No trusted bluetooth device connected" + "\n";
+            return "No trusted bluetooth device connected";
         }
     }
 

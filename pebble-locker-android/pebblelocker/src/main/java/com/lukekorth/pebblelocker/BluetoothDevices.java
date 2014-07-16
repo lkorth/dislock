@@ -15,7 +15,7 @@ import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
 import java.util.Map;
 import java.util.Set;
 
-public class BluetoothDevices extends PreferenceActivity implements AndroidWearHelper.CallbackListener {
+public class BluetoothDevices extends PreferenceActivity implements AndroidWearHelper.Listener {
 
     private PreferenceCategory mAndroidWear;
     private Preference mAndroidWearStatus;
@@ -88,7 +88,7 @@ public class BluetoothDevices extends PreferenceActivity implements AndroidWearH
             mAndroidWearStatus = new Preference(this);
             mAndroidWearStatus.setKey("android_wear_status");
         }
-        mAndroidWearStatus.setTitle("Loading...");
+        mAndroidWearStatus.setTitle("Scanning...");
 
         mAndroidWear.removeAll();
         mAndroidWear.addPreference(mAndroidWearStatus);

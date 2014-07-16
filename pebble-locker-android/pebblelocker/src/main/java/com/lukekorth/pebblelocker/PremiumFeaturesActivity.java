@@ -1,6 +1,7 @@
 package com.lukekorth.pebblelocker;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -45,9 +46,13 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
         mIabHelper.dispose();
     }
 
-    public boolean hasPurchased() {
+    public static boolean hasPurchased(Context context) {
         return BuildConfig.DEBUG ||
-                PreferenceManager.getDefaultSharedPreferences(this).getBoolean("donated", false);
+                PreferenceManager.getDefaultSharedPreferences(context).getBoolean("donated", false);
+    }
+
+    public boolean hasPurchased() {
+        return PremiumFeaturesActivity.hasPurchased(this);
     }
 
     public void requirePurchase() {

@@ -14,15 +14,16 @@ import com.google.android.gms.wearable.Wearable;
 import com.lukekorth.pebblelocker.BuildConfig;
 import com.lukekorth.pebblelocker.logging.Logger;
 
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AndroidWearHelper implements ResultCallback<NodeApi.GetConnectedNodesResult> {
 
     private Context mContext;
     private Logger mLogger;
-    private WeakReference<CallbackListener> mListener;
+    private Listener mListener;
+    private boolean mAllDevices;
 
     public AndroidWearHelper(Context context) {
         mContext = context;
@@ -35,24 +36,30 @@ public class AndroidWearHelper implements ResultCallback<NodeApi.GetConnectedNod
     }
 
     private GoogleApiClient getGoogleClient() {
-        return new GoogleApiClient.Builder(mContext).addApi(Wearable.API).build();
+        GoogleApiClient client = new GoogleApiClient.Builder(mContext).addApi(Wearable.API).build();
+        client.connect();
+
+        return client;
     }
 
-    public String[] getConnectedDevices() {
+    public List<Node> getConnectedDevices() {
         NodeApi.GetConnectedNodesResult connectedNodes = Wearable.NodeApi
                 .getConnectedNodes(getGoogleClient()).await();
 
-        String[] connectedDevices = new String[connectedNodes.getNodes().size()];
-        for (int i = 0; i < connectedNodes.getNodes().size(); i++) {
-            connectedDevices[i] = connectedNodes.getNodes().get(i).getId();
-        }
-
-        return connectedDevices;
+        return connectedNodes.getNodes();
     }
 
-    public void getKnownDevices(CallbackListener listener) {
-        mListener = new WeakReference<CallbackListener>(listener);
+    public void getConnectedDevices(Listener listener) {
+        mListener = listener;
+        mAllDevices = false;
 
+        Wearable.NodeApi.getConnectedNodes(getGoogleClient())
+                .setResultCallback(this);
+    }
+
+    public void getKnownDevices(Listener listener) {
+        mListener = listener;
+        mAllDevices = true;
         Wearable.NodeApi.getConnectedNodes(getGoogleClient())
                 .setResultCallback(this);
     }
@@ -70,29 +77,36 @@ public class AndroidWearHelper implements ResultCallback<NodeApi.GetConnectedNod
 
     @Override
     public void onResult(NodeApi.GetConnectedNodesResult connectedNodesResult) {
+        Map<String, String> devices = new HashMap<String, String>();
+
+        if (mAllDevices) {
+            getEncounteredDevices(devices);
+        }
+
+        for (Node node : connectedNodesResult.getNodes()) {
+            devices.put(node.getId(), node.getDisplayName());
+        }
+
+        if (mListener != null) {
+            mListener.onKnownDevicesLoaded(devices);
+        }
+    }
+
+    private void getEncounteredDevices(Map<String, String> devices) {
         SQLiteDatabase db = new AndroidWearDatabase(mContext).getReadableDatabase();
-        Cursor cursor = db.query(AndroidWearDatabase.ANDROID_WEAR_DEVICES, new String[] { "name" },
+        Cursor cursor = db.query(AndroidWearDatabase.ANDROID_WEAR_DEVICES, new String[] { "name", "device_id" },
                 null, null, null, null, null);
 
-        Map<String, String> knownDevices = new HashMap<String, String>();
         while(cursor.moveToNext()) {
-            knownDevices.put(cursor.getString(cursor.getColumnIndex("device_id")),
+            devices.put(cursor.getString(cursor.getColumnIndex("device_id")),
                     cursor.getString(cursor.getColumnIndex("name")));
         }
 
         cursor.close();
         db.close();
-
-        for (Node node : connectedNodesResult.getNodes()) {
-            knownDevices.put(node.getId(), node.getDisplayName());
-        }
-
-        if (mListener != null && mListener.get() != null) {
-            mListener.get().onKnownDevicesLoaded(knownDevices);
-        }
     }
 
-    public interface CallbackListener {
+    public interface Listener {
         public void onKnownDevicesLoaded(Map<String, String> devices);
     }
 

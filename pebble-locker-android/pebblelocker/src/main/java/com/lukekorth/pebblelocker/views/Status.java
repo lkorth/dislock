@@ -10,17 +10,25 @@ import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 
 import com.lukekorth.pebblelocker.LockState;
+import com.lukekorth.pebblelocker.PremiumFeaturesActivity;
+import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
 import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
 import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 
-public class Status extends Preference implements Preference.OnPreferenceClickListener {
+import java.util.Map;
+
+public class Status extends Preference implements Preference.OnPreferenceClickListener, AndroidWearHelper.Listener {
+
+    private static final String TAG = "[STATUS-PREFERENCE]";
 
     private Context mContext;
     private Logger mLogger;
     private BroadcastReceiver mStatusReceiver;
+    private StringBuilder mSummary;
+    private AndroidWearHelper mAndroidWearHelper;
 
     public Status(Context context) {
         super(context);
@@ -39,7 +47,7 @@ public class Status extends Preference implements Preference.OnPreferenceClickLi
 
     private void init(Context context) {
         mContext = context;
-        mLogger = new Logger(mContext, "[STATUS-PREFERENCE]");
+        mLogger = new Logger(mContext, TAG);
         setOnPreferenceClickListener(this);
 
         mStatusReceiver = new BroadcastReceiver() {
@@ -48,40 +56,62 @@ public class Status extends Preference implements Preference.OnPreferenceClickLi
                 update();
             }
         };
-        registerListener();
     }
 
     private void update() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         LockState lockState = LockState.getCurrentState(mContext);
-        String statusMessage = "";
+        String title = "";
 
         if (lockState == LockState.AUTO) {
-            if(prefs.getBoolean(ConnectionReceiver.LOCKED, false)) {
-                statusMessage = "Locked (Automatic)";
+            if (prefs.getBoolean(ConnectionReceiver.LOCKED, false)) {
+                title = "Locked (Automatic)";
             } else {
-                statusMessage = "Unlocked (Automatic)";
+                title = "Unlocked (Automatic)";
             }
         } else {
-            statusMessage = lockState.getDisplayName();
+            title = lockState.getDisplayName();
         }
 
-        StringBuilder connectionStatusBuilder = new StringBuilder();
+        setTitle(title);
 
+        mSummary = new StringBuilder();
+        mSummary.append("Click to change\n");
+        updateSummary();
+    }
+
+    private void updateSummary() {
         PebbleHelper pebbleHelper = new PebbleHelper(mContext, mLogger);
         if (pebbleHelper.isPebbleAppInstalled() && pebbleHelper.isEnabled()) {
-            connectionStatusBuilder.append(pebbleHelper.getConnectionStatus());
+            mSummary.append("\n" + pebbleHelper.getConnectionStatus());
         }
 
-        if(prefs.getBoolean("donated", false)) {
-            connectionStatusBuilder.append(new BluetoothHelper(mContext, mLogger).getConnectionStatus());
-            connectionStatusBuilder.append(new WifiHelper(mContext, mLogger).getConnectionStatus());
+        if (PremiumFeaturesActivity.hasPurchased(mContext)) {
+            mSummary.append("\n" + new WifiHelper(mContext, mLogger).getConnectionStatus());
+            mSummary.append("\n" + new BluetoothHelper(mContext, mLogger).getConnectionStatus());
+            getConnectedAndroidWears();
         }
 
-        connectionStatusBuilder.append("\nClick to change");
+        setSummary(mSummary.toString());
+    }
 
-        setTitle(statusMessage);
-        setSummary(connectionStatusBuilder.toString());
+    private void getConnectedAndroidWears() {
+        if (mAndroidWearHelper == null) {
+            mAndroidWearHelper = new AndroidWearHelper(mContext, mLogger);
+        }
+
+        mAndroidWearHelper.getConnectedDevices(this);
+    }
+
+    @Override
+    public void onKnownDevicesLoaded(Map<String, String> devices) {
+        if (devices.size() > 0) {
+            mSummary.append("\nAndroid Wear connected");
+        } else {
+            mSummary.append("\nNo Android Wear connected");
+        }
+
+        setSummary(mSummary.toString());
     }
 
     public void registerListener() {
@@ -96,8 +126,7 @@ public class Status extends Preference implements Preference.OnPreferenceClickLi
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
-        LockState.switchToNextState(mContext, new Logger(mContext, "[STATUS_PREFERENCE]"), false);
-        update();
+        LockState.switchToNextState(mContext, new Logger(mContext, TAG), false);
         return true;
     }
 

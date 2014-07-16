@@ -49,7 +49,12 @@ public class DeviceHelper {
         return needToUnlock;
     }
 
-    public void sendLockStatusChangedBroadcast() {
-        mContext.sendBroadcast(new Intent(ConnectionReceiver.STATUS_CHANGED_INTENT));
+    public static void sendLockStatusChangedBroadcast(Context context) {
+        context.sendBroadcast(new Intent(ConnectionReceiver.STATUS_CHANGED_INTENT));
     }
+
+    public void sendLockStatusChangedBroadcast() {
+        DeviceHelper.sendLockStatusChangedBroadcast(mContext);
+    }
+
 }
