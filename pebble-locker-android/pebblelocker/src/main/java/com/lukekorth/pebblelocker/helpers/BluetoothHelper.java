@@ -82,10 +82,10 @@ public class BluetoothHelper {
 
     public String getConnectionStatus() {
         if(isTrustedDeviceConnected()) {
-            return "Trusted bluetooth device connected \n\t" + getConnectedDeviceNames();
-        } else {
-            return "No trusted bluetooth device connected";
+            return "Bluetooth device(s) connected \n\t" + getConnectedDeviceNames();
         }
+
+        return null;
     }
 
     private String getConnectedDeviceNames() {
@@ -96,8 +96,6 @@ public class BluetoothHelper {
         if (connectedBluetoothDevices.size() > 0 && pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
                 if (connectedBluetoothDevices.contains(device.getAddress())) {
-                    if(deviceNames.length() == 0)
-                        deviceNames += "(";
                     deviceNames += device.getName() + ",";
                 }
             }

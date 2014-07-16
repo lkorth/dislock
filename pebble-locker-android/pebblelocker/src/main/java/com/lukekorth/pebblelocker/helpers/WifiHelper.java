@@ -69,10 +69,10 @@ public class WifiHelper {
 
     public String getConnectionStatus() {
         if(isTrustedWifiConnected()) {
-            return "Trusted WiFi network connected \n\t(" + getConnectedNetworkSsid() + ")";
-        } else {
-            return "No trusted WiFi network connected";
+            return getConnectedNetworkSsid() + " connected";
         }
+
+        return null;
     }
 
     private String getConnectedNetworkSsid() {

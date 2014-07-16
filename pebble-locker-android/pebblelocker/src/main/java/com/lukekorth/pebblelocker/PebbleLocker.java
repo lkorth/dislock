@@ -28,6 +28,7 @@ import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 import com.lukekorth.pebblelocker.services.LockerService;
 import com.lukekorth.pebblelocker.views.BluetoothPreference;
+import com.lukekorth.pebblelocker.views.LockStatePreference;
 import com.lukekorth.pebblelocker.views.PebbleWatchAppDownload;
 import com.lukekorth.pebblelocker.views.Status;
 import com.lukekorth.pebblelocker.views.WifiPreference;
@@ -41,7 +42,8 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
 	
 	private DevicePolicyManager mDPM;
 	private ComponentName mDeviceAdmin;
-	
+
+    private LockStatePreference mLockState;
 	private Status mStatus;
 	private CheckBoxPreference mAdmin;
 	private EditTextPreference mPassword;
@@ -61,6 +63,7 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
         ((BluetoothPreference) findPreference("bluetooth_preference")).setActivity(this);
         ((WifiPreference) findPreference("wifi_preference")).setActivity(this);
 
+        mLockState = (LockStatePreference) findPreference("lock_state_preference");
 		mStatus = (Status) findPreference("status");
 		mAdmin     = (CheckBoxPreference) findPreference("key_enable_admin");
 		mPassword  = (EditTextPreference) findPreference("key_password");
@@ -136,6 +139,7 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
 		checkForRequiredPasswordByOtherApps();
 		checkForActiveAdmin();
 
+        mLockState.registerListener();
         mStatus.registerListener();
 
 		if(!mPrefs.getString("key_password", "").equals("") &&
@@ -148,6 +152,7 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
 	public void onPause() {
 		super.onPause();
         mPrefs.unregisterOnSharedPreferenceChangeListener(this);
+        mLockState.unregisterListener();
         mStatus.unregisterListener();
 	}
 	

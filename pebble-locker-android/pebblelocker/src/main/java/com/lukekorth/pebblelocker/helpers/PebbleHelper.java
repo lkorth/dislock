@@ -72,14 +72,10 @@ public class PebbleHelper {
     }
 
     public String getConnectionStatus() {
-        if (PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(ENABLED_KEY, true)) {
-            if (isConnected()) {
-                return "Pebble watch connected";
-            } else {
-                return "Pebble watch disconnected";
-            }
+        if (isPebbleAppInstalled() && isEnabled() && isConnected()) {
+            return "Pebble watch connected";
         }
 
-        return "";
+        return null;
     }
 }

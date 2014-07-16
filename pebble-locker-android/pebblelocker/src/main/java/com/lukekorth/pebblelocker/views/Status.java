@@ -4,13 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.preference.Preference;
-import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 
-import com.lukekorth.pebblelocker.LockState;
 import com.lukekorth.pebblelocker.PremiumFeaturesActivity;
+import com.lukekorth.pebblelocker.R;
 import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
 import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
@@ -20,14 +19,13 @@ import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 
 import java.util.Map;
 
-public class Status extends Preference implements Preference.OnPreferenceClickListener, AndroidWearHelper.Listener {
+public class Status extends Preference implements AndroidWearHelper.Listener {
 
     private static final String TAG = "[STATUS-PREFERENCE]";
 
     private Context mContext;
     private Logger mLogger;
     private BroadcastReceiver mStatusReceiver;
-    private StringBuilder mSummary;
     private AndroidWearHelper mAndroidWearHelper;
 
     public Status(Context context) {
@@ -48,7 +46,8 @@ public class Status extends Preference implements Preference.OnPreferenceClickLi
     private void init(Context context) {
         mContext = context;
         mLogger = new Logger(mContext, TAG);
-        setOnPreferenceClickListener(this);
+
+        setTitle(R.string.connected_trusted_devices);
 
         mStatusReceiver = new BroadcastReceiver() {
             @Override
@@ -59,40 +58,29 @@ public class Status extends Preference implements Preference.OnPreferenceClickLi
     }
 
     private void update() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        LockState lockState = LockState.getCurrentState(mContext);
-        String title = "";
-
-        if (lockState == LockState.AUTO) {
-            if (prefs.getBoolean(ConnectionReceiver.LOCKED, false)) {
-                title = "Locked (Automatic)";
-            } else {
-                title = "Unlocked (Automatic)";
-            }
-        } else {
-            title = lockState.getDisplayName();
+        String connectedDevices = getConnectedDevices();
+        if (TextUtils.isEmpty(connectedDevices)) {
+            connectedDevices = "No trusted devices connected";
         }
 
-        setTitle(title);
-
-        mSummary = new StringBuilder();
-        mSummary.append("Click to change\n");
-        updateSummary();
+        setSummary(connectedDevices);
+        getConnectedAndroidWears();
     }
 
-    private void updateSummary() {
-        PebbleHelper pebbleHelper = new PebbleHelper(mContext, mLogger);
-        if (pebbleHelper.isPebbleAppInstalled() && pebbleHelper.isEnabled()) {
-            mSummary.append("\n" + pebbleHelper.getConnectionStatus());
-        }
+    private String getConnectedDevices() {
+        String connectedDevices = "";
+
+        connectedDevices = conditionallyAddNewLine(connectedDevices,
+                new PebbleHelper(mContext, mLogger).getConnectionStatus());
 
         if (PremiumFeaturesActivity.hasPurchased(mContext)) {
-            mSummary.append("\n" + new WifiHelper(mContext, mLogger).getConnectionStatus());
-            mSummary.append("\n" + new BluetoothHelper(mContext, mLogger).getConnectionStatus());
-            getConnectedAndroidWears();
+            connectedDevices = conditionallyAddNewLine(connectedDevices,
+                    new WifiHelper(mContext, mLogger).getConnectionStatus());
+            connectedDevices = conditionallyAddNewLine(connectedDevices,
+                    new BluetoothHelper(mContext, mLogger).getConnectionStatus());
         }
 
-        setSummary(mSummary.toString());
+        return connectedDevices;
     }
 
     private void getConnectedAndroidWears() {
@@ -105,13 +93,17 @@ public class Status extends Preference implements Preference.OnPreferenceClickLi
 
     @Override
     public void onKnownDevicesLoaded(Map<String, String> devices) {
+        String connectedDevices = getConnectedDevices();
+
         if (devices.size() > 0) {
-            mSummary.append("\nAndroid Wear connected");
-        } else {
-            mSummary.append("\nNo Android Wear connected");
+            connectedDevices = conditionallyAddNewLine(connectedDevices, "Android Wear Connected");
         }
 
-        setSummary(mSummary.toString());
+        if (TextUtils.isEmpty(connectedDevices)) {
+            connectedDevices = "No trusted devices connected";
+        }
+
+        setSummary(connectedDevices);
     }
 
     public void registerListener() {
@@ -124,10 +116,13 @@ public class Status extends Preference implements Preference.OnPreferenceClickLi
         mContext.unregisterReceiver(mStatusReceiver);
     }
 
-    @Override
-    public boolean onPreferenceClick(Preference preference) {
-        LockState.switchToNextState(mContext, new Logger(mContext, TAG), false);
-        return true;
+    private String conditionallyAddNewLine(String base, String addition) {
+        if (!TextUtils.isEmpty(base) && !TextUtils.isEmpty(addition)) {
+            return (base + "\n" + addition);
+        } else if (!TextUtils.isEmpty(base)) {
+            return base;
+        } else {
+            return addition;
+        }
     }
-
 }

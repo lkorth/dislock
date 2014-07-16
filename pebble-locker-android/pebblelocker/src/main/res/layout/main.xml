@@ -5,6 +5,10 @@
     
     <PreferenceCategory
         android:title="@string/status">
+
+        <com.lukekorth.pebblelocker.views.LockStatePreference
+            android:key="lock_state_preference" />
+
         <com.lukekorth.pebblelocker.views.Status
             android:key="status" />
     </PreferenceCategory>
