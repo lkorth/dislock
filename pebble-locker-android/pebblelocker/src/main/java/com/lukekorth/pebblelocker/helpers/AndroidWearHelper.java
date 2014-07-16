@@ -2,9 +2,11 @@ package com.lukekorth.pebblelocker.helpers;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.preference.PreferenceManager;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -33,6 +35,20 @@ public class AndroidWearHelper implements ResultCallback<NodeApi.GetConnectedNod
     public AndroidWearHelper(Context context, Logger logger) {
         mContext = context;
         mLogger = logger;
+    }
+
+    public boolean isTrustedWearConnected() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        List<Node> wears = getConnectedDevices();
+
+        for(Node node : wears) {
+            mLogger.log("Wear " + node.getDisplayName() + " with id: " + node.getId() + " is connected");
+            if (prefs.getBoolean(node.getId(), false)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private GoogleApiClient getGoogleClient() {

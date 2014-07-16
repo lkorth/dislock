@@ -1,9 +1,11 @@
 package com.lukekorth.pebblelocker;
 
 import android.content.Context;
+import android.content.Intent;
 import android.preference.PreferenceManager;
 
 import com.lukekorth.pebblelocker.logging.Logger;
+import com.lukekorth.pebblelocker.services.LockerService;
 
 public enum LockState {
     AUTO(0, "Auto"),
@@ -60,25 +62,25 @@ public enum LockState {
         return lockState;
     }
 
-    public static LockState setCurrentState(Context context, Logger logger, Locker locker,
-                                            boolean forceLock, int state) {
+    public static LockState setCurrentState(Context context, Logger logger, boolean forceLock, int state) {
         LockState lockState = LockState.getInstance(state);
         logger.log("Setting lock state: " + lockState.getDisplayName());
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit().putInt(LOCK_STATE, state).commit();
 
         if (lockState == LockState.AUTO) {
-            locker.handleLocking(forceLock);
+            Intent intent = new Intent(context, LockerService.class);
+            intent.putExtra(LockerService.TAG, logger.getTag());
+            intent.putExtra(LockerService.WITH_DELAY, false);
+            intent.putExtra(LockerService.FORCE_LOCK, forceLock);
+            context.startService(intent);
         } else if (lockState == LockState.MANUAL_UNLOCKED) {
-            locker.unlock();
+            new Locker(context, logger.getTag()).unlock();
         } else if (lockState == LockState.MANUAL_LOCKED) {
-            locker.lock(forceLock);
+            new Locker(context, logger.getTag()).lock(forceLock);
         }
 
         return lockState;
     }
 
-    public static LockState setCurrentState(Context context, Logger logger, boolean forceLock, int state) {
-        return setCurrentState(context, logger, new Locker(context, "[MANUAL]"), forceLock, state);
-    }
 }

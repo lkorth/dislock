@@ -25,6 +25,10 @@ public class Logger extends SQLiteOpenHelper {
         mTag = tag;
     }
 
+    public String getTag() {
+        return mTag;
+    }
+
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL("CREATE TABLE log (pk INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, message TEXT)");

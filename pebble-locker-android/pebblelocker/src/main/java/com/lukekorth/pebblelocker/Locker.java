@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.lukekorth.pebblelocker.PebbleLocker.CustomDeviceAdminReceiver;
+import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
 import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
@@ -24,6 +25,7 @@ public class Locker {
     private Logger mLogger;
     private DeviceHelper mDeviceHelper;
     private WifiHelper mWifiHelper;
+    private AndroidWearHelper mAndroidWearHelper;
     private BluetoothHelper mBluetoothHelper;
     private PebbleHelper mPebbleHelper;
 	private DevicePolicyManager mDPM;
@@ -34,41 +36,38 @@ public class Locker {
 		mLogger = new Logger(context, tag);
         mDeviceHelper = new DeviceHelper(context, mLogger);
         mWifiHelper = new WifiHelper(context, mLogger);
+        mAndroidWearHelper = new AndroidWearHelper(context, mLogger);
         mBluetoothHelper = new BluetoothHelper(context, mLogger);
         mPebbleHelper = new PebbleHelper(context, mLogger);
 		mDPM = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
 	}
 
     public Locker(Context context, String tag, DeviceHelper deviceHelper, WifiHelper wifiHelper,
-                  BluetoothHelper bluetoothHelper, PebbleHelper pebbleHelper,
-                  DevicePolicyManager dpm) {
+                  AndroidWearHelper androidWearHelper, BluetoothHelper bluetoothHelper,
+                  PebbleHelper pebbleHelper, DevicePolicyManager dpm) {
         mContext = context;
         mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
         mLogger = new Logger(context, tag);
         mDeviceHelper = deviceHelper;
         mWifiHelper = wifiHelper;
+        mAndroidWearHelper = androidWearHelper;
         mBluetoothHelper = bluetoothHelper;
         mPebbleHelper = pebbleHelper;
         mDPM = dpm;
     }
 
-    public void lockWithDelay() {
-        int delay = Integer.parseInt(mPrefs.getString("key_grace_period", "2"));
+	public void handleLocking(boolean withDelay, boolean forceLock) {
+        if (withDelay) {
+            int delay = Integer.parseInt(mPrefs.getString("key_grace_period", "2"));
 
-        if (delay != 0) {
-            mLogger.log("Sleeping for " + delay + " seconds");
-            SystemClock.sleep(delay * 1000);
+            if (delay != 0) {
+                mLogger.log("Sleeping for " + delay + " seconds");
+                SystemClock.sleep(delay * 1000);
+            }
+
+            mLogger.log("Locking...");
         }
 
-        mLogger.log("Locking...");
-        handleLocking();
-    }
-
-    public void handleLocking() {
-		handleLocking(true);
-	}
-
-	public void handleLocking(boolean forceLock) {
         boolean connectedToDeviceOrWifi = isConnectedToDeviceOrWifi();
 		if (connectedToDeviceOrWifi && mDeviceHelper.isLocked(true)) {
             unlock();
@@ -151,11 +150,13 @@ public class Locker {
 
 	public boolean isConnectedToDeviceOrWifi() {
 		boolean pebble = mPebbleHelper.isEnabledAndConnected();
+        boolean wear = mAndroidWearHelper.isTrustedWearConnected();
 		boolean bluetooth = mBluetoothHelper.isTrustedDeviceConnected();
 		boolean wifi = mWifiHelper.isTrustedWifiConnected();
 
-		mLogger.log("Pebble: " + pebble + " Bluetooth: " + bluetooth + " Wifi: " + wifi);
+		mLogger.log("Pebble: " + pebble + " Wear: " + wear + " Bluetooth: " + bluetooth + " Wifi: " + wifi);
 
-		return (pebble || bluetooth || wifi);
+		return (pebble || wear || bluetooth || wifi);
 	}
+
 }

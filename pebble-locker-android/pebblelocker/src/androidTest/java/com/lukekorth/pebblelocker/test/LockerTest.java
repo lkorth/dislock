@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.test.AndroidTestCase;
 
+import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
 import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 import com.lukekorth.pebblelocker.Locker;
 import com.lukekorth.pebblelocker.PebbleLocker;
@@ -28,6 +29,7 @@ public class LockerTest extends AndroidTestCase {
 
     @Mock DeviceHelper mDeviceHelper;
     @Mock WifiHelper mWifiHelper;
+    @Mock AndroidWearHelper mAndroidWearHelper;
     @Mock BluetoothHelper mBluetoothHelper;
     @Mock PebbleHelper mPebbleHelper;
     @Mock DevicePolicyManager mDPM;
@@ -40,8 +42,8 @@ public class LockerTest extends AndroidTestCase {
         System.setProperty("dexmaker.dexcache", getContext().getCacheDir().getPath());
         MockitoAnnotations.initMocks(this);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        mLocker = new Locker(getContext(), TAG, mDeviceHelper, mWifiHelper, mBluetoothHelper,
-                mPebbleHelper, mDPM);
+        mLocker = new Locker(getContext(), TAG, mDeviceHelper, mWifiHelper, mAndroidWearHelper,
+                mBluetoothHelper, mPebbleHelper, mDPM);
     }
 
     @Override
@@ -49,23 +51,14 @@ public class LockerTest extends AndroidTestCase {
         mPrefs.edit().clear().commit();
     }
 
-    public void testHandleLockingDefaultsToForceLocking() {
-        setEnabled();
-        mPrefs.edit().putBoolean("key_force_lock", true).commit();
-
-        mLocker.handleLocking();
-
-        verify(mDPM, times(1)).lockNow();
-    }
-
     public void testHandleLockingProxiesForceLockOption() {
         setEnabled();
         mPrefs.edit().putBoolean("key_force_lock", true).commit();
 
-        mLocker.handleLocking(false);
+        mLocker.handleLocking(false, false);
         verify(mDPM, never()).lockNow();
 
-        mLocker.handleLocking(true);
+        mLocker.handleLocking(false, true);
         verify(mDPM, times(1)).lockNow();
     }
 
@@ -74,7 +67,7 @@ public class LockerTest extends AndroidTestCase {
         setConnected(true);
         when(mDeviceHelper.isLocked(true)).thenReturn(true);
 
-        mLocker.handleLocking();
+        mLocker.handleLocking(false, false);
 
         verify(mDPM, times(1)).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
     }
@@ -84,7 +77,7 @@ public class LockerTest extends AndroidTestCase {
         setConnected(true);
         when(mDeviceHelper.isLocked(true)).thenReturn(false);
 
-        mLocker.handleLocking();
+        mLocker.handleLocking(false, false);
 
         verify(mDPM, never()).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
     }
@@ -94,7 +87,7 @@ public class LockerTest extends AndroidTestCase {
         setConnected(false);
         when(mDeviceHelper.isLocked(false)).thenReturn(false);
 
-        mLocker.handleLocking();
+        mLocker.handleLocking(false, false);
 
         verify(mDPM, times(1)).resetPassword("1234", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
     }
@@ -104,7 +97,7 @@ public class LockerTest extends AndroidTestCase {
         setConnected(false);
         when(mDeviceHelper.isLocked(false)).thenReturn(true);
 
-        mLocker.handleLocking();
+        mLocker.handleLocking(false, false);
 
         verify(mDPM, never()).resetPassword("1234", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
     }

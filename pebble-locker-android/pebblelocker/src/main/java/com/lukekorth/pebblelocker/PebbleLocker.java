@@ -26,6 +26,7 @@ import android.widget.EditText;
 
 import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
+import com.lukekorth.pebblelocker.services.LockerService;
 import com.lukekorth.pebblelocker.views.BluetoothPreference;
 import com.lukekorth.pebblelocker.views.PebbleWatchAppDownload;
 import com.lukekorth.pebblelocker.views.Status;
@@ -175,7 +176,11 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
                     .show();
         }
 
-        new Locker(this, "[USER_TRIGGERED]").handleLocking(false);
+        Intent intent = new Intent(this, LockerService.class);
+        intent.putExtra(LockerService.TAG, "[USER-TRIGGERED");
+        intent.putExtra(LockerService.WITH_DELAY, false);
+        intent.putExtra(LockerService.FORCE_LOCK, false);
+        startService(intent);
     }
 
     private void removePassword() {

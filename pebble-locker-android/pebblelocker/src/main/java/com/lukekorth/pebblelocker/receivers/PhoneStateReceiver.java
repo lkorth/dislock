@@ -4,8 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.lukekorth.pebblelocker.Locker;
 import com.lukekorth.pebblelocker.logging.Logger;
+import com.lukekorth.pebblelocker.services.LockerService;
 
 public class PhoneStateReceiver extends BroadcastReceiver {
 
@@ -18,7 +18,10 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 		new Logger(context).log(TAG, "Received a PhoneState BroadcastIntent: " + intent.getAction());
 
         if (action.equals(BOOT_ACTION)) {
-            new Locker(context, TAG).handleLocking();
+            Intent lockerIntent = new Intent(context, LockerService.class);
+            lockerIntent.putExtra(LockerService.TAG, TAG);
+            lockerIntent.putExtra(LockerService.WITH_DELAY, false);
+            context.startService(lockerIntent);
         }
 	}
 }

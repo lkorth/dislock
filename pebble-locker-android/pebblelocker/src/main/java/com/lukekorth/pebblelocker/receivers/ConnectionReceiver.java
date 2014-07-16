@@ -6,11 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.lukekorth.pebblelocker.LockState;
-import com.lukekorth.pebblelocker.Locker;
 import com.lukekorth.pebblelocker.helpers.BaseBroadcastReceiver;
 import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
+import com.lukekorth.pebblelocker.services.LockerService;
 
 public class ConnectionReceiver extends BaseBroadcastReceiver {
 
@@ -42,17 +42,21 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 			checkForBluetoothDevice(((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)));
 			boolean isWifiConnected = new WifiHelper(context, mLogger).isTrustedWifiConnected();
 
+            Intent lockerIntent = new Intent(context, LockerService.class);
+            lockerIntent.putExtra(LockerService.TAG, mTag);
 			if (mAction.equals(USER_PRESENT) && deviceHelper.isUnlockNeeded()) {
 				mLogger.log("User present and need to unlock...attempting to unlock");
-				new Locker(context, mTag).handleLocking();
+                lockerIntent.putExtra(LockerService.WITH_DELAY, false);
+                context.startService(lockerIntent);
 			} else if ((mAction.equals(PEBBLE_CONNECTED) || mAction.equals(BLUETOOTH_CONNECTED) ||
                     (mAction.equals(CONNECTIVITY_CHANGE) && isWifiConnected)) && deviceHelper.isLocked(true)) {
 				mLogger.log("Attempting unlock");
-				new Locker(context, mTag).handleLocking();
+                lockerIntent.putExtra(LockerService.WITH_DELAY, false);
+                context.startService(lockerIntent);
 			} else if ((mAction.equals(PEBBLE_DISCONNECTED) || mAction.equals(BLUETOOTH_DISCONNECTED) ||
                     (mAction.equals(CONNECTIVITY_CHANGE) && !isWifiConnected)) && !deviceHelper.isLocked(false)) {
 				mLogger.log("Attempting lock");
-                new Locker(context, mTag).lockWithDelay();
+                context.startService(lockerIntent);
 			}
 		} else {
 			mLogger.log("Lock state was manually set to " + lockState.getDisplayName());
