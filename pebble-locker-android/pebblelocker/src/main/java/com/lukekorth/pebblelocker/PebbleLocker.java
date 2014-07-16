@@ -24,6 +24,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 import com.lukekorth.pebblelocker.services.LockerService;
@@ -39,6 +41,7 @@ import fr.nicolaspomepuy.discreetapprate.RetryPolicy;
 public class PebbleLocker extends PremiumFeaturesActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
+    private static final int REQUEST_GOOGLE_PLAY_SERVICES = 2;
 	
 	private DevicePolicyManager mDPM;
 	private ComponentName mDeviceAdmin;
@@ -146,6 +149,12 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
                 timeStamp < (System.currentTimeMillis() - 60000) &&
 				mPrefs.getBoolean(ConnectionReceiver.LOCKED, true)) {
             requestPassword();
+        } else {
+            int response = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+            if (response != ConnectionResult.SUCCESS) {
+                GooglePlayServicesUtil.getErrorDialog(response, this, REQUEST_GOOGLE_PLAY_SERVICES)
+                    .show();
+            }
         }
 	}
 	
