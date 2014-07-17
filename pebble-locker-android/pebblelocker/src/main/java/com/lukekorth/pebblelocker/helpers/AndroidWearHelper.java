@@ -131,7 +131,7 @@ public class AndroidWearHelper implements ResultCallback<NodeApi.GetConnectedNod
         private static final String ANDROID_WEAR_DEVICES = "androidWearDevices";
 
         public AndroidWearDatabase(Context context) {
-            super(context, "pebble-locker", null, BuildConfig.VERSION_CODE);
+            super(context, "pebble-locker-android-wear", null, BuildConfig.VERSION_CODE);
         }
 
         @Override
