@@ -191,7 +191,7 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
         }
 
         Intent intent = new Intent(this, LockerService.class);
-        intent.putExtra(LockerService.TAG, "[USER-TRIGGERED");
+        intent.putExtra(LockerService.TAG, "[USER-TRIGGERED]");
         intent.putExtra(LockerService.WITH_DELAY, false);
         intent.putExtra(LockerService.FORCE_LOCK, false);
         startService(intent);

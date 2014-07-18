@@ -18,9 +18,11 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 	private static final String PEBBLE_DISCONNECTED    = "com.getpebble.action.pebble_disconnected";
 	private static final String BLUETOOTH_CONNECTED    = "android.bluetooth.device.action.acl_connected";
 	private static final String BLUETOOTH_DISCONNECTED = "android.bluetooth.device.action.acl_disconnected";
-	private static final String CONNECTIVITY_CHANGE    = "android.net.conn.connectivity_change";
+	public static final String ANDROID_WEAR_CONNECTED = "com.lukekorth.pebblelocker.android_wear_connected";
+    public static final String ANDROID_WEAR_DISCONNECTED = "com.lukekorth.pebblelocker.android_wear_disconnected";
+    private static final String CONNECTIVITY_CHANGE    = "android.net.conn.connectivity_change";
 	private static final String USER_PRESENT           = "android.intent.action.user_present";
-	public  static final String STATUS_CHANGED_INTENT  = "com.lukekorth.pebblelocker.STATUS_CHANGED";
+	public  static final String STATUS_CHANGED_INTENT  = "com.lukekorth.pebblelocker.status_changed";
 	public  static final String LOCKED                 = "locked";
 
 	private String mAction;
@@ -29,7 +31,6 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
-        acquireWakeLock();
 
 	    mAction = intent.getAction().toLowerCase();
 		mLogger.log("ConnectionReceiver: " + mAction);
@@ -47,22 +48,22 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 			if (mAction.equals(USER_PRESENT) && deviceHelper.isUnlockNeeded()) {
 				mLogger.log("User present and need to unlock...attempting to unlock");
                 lockerIntent.putExtra(LockerService.WITH_DELAY, false);
-                context.startService(lockerIntent);
+                startWakefulService(context, lockerIntent);
 			} else if ((mAction.equals(PEBBLE_CONNECTED) || mAction.equals(BLUETOOTH_CONNECTED) ||
+                    mAction.equals(ANDROID_WEAR_CONNECTED) ||
                     (mAction.equals(CONNECTIVITY_CHANGE) && isWifiConnected)) && deviceHelper.isLocked(true)) {
 				mLogger.log("Attempting unlock");
                 lockerIntent.putExtra(LockerService.WITH_DELAY, false);
-                context.startService(lockerIntent);
+                startWakefulService(context, lockerIntent);
 			} else if ((mAction.equals(PEBBLE_DISCONNECTED) || mAction.equals(BLUETOOTH_DISCONNECTED) ||
+                    mAction.equals(ANDROID_WEAR_DISCONNECTED) ||
                     (mAction.equals(CONNECTIVITY_CHANGE) && !isWifiConnected)) && !deviceHelper.isLocked(false)) {
 				mLogger.log("Attempting lock");
-                context.startService(lockerIntent);
+                startWakefulService(context, lockerIntent);
 			}
 		} else {
 			mLogger.log("Lock state was manually set to " + lockState.getDisplayName());
 		}
-
-        releaseWakeLock();
 	}
 
 	private void checkForBluetoothDevice(BluetoothDevice device) {

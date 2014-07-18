@@ -2,6 +2,7 @@ package com.lukekorth.pebblelocker.services;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.support.v4.content.WakefulBroadcastReceiver;
 
 import com.lukekorth.pebblelocker.Locker;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
@@ -21,6 +22,9 @@ public class LockerService extends IntentService {
         Locker locker = new Locker(this, intent.getStringExtra(TAG));
         locker.handleLocking(intent.getBooleanExtra(WITH_DELAY, true),
                 intent.getBooleanExtra(FORCE_LOCK, true));
+
         DeviceHelper.sendLockStatusChangedBroadcast(this);
+
+        WakefulBroadcastReceiver.completeWakefulIntent(intent);
     }
 }
