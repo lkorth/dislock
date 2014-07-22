@@ -41,7 +41,7 @@
             </intent-filter>
         </receiver>
         
-        <receiver android:name=".receivers.ConnectionReceiver" android:exported="true">
+        <receiver android:name=".receivers.ConnectionReceiver">
             <intent-filter>
                 <action android:name="com.getpebble.action.PEBBLE_CONNECTED" />
                 <action android:name="com.getpebble.action.PEBBLE_DISCONNECTED" />
