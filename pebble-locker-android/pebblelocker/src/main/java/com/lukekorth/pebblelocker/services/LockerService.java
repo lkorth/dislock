@@ -6,6 +6,7 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 
 import com.lukekorth.pebblelocker.Locker;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
+import com.lukekorth.pebblelocker.logging.Logger;
 
 public class LockerService extends IntentService {
 
@@ -19,12 +20,18 @@ public class LockerService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Locker locker = new Locker(this, intent.getStringExtra(TAG));
+        String tag = intent.getStringExtra(TAG);
+        Logger logger = new Logger(this, tag);
+
+        logger.log("Starting service to run locking");
+
+        Locker locker = new Locker(this, tag);
         locker.handleLocking(intent.getBooleanExtra(WITH_DELAY, true),
                 intent.getBooleanExtra(FORCE_LOCK, true));
 
         DeviceHelper.sendLockStatusChangedBroadcast(this);
 
-        WakefulBroadcastReceiver.completeWakefulIntent(intent);
+        boolean wakeLockRemoved = WakefulBroadcastReceiver.completeWakefulIntent(intent);
+        logger.log("WakeLock removed: " + wakeLockRemoved);
     }
 }
