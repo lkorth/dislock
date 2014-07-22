@@ -4,7 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
@@ -93,10 +95,16 @@ public class Status extends Preference implements AndroidWearHelper.Listener {
 
     @Override
     public void onKnownDevicesLoaded(Map<String, String> devices) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         String connectedDevices = getConnectedDevices();
 
         if (devices.size() > 0) {
-            connectedDevices = conditionallyAddNewLine(connectedDevices, "Android Wear Connected");
+            for(String key : devices.keySet()) {
+                if (prefs.getBoolean(key, false)) {
+                    connectedDevices = conditionallyAddNewLine(connectedDevices, "Android Wear Connected");
+                    break;
+                }
+            }
         }
 
         if (TextUtils.isEmpty(connectedDevices)) {
