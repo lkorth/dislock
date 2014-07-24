@@ -66,7 +66,10 @@ public class Status extends Preference implements AndroidWearHelper.Listener {
         }
 
         setSummary(connectedDevices);
-        getConnectedAndroidWears();
+
+        if (PremiumFeaturesActivity.hasPurchased(mContext)) {
+            getConnectedAndroidWears();
+        }
     }
 
     private String getConnectedDevices() {
