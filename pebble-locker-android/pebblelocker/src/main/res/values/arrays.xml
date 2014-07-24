@@ -7,7 +7,6 @@
         <item>10 seconds</item>
         <item>15 seconds</item>
         <item>30 seconds</item>
-        <item>1 minute</item>
     </string-array>
     <string-array name="grace_period_entry_values">
         <item>0</item>
@@ -16,6 +15,5 @@
         <item>10</item>
         <item>15</item>
         <item>30</item>
-        <item>60</item>
     </string-array>
 </resources>

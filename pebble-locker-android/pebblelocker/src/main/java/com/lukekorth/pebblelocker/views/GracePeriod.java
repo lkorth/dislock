@@ -39,8 +39,6 @@ public class GracePeriod extends ListPreference implements Preference.OnPreferen
         String time;
         if (length.equals("0")) {
             time = "instantly";
-        } else if (length.equals("60")) {
-            time = "1 minute";
         } else {
             time = length + " seconds";
         }
