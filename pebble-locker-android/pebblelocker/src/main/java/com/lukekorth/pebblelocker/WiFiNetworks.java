@@ -7,17 +7,19 @@ import android.content.Intent;
 import android.net.wifi.WifiConfiguration;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.provider.Settings;
 
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
+import com.lukekorth.pebblelocker.services.LockerService;
 
 import java.util.List;
 import java.util.Map;
 
-public class WiFiNetworks extends PreferenceActivity {
+public class WiFiNetworks extends PreferenceActivity implements Preference.OnPreferenceChangeListener {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,10 +58,23 @@ public class WiFiNetworks extends PreferenceActivity {
                 CheckBoxPreference checkboxPref = new CheckBoxPreference(this);
                 checkboxPref.setKey(entry.getValue());
                 checkboxPref.setTitle(entry.getKey());
+                checkboxPref.setOnPreferenceChangeListener(this);
                 inlinePrefCat.addPreference(checkboxPref);
             }
 
             setPreferenceScreen(root);
         }
+    }
+
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
+        if (LockState.getCurrentState(this) == LockState.AUTO) {
+            Intent intent = new Intent(this, LockerService.class);
+            intent.putExtra(LockerService.TAG, "[WIFI-ACTIVITY]");
+            intent.putExtra(LockerService.WITH_DELAY, false);
+            intent.putExtra(LockerService.FORCE_LOCK, false);
+            startService(intent);
+        }
+        return true;
     }
 }

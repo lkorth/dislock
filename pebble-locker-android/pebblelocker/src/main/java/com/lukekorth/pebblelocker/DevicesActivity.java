@@ -1,6 +1,7 @@
 package com.lukekorth.pebblelocker;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -13,6 +14,7 @@ import com.activeandroid.query.Select;
 import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
 import com.lukekorth.pebblelocker.models.AndroidWearDevices;
 import com.lukekorth.pebblelocker.models.BluetoothDevices;
+import com.lukekorth.pebblelocker.services.LockerService;
 
 import java.util.List;
 import java.util.Set;
@@ -37,6 +39,13 @@ public class DevicesActivity extends PreferenceActivity implements AndroidWearHe
         CheckBoxPreference pebblePref = new CheckBoxPreference(this);
         pebblePref.setKey("pebble");
         pebblePref.setTitle("Allow any Pebble to unlock");
+        pebblePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                handleLocking();
+                return true;
+            }
+        });
         pebblePref.setChecked(PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pebble", true));
         pebble.addPreference(pebblePref);
 
@@ -78,6 +87,7 @@ public class DevicesActivity extends PreferenceActivity implements AndroidWearHe
 
             device.trusted = Boolean.parseBoolean(newValue.toString());
             device.save();
+            handleLocking();
             return true;
         }
     };
@@ -87,9 +97,20 @@ public class DevicesActivity extends PreferenceActivity implements AndroidWearHe
         public boolean onPreferenceChange(Preference preference, Object newValue) {
             mAndroidWearHelper.setDeviceTrusted(preference.getTitle().toString(), preference.getKey(),
                     Boolean.parseBoolean(newValue.toString()));
+            handleLocking();
             return true;
         }
     };
+
+    private void handleLocking() {
+        if (LockState.getCurrentState(this) == LockState.AUTO) {
+            Intent intent = new Intent(this, LockerService.class);
+            intent.putExtra(LockerService.TAG, "[DEVICE-ACTIVITY]");
+            intent.putExtra(LockerService.WITH_DELAY, false);
+            intent.putExtra(LockerService.FORCE_LOCK, false);
+            startService(intent);
+        }
+    }
 
     private void getBluetoothDevices() {
         if (mBluetoothStatus == null) {
