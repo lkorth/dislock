@@ -1,24 +1,20 @@
 package com.lukekorth.pebblelocker.helpers;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.preference.PreferenceManager;
 
+import com.activeandroid.query.Select;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
-import com.lukekorth.pebblelocker.BuildConfig;
 import com.lukekorth.pebblelocker.logging.Logger;
+import com.lukekorth.pebblelocker.models.AndroidWearDevices;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 public class AndroidWearHelper implements ResultCallback<NodeApi.GetConnectedNodesResult> {
 
@@ -26,6 +22,10 @@ public class AndroidWearHelper implements ResultCallback<NodeApi.GetConnectedNod
     private Logger mLogger;
     private Listener mListener;
     private boolean mAllDevices;
+
+    public static interface Listener {
+        public void onKnownDevicesLoaded(List<AndroidWearDevices> devices);
+    }
 
     public AndroidWearHelper(Context context) {
         mContext = context;
@@ -37,18 +37,95 @@ public class AndroidWearHelper implements ResultCallback<NodeApi.GetConnectedNod
         mLogger = logger;
     }
 
-    public boolean isTrustedWearConnected() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        List<Node> wears = getConnectedDevices();
+    public AndroidWearDevices addDevice(Node node) {
+        AndroidWearDevices device = new Select()
+                .from(AndroidWearDevices.class)
+                .where("deviceId = ?", node.getId())
+                .executeSingle();
 
+        if (device == null) {
+            device = new AndroidWearDevices();
+            device.name = node.getDisplayName();
+            device.deviceId = node.getId();
+            device.trusted = false;
+            device.save();
+        }
+
+        return device;
+    }
+
+    public void setDeviceTrusted(String name, String deviceId, boolean trusted) {
+        AndroidWearDevices device = new Select()
+                .from(AndroidWearDevices.class)
+                .where("deviceId = ?", deviceId)
+                .executeSingle();
+
+        if (device == null) {
+            device = new AndroidWearDevices();
+            device.name = name;
+            device.deviceId = deviceId;
+        }
+
+        device.trusted = trusted;
+        device.save();
+    }
+
+    public boolean isTrustedDeviceConnected() {
+        List<Node> wears = getConnectedDevices();
         for(Node node : wears) {
             mLogger.log("Wear " + node.getDisplayName() + " with id: " + node.getId() + " is connected");
-            if (prefs.getBoolean(node.getId(), false)) {
+            boolean trusted = new Select()
+                    .from(AndroidWearDevices.class)
+                    .where("deviceId = ?", node.getId())
+                    .where("trusted = ?", true)
+                    .exists();
+            if (trusted) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    public List<AndroidWearDevices> getEncounteredDevices() {
+        return new Select()
+                .from(AndroidWearDevices.class)
+                .execute();
+    }
+
+    public List<Node> getConnectedDevices() {
+        NodeApi.GetConnectedNodesResult connectedNodes = Wearable.NodeApi
+                .getConnectedNodes(getGoogleClient()).await();
+        return connectedNodes.getNodes();
+    }
+
+    public void getConnectedDevices(Listener listener) {
+        mListener = listener;
+        Wearable.NodeApi.getConnectedNodes(getGoogleClient())
+                .setResultCallback(this);
+    }
+
+    public void getConnectedDevices(Listener listener, boolean allDevices) {
+        mAllDevices = allDevices;
+        getConnectedDevices(listener);
+    }
+
+    @Override
+    public void onResult(NodeApi.GetConnectedNodesResult connectedNodesResult) {
+        Set<AndroidWearDevices> devices = new HashSet<AndroidWearDevices>();
+        for (Node node : connectedNodesResult.getNodes()) {
+            devices.add(addDevice(node));
+        }
+
+        if (mAllDevices) {
+            devices.addAll(getEncounteredDevices());
+        }
+
+        if (mListener != null) {
+            List<AndroidWearDevices> response = new ArrayList<AndroidWearDevices>();
+            response.addAll(devices);
+            mListener.onKnownDevicesLoaded(response);
+        }
     }
 
     private GoogleApiClient getGoogleClient() {
@@ -58,90 +135,4 @@ public class AndroidWearHelper implements ResultCallback<NodeApi.GetConnectedNod
         return client;
     }
 
-    public List<Node> getConnectedDevices() {
-        NodeApi.GetConnectedNodesResult connectedNodes = Wearable.NodeApi
-                .getConnectedNodes(getGoogleClient()).await();
-
-        return connectedNodes.getNodes();
-    }
-
-    public void getConnectedDevices(Listener listener) {
-        mListener = listener;
-        mAllDevices = false;
-
-        Wearable.NodeApi.getConnectedNodes(getGoogleClient())
-                .setResultCallback(this);
-    }
-
-    public void getKnownDevices(Listener listener) {
-        mListener = listener;
-        mAllDevices = true;
-        Wearable.NodeApi.getConnectedNodes(getGoogleClient())
-                .setResultCallback(this);
-    }
-
-    public void addDevice(Node node) {
-        ContentValues cv = new ContentValues();
-        cv.put("name", node.getDisplayName());
-        cv.put("device_id", node.getId());
-
-        SQLiteDatabase db = new AndroidWearDatabase(mContext).getWritableDatabase();
-        db.insertWithOnConflict(AndroidWearDatabase.ANDROID_WEAR_DEVICES, null, cv,
-                SQLiteDatabase.CONFLICT_REPLACE);
-        db.close();
-    }
-
-    @Override
-    public void onResult(NodeApi.GetConnectedNodesResult connectedNodesResult) {
-        Map<String, String> devices = new HashMap<String, String>();
-
-        if (mAllDevices) {
-            getEncounteredDevices(devices);
-        }
-
-        for (Node node : connectedNodesResult.getNodes()) {
-            devices.put(node.getId(), node.getDisplayName());
-        }
-
-        if (mListener != null) {
-            mListener.onKnownDevicesLoaded(devices);
-        }
-    }
-
-    private void getEncounteredDevices(Map<String, String> devices) {
-        SQLiteDatabase db = new AndroidWearDatabase(mContext).getReadableDatabase();
-        Cursor cursor = db.query(AndroidWearDatabase.ANDROID_WEAR_DEVICES, new String[] { "name", "device_id" },
-                null, null, null, null, null);
-
-        while(cursor.moveToNext()) {
-            devices.put(cursor.getString(cursor.getColumnIndex("device_id")),
-                    cursor.getString(cursor.getColumnIndex("name")));
-        }
-
-        cursor.close();
-        db.close();
-    }
-
-    public interface Listener {
-        public void onKnownDevicesLoaded(Map<String, String> devices);
-    }
-
-    private class AndroidWearDatabase extends SQLiteOpenHelper {
-
-        private static final String ANDROID_WEAR_DEVICES = "androidWearDevices";
-
-        public AndroidWearDatabase(Context context) {
-            super(context, "pebble-locker-android-wear", null, BuildConfig.VERSION_CODE);
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            db.execSQL("CREATE TABLE IF NOT EXISTS " + ANDROID_WEAR_DEVICES + " (name TEXT PRIMARY KEY, device_id TEXT)");
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            onCreate(db);
-        }
-    }
 }

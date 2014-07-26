@@ -1,2 +1,3 @@
+include ':libraries:ActiveAndroid'
 include ':libraries:PebbleKit'
 include ':pebblelocker'

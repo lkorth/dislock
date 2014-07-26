@@ -10,7 +10,6 @@ import android.util.Log;
 
 import com.lukekorth.pebblelocker.PebbleLocker.CustomDeviceAdminReceiver;
 import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
-import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
@@ -26,7 +25,6 @@ public class Locker {
     private DeviceHelper mDeviceHelper;
     private WifiHelper mWifiHelper;
     private AndroidWearHelper mAndroidWearHelper;
-    private BluetoothHelper mBluetoothHelper;
     private PebbleHelper mPebbleHelper;
 	private DevicePolicyManager mDPM;
 
@@ -37,21 +35,19 @@ public class Locker {
         mDeviceHelper = new DeviceHelper(context, mLogger);
         mWifiHelper = new WifiHelper(context, mLogger);
         mAndroidWearHelper = new AndroidWearHelper(context, mLogger);
-        mBluetoothHelper = new BluetoothHelper(context, mLogger);
         mPebbleHelper = new PebbleHelper(context, mLogger);
 		mDPM = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
 	}
 
     public Locker(Context context, String tag, DeviceHelper deviceHelper, WifiHelper wifiHelper,
-                  AndroidWearHelper androidWearHelper, BluetoothHelper bluetoothHelper,
-                  PebbleHelper pebbleHelper, DevicePolicyManager dpm) {
+                  AndroidWearHelper androidWearHelper, PebbleHelper pebbleHelper,
+                  DevicePolicyManager dpm) {
         mContext = context;
         mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
         mLogger = new Logger(context, tag);
         mDeviceHelper = deviceHelper;
         mWifiHelper = wifiHelper;
         mAndroidWearHelper = androidWearHelper;
-        mBluetoothHelper = bluetoothHelper;
         mPebbleHelper = pebbleHelper;
         mDPM = dpm;
     }
@@ -150,8 +146,8 @@ public class Locker {
 
 	public boolean isConnectedToDeviceOrWifi() {
 		boolean pebble = mPebbleHelper.isEnabledAndConnected();
-        boolean wear = mAndroidWearHelper.isTrustedWearConnected();
-		boolean bluetooth = mBluetoothHelper.isTrustedDeviceConnected();
+        boolean wear = mAndroidWearHelper.isTrustedDeviceConnected();
+		boolean bluetooth = com.lukekorth.pebblelocker.models.BluetoothDevices.isTrustedDeviceConnected();
 		boolean wifi = mWifiHelper.isTrustedWifiConnected();
 
 		mLogger.log("Pebble: " + pebble + " Wear: " + wear + " Bluetooth: " + bluetooth + " Wifi: " + wifi);

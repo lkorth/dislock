@@ -2,53 +2,37 @@ package com.lukekorth.pebblelocker.test;
 
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.test.AndroidTestCase;
 
-import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
-import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 import com.lukekorth.pebblelocker.Locker;
 import com.lukekorth.pebblelocker.PebbleLocker;
-import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
+import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
+import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class LockerTest extends AndroidTestCase {
-
-    private final static String TAG = "TEST";
+public class LockerTest extends BaseApplicationTestCase {
 
     @Mock DeviceHelper mDeviceHelper;
     @Mock WifiHelper mWifiHelper;
     @Mock AndroidWearHelper mAndroidWearHelper;
-    @Mock BluetoothHelper mBluetoothHelper;
     @Mock PebbleHelper mPebbleHelper;
     @Mock DevicePolicyManager mDPM;
 
-    private SharedPreferences mPrefs;
     private Locker mLocker;
 
     @Override
     public void setUp() throws Exception {
-        System.setProperty("dexmaker.dexcache", getContext().getCacheDir().getPath());
-        MockitoAnnotations.initMocks(this);
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        mLocker = new Locker(getContext(), TAG, mDeviceHelper, mWifiHelper, mAndroidWearHelper,
-                mBluetoothHelper, mPebbleHelper, mDPM);
-    }
-
-    @Override
-    public void tearDown() {
-        mPrefs.edit().clear().commit();
+        super.setUp();
+        mLocker = new Locker(getContext(), "TEST", mDeviceHelper, mWifiHelper, mAndroidWearHelper,
+                mPebbleHelper, mDPM);
     }
 
     public void testHandleLockingProxiesForceLockOption() {
@@ -234,7 +218,7 @@ public class LockerTest extends AndroidTestCase {
 
     public void testConnectedToDeviceOrWifiIsTrueWhenAllDevicesAreConnected() {
         when(mWifiHelper.isTrustedWifiConnected()).thenReturn(true);
-        when(mBluetoothHelper.isTrustedDeviceConnected()).thenReturn(true);
+        createBluetoothDevice("test", "test", true, true);
         when(mPebbleHelper.isEnabledAndConnected()).thenReturn(true);
 
         assertTrue(mLocker.isConnectedToDeviceOrWifi());
@@ -242,7 +226,7 @@ public class LockerTest extends AndroidTestCase {
 
     public void testConnectedToDeviceOrWifiIsFalseWhenNoDevicesAreConnected() {
         when(mWifiHelper.isTrustedWifiConnected()).thenReturn(false);
-        when(mBluetoothHelper.isTrustedDeviceConnected()).thenReturn(false);
+        createBluetoothDevice("test", "test", false, true);
         when(mPebbleHelper.isEnabledAndConnected()).thenReturn(false);
 
         assertFalse(mLocker.isConnectedToDeviceOrWifi());
@@ -250,7 +234,7 @@ public class LockerTest extends AndroidTestCase {
 
     public void testConnectedToDeviceOrWifiIsTrueWhenOneDeviceIsConnected() {
         when(mWifiHelper.isTrustedWifiConnected()).thenReturn(false);
-        when(mBluetoothHelper.isTrustedDeviceConnected()).thenReturn(true);
+        createBluetoothDevice("test", "test", true, true);
         when(mPebbleHelper.isEnabledAndConnected()).thenReturn(false);
 
         assertTrue(mLocker.isConnectedToDeviceOrWifi());
@@ -266,4 +250,5 @@ public class LockerTest extends AndroidTestCase {
     private void setConnected(boolean connected) {
         when(mPebbleHelper.isEnabledAndConnected()).thenReturn(connected);
     }
+
 }

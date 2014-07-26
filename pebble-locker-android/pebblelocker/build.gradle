@@ -34,6 +34,7 @@ android {
 }
 
 dependencies {
+    compile project(':libraries:ActiveAndroid')
     compile project(':libraries:PebbleKit')
     compile 'com.google.android.gms:play-services:5.0.77'
     compile 'fr.nicolaspomepuy:discreetapprate:2.0+@aar'

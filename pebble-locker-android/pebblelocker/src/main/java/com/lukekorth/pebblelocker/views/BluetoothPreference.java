@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.preference.Preference;
 import android.util.AttributeSet;
 
-import com.lukekorth.pebblelocker.BluetoothDevices;
+import com.lukekorth.pebblelocker.DevicesActivity;
 import com.lukekorth.pebblelocker.PremiumFeaturesActivity;
 import com.lukekorth.pebblelocker.R;
 
@@ -43,7 +43,7 @@ public class BluetoothPreference extends Preference implements Preference.OnPref
     @Override
     public boolean onPreferenceClick(Preference preference) {
         if(mPremiumFeaturesActivity.hasPurchased()) {
-            mContext.startActivity(new Intent(mContext, BluetoothDevices.class));
+            mContext.startActivity(new Intent(mContext, DevicesActivity.class));
         } else {
             mPremiumFeaturesActivity.requirePurchase();
         }

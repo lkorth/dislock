@@ -7,9 +7,9 @@ import android.content.Intent;
 
 import com.lukekorth.pebblelocker.LockState;
 import com.lukekorth.pebblelocker.helpers.BaseBroadcastReceiver;
-import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
+import com.lukekorth.pebblelocker.models.BluetoothDevices;
 import com.lukekorth.pebblelocker.services.LockerService;
 
 public class ConnectionReceiver extends BaseBroadcastReceiver {
@@ -68,9 +68,9 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 
 	private void checkForBluetoothDevice(BluetoothDevice device) {
 		if (mAction.equals(BLUETOOTH_CONNECTED)) {
-			new BluetoothHelper(mContext, mLogger).setDeviceStatus(device.getName(), device.getAddress(), true);
+            BluetoothDevices.setDeviceConnected(device, true);
 		} else if (mAction.equals(BLUETOOTH_DISCONNECTED)) {
-			new BluetoothHelper(mContext, mLogger).setDeviceStatus(device.getName(), device.getAddress(), false);
+            BluetoothDevices.setDeviceConnected(device, false);
 		}
 	}
 }

@@ -4,22 +4,21 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.preference.Preference;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import com.lukekorth.pebblelocker.PremiumFeaturesActivity;
 import com.lukekorth.pebblelocker.R;
 import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
-import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
 import com.lukekorth.pebblelocker.logging.Logger;
+import com.lukekorth.pebblelocker.models.AndroidWearDevices;
+import com.lukekorth.pebblelocker.models.BluetoothDevices;
 import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 
-import java.util.Map;
+import java.util.List;
 
 public class Status extends Preference implements AndroidWearHelper.Listener {
 
@@ -82,7 +81,7 @@ public class Status extends Preference implements AndroidWearHelper.Listener {
             connectedDevices = conditionallyAddNewLine(connectedDevices,
                     new WifiHelper(mContext, mLogger).getConnectionStatus());
             connectedDevices = conditionallyAddNewLine(connectedDevices,
-                    new BluetoothHelper(mContext, mLogger).getConnectionStatus());
+                    BluetoothDevices.getConnectionStatus());
         }
 
         return connectedDevices;
@@ -97,13 +96,12 @@ public class Status extends Preference implements AndroidWearHelper.Listener {
     }
 
     @Override
-    public void onKnownDevicesLoaded(Map<String, String> devices) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+    public void onKnownDevicesLoaded(List<AndroidWearDevices> devices) {
         String connectedDevices = getConnectedDevices();
 
         if (devices.size() > 0) {
-            for(String key : devices.keySet()) {
-                if (prefs.getBoolean(key, false)) {
+            for(AndroidWearDevices device : devices) {
+                if (device.trusted) {
                     connectedDevices = conditionallyAddNewLine(connectedDevices, "Android Wear Connected");
                     break;
                 }

@@ -12,19 +12,16 @@ import java.util.UUID;
 
 public class AndroidWearReceiver extends WearableListenerService {
 
-    private String mTag;
     private Logger mLogger;
 
     private void init() {
-        mTag = "[" + UUID.randomUUID().toString().split("-")[1] + "]";
-        mLogger = new Logger(this, mTag);
+        mLogger = new Logger(this, "[" + UUID.randomUUID().toString().split("-")[1] + "]");
     }
 
     @Override
     public void onPeerConnected(Node peer) {
         init();
-        mLogger.log("Android Wear " + peer.getDisplayName() + " : " + peer.getId() +
-                " connected");
+        mLogger.log("Android Wear " + peer.getDisplayName() + " : " + peer.getId() + " connected");
         new AndroidWearHelper(this).addDevice(peer);
 
         DeviceHelper.sendLockStatusChangedBroadcast(this);
@@ -34,8 +31,7 @@ public class AndroidWearReceiver extends WearableListenerService {
     @Override
     public void onPeerDisconnected(Node peer) {
         init();
-        mLogger.log("Android Wear " + peer.getDisplayName() + " : " + peer.getId() +
-                " disconnected");
+        mLogger.log("Android Wear " + peer.getDisplayName() + " : " + peer.getId() + " disconnected");
 
         DeviceHelper.sendLockStatusChangedBroadcast(this);
         sendBroadcast(new Intent(ConnectionReceiver.ANDROID_WEAR_DISCONNECTED));

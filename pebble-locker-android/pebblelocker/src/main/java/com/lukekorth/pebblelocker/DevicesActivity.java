@@ -9,16 +9,19 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 
+import com.activeandroid.query.Select;
 import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
-import com.lukekorth.pebblelocker.helpers.BluetoothHelper;
+import com.lukekorth.pebblelocker.models.AndroidWearDevices;
+import com.lukekorth.pebblelocker.models.BluetoothDevices;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
-public class BluetoothDevices extends PreferenceActivity implements AndroidWearHelper.Listener {
+public class DevicesActivity extends PreferenceActivity implements AndroidWearHelper.Listener {
 
     private PreferenceCategory mAndroidWear;
     private Preference mAndroidWearStatus;
+    private AndroidWearHelper mAndroidWearHelper;
     private PreferenceCategory mBluetooth;
     private Preference mBluetoothStatus;
 
@@ -41,6 +44,7 @@ public class BluetoothDevices extends PreferenceActivity implements AndroidWearH
         mAndroidWear = new PreferenceCategory(this);
         mAndroidWear.setTitle("Android Wear - Beta");
         root.addPreference(mAndroidWear);
+        mAndroidWearHelper = new AndroidWearHelper(this);
 
         // Bluetooth
         mBluetooth = new PreferenceCategory(this);
@@ -57,6 +61,36 @@ public class BluetoothDevices extends PreferenceActivity implements AndroidWearH
         getBluetoothDevices();
     }
 
+    Preference.OnPreferenceChangeListener bluetoothPreferenceListener = new Preference.OnPreferenceChangeListener() {
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            BluetoothDevices device = new Select()
+                    .from(BluetoothDevices.class)
+                    .where("address = ?", preference.getKey())
+                    .executeSingle();
+
+            if (device == null) {
+                device = new BluetoothDevices();
+                device.name = preference.getTitle().toString();
+                device.address = preference.getKey();
+                device.connected = false;
+            }
+
+            device.trusted = Boolean.parseBoolean(newValue.toString());
+            device.save();
+            return true;
+        }
+    };
+
+    Preference.OnPreferenceChangeListener androidWearPreferenceListener = new Preference.OnPreferenceChangeListener() {
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            mAndroidWearHelper.setDeviceTrusted(preference.getTitle().toString(), preference.getKey(),
+                    Boolean.parseBoolean(newValue.toString()));
+            return true;
+        }
+    };
+
     private void getBluetoothDevices() {
         if (mBluetoothStatus == null) {
             mBluetoothStatus = new Preference(this);
@@ -68,7 +102,7 @@ public class BluetoothDevices extends PreferenceActivity implements AndroidWearH
 
         mBluetooth.removeAll();
 
-        Set<BluetoothDevice> pairedDevices = new BluetoothHelper(this).getPairedDevices();
+        Set<BluetoothDevice> pairedDevices = BluetoothDevices.getPairedDevices();
         if (pairedDevices.size() == 0) {
             mBluetooth.addPreference(mBluetoothStatus);
         } else {
@@ -78,6 +112,7 @@ public class BluetoothDevices extends PreferenceActivity implements AndroidWearH
                 CheckBoxPreference checkboxPref = new CheckBoxPreference(this);
                 checkboxPref.setKey(device.getAddress());
                 checkboxPref.setTitle(device.getName());
+                checkboxPref.setOnPreferenceChangeListener(bluetoothPreferenceListener);
                 mBluetooth.addPreference(checkboxPref);
             }
         }
@@ -88,22 +123,24 @@ public class BluetoothDevices extends PreferenceActivity implements AndroidWearH
             mAndroidWearStatus = new Preference(this);
             mAndroidWearStatus.setKey("android_wear_status");
         }
-        mAndroidWearStatus.setTitle("Scanning...");
 
         mAndroidWear.removeAll();
+        mAndroidWearStatus.setTitle("Scanning...");
         mAndroidWear.addPreference(mAndroidWearStatus);
-        new AndroidWearHelper(this).getKnownDevices(this);
+
+        new AndroidWearHelper(this).getConnectedDevices(this, true);
     }
 
     @Override
-    public void onKnownDevicesLoaded(Map<String, String> devices) {
+    public void onKnownDevicesLoaded(List<AndroidWearDevices> devices) {
         mAndroidWear.removeAll();
 
         if (devices.size() > 0) {
-            for(String key : devices.keySet()) {
+            for(AndroidWearDevices device : devices) {
                 CheckBoxPreference checkboxPref = new CheckBoxPreference(this);
-                checkboxPref.setKey(key);
-                checkboxPref.setTitle(devices.get(key));
+                checkboxPref.setKey(device.deviceId);
+                checkboxPref.setTitle(device.name);
+                checkboxPref.setOnPreferenceChangeListener(androidWearPreferenceListener);
                 mAndroidWear.addPreference(checkboxPref);
             }
         } else {
