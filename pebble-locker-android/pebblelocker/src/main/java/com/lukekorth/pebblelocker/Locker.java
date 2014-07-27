@@ -81,7 +81,7 @@ public class Locker {
 			return;
 
 		boolean passwordChanged = mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-		mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false).commit();
+		mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false).apply();
 
 		mLogger.log("Successfully locked: " + passwordChanged);
 
@@ -96,10 +96,10 @@ public class Locker {
 			return;
 
 		if (mDeviceHelper.isOnLockscreen() && mDeviceHelper.isScreenOn()) {
-			mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true).commit();
+			mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true).apply();
 			mLogger.log("Screen is on lockscreen, setting unlock true for future unlock");
 		} else if (mPrefs.getBoolean("key_require_password_on_reconnect", false) && !mPrefs.getBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false)) {
-            mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true).commit();
+            mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true).apply();
             mLogger.log("Requiring user to re-authenticate once before unlocking");
         } else {
 			boolean passwordChanged = false;
@@ -107,10 +107,10 @@ public class Locker {
 
 			try {
 				passwordChanged = mDPM.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-				mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, false).commit();
+				mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, false).apply();
 			} catch (IllegalArgumentException e) {
                 boolean passwordReset = mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-                mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).commit();
+                mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).apply();
                 mLogger.log("There was an exception when setting the password to blank, setting it back. Successfully reset: " + passwordReset + " " + Log.getStackTraceString(e));
             }
 
@@ -118,7 +118,7 @@ public class Locker {
                 mDPM.lockNow();
             }
 
-			mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false).commit();
+			mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false).apply();
 
 			mLogger.log("Successfully unlocked: " + passwordChanged);
 		}

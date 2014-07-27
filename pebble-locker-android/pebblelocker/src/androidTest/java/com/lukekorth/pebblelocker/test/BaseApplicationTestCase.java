@@ -29,7 +29,7 @@ public class BaseApplicationTestCase extends ApplicationTestCase<Application> {
 
     @Override
     public void tearDown() throws Exception {
-        mPrefs.edit().clear().commit();
+        mPrefs.edit().clear().apply();
         getContext().deleteDatabase("pebble_locker.db");
         super.tearDown();
     }

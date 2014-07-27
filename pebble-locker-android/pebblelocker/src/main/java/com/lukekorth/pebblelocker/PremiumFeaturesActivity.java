@@ -144,7 +144,7 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
     }
 
     private void setPurchaseSuccessful() {
-		PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("donated", true).commit();
+		PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("donated", true).apply();
 	}
 
     @Override

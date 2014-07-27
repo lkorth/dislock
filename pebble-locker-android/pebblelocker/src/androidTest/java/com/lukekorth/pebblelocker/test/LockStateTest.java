@@ -20,7 +20,7 @@ public class LockStateTest extends AndroidTestCase {
 
     @Override
     public void tearDown() {
-        PreferenceManager.getDefaultSharedPreferences(getContext()).edit().clear().commit();
+        PreferenceManager.getDefaultSharedPreferences(getContext()).edit().clear().apply();
     }
 
     public void testAutoReturnsCorrectValues() {
@@ -105,6 +105,6 @@ public class LockStateTest extends AndroidTestCase {
         PreferenceManager.getDefaultSharedPreferences(getContext())
                 .edit()
                 .putInt(LockState.LOCK_STATE, state)
-                .commit();
+                .apply();
     }
 }

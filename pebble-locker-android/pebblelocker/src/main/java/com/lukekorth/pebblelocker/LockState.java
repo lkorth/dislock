@@ -66,7 +66,7 @@ public enum LockState {
         LockState lockState = LockState.getInstance(state);
         logger.log("Setting lock state: " + lockState.getDisplayName());
         PreferenceManager.getDefaultSharedPreferences(context)
-                .edit().putInt(LOCK_STATE, state).commit();
+                .edit().putInt(LOCK_STATE, state).apply();
 
         if (lockState == LockState.AUTO) {
             Intent intent = new Intent(context, LockerService.class);

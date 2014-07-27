@@ -176,7 +176,7 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
 
         // hack because we need the new password to be
         // set in shared prefs before this method returns
-        mPrefs.edit().putString("key_password", newPassword).commit();
+        mPrefs.edit().putString("key_password", newPassword).apply();
 
         if(newPassword.length() == 0) {
             new Logger(this).log("[USER]", "Password was set to empty");
@@ -258,7 +258,7 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
                     .setNegativeButton("Use anyway", new OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            mPrefs.edit().putBoolean("ignore_warning", true).commit();
+                            mPrefs.edit().putBoolean("ignore_warning", true).apply();
                         }
                     })
                     .show();

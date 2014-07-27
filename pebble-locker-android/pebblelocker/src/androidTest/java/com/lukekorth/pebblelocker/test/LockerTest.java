@@ -37,7 +37,7 @@ public class LockerTest extends BaseApplicationTestCase {
 
     public void testHandleLockingProxiesForceLockOption() {
         setEnabled();
-        mPrefs.edit().putBoolean("key_force_lock", true).commit();
+        mPrefs.edit().putBoolean("key_force_lock", true).apply();
 
         mLocker.handleLocking(false, false);
         verify(mDPM, never()).lockNow();
@@ -105,7 +105,7 @@ public class LockerTest extends BaseApplicationTestCase {
 
     public void testLockDefaultsToForceLocking() {
         setEnabled();
-        mPrefs.edit().putBoolean("key_force_lock", true).commit();
+        mPrefs.edit().putBoolean("key_force_lock", true).apply();
 
         mLocker.lock();
 
@@ -114,7 +114,7 @@ public class LockerTest extends BaseApplicationTestCase {
 
     public void testLockForceLocksScreenWhenForceLockIsTrue() {
         setEnabled();
-        mPrefs.edit().putBoolean("key_force_lock", true).commit();
+        mPrefs.edit().putBoolean("key_force_lock", true).apply();
 
         mLocker.lock(true);
 
@@ -123,7 +123,7 @@ public class LockerTest extends BaseApplicationTestCase {
 
     public void testLockDoesNotForceLockScreenWhenForceLockIsFalse() {
         setEnabled();
-        mPrefs.edit().putBoolean("key_force_lock", true).commit();
+        mPrefs.edit().putBoolean("key_force_lock", true).apply();
 
         mLocker.lock(false);
 
@@ -133,11 +133,11 @@ public class LockerTest extends BaseApplicationTestCase {
     public void testLockOnlyForceLocksScreenWhenPreferenceIsTrue() {
         setEnabled();
 
-        mPrefs.edit().putBoolean("key_force_lock", false).commit();
+        mPrefs.edit().putBoolean("key_force_lock", false).apply();
         mLocker.lock();
         verify(mDPM, never()).lockNow();
 
-        mPrefs.edit().putBoolean("key_force_lock", true).commit();
+        mPrefs.edit().putBoolean("key_force_lock", true).apply();
         mLocker.lock();
         verify(mDPM, times(1)).lockNow();
     }
@@ -163,8 +163,8 @@ public class LockerTest extends BaseApplicationTestCase {
 
     public void testUnlockRequiresPasswordOnceOnReconnectIfOptionIsEnabled() {
         setEnabled();
-        mPrefs.edit().putBoolean("key_require_password_on_reconnect", true).commit();
-        mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false).commit();
+        mPrefs.edit().putBoolean("key_require_password_on_reconnect", true).apply();
+        mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false).apply();
 
         mLocker.unlock();
 
@@ -211,7 +211,7 @@ public class LockerTest extends BaseApplicationTestCase {
 
     public void testEnabledIsFalseWhenAnyConditionIsNotMet() {
         when(mDPM.isAdminActive(new ComponentName(mContext, PebbleLocker.CustomDeviceAdminReceiver.class))).thenReturn(true);
-        mPrefs.edit().putBoolean("key_enable_locker", true).commit();
+        mPrefs.edit().putBoolean("key_enable_locker", true).apply();
 
         assertFalse(mLocker.enabled());
     }
@@ -243,8 +243,8 @@ public class LockerTest extends BaseApplicationTestCase {
     /* helpers */
     private void setEnabled() {
         when(mDPM.isAdminActive(new ComponentName(mContext, PebbleLocker.CustomDeviceAdminReceiver.class))).thenReturn(true);
-        mPrefs.edit().putBoolean("key_enable_locker", true).commit();
-        mPrefs.edit().putString("key_password", "1234").commit();
+        mPrefs.edit().putBoolean("key_enable_locker", true).apply();
+        mPrefs.edit().putString("key_password", "1234").apply();
     }
 
     private void setConnected(boolean connected) {
