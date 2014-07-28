@@ -1,4 +1,4 @@
-language: java
+language: android
 env:
     global:
     - TERM=dumb
