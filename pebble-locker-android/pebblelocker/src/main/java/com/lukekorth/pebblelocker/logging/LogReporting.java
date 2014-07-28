@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
@@ -38,6 +39,8 @@ public class LogReporting {
 		@SuppressLint("NewApi")
 		@Override
 		protected String doInBackground(Void... args) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+
 			String filename = "pebble-locker.log.gz";
 			StringBuilder message = new StringBuilder();
 			
@@ -71,9 +74,10 @@ public class LogReporting {
 			message.append("App version: " + lockerVersion  + "\n");
 			message.append("Pebble app version: " + pebbleVersion + "\n");
 			message.append("Minimum password length: " + minPasswordLength + "\n");
+            message.append("Pebble Locker password length:" + prefs.getString("key_password", "").length());
 			message.append("Encryption status: " + encryptionStatus + "\n");
 			
-			Map<String,?> keys = PreferenceManager.getDefaultSharedPreferences(mContext).getAll();
+			Map<String,?> keys = prefs.getAll();
 			for(Map.Entry<String,?> entry : keys.entrySet()) {
 				if(!entry.getKey().equals("key_password")) {
 					message.append(entry.getKey() + " : " + entry.getValue().toString() + "\n");

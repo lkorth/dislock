@@ -1,22 +1,32 @@
 package com.lukekorth.pebblelocker;
 
+import android.database.sqlite.SQLiteDatabase;
+
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.app.Application;
 import com.lukekorth.pebblelocker.logging.Logger;
 
 public class PebbleLockerApplication extends Application implements Thread.UncaughtExceptionHandler {
 
+    private static SQLiteDatabase mLogDatabase;
+
     @Override
     public void onCreate() {
         super.onCreate();
         Thread.setDefaultUncaughtExceptionHandler(this);
         ActiveAndroid.initialize(this);
+        mLogDatabase = new Logger(this).getWritableDatabase();
     }
 
     @Override
     public void onTerminate() {
         super.onTerminate();
         ActiveAndroid.dispose();
+        mLogDatabase.close();
+    }
+
+    public static SQLiteDatabase getLogDatabase() {
+        return mLogDatabase;
     }
 
     @Override

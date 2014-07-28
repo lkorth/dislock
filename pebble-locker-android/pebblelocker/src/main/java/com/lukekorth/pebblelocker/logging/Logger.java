@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.lukekorth.pebblelocker.BuildConfig;
+import com.lukekorth.pebblelocker.PebbleLockerApplication;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -47,7 +48,7 @@ public class Logger extends SQLiteOpenHelper {
 	public void log(String tag, String message) {
 		long timestamp = System.currentTimeMillis();
 		
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = PebbleLockerApplication.getLogDatabase();
 
         ContentValues cv = new ContentValues();
         cv.put("timestamp", timestamp);
@@ -55,14 +56,13 @@ public class Logger extends SQLiteOpenHelper {
         db.insert("log", null, cv);
         
         db.delete("log","timestamp < ?", new String[] { Long.toString(System.currentTimeMillis() - 604800000) });
-        db.close();
 
         if(BuildConfig.DEBUG)
             Log.d("pebble-locker", tag + " " + message);
     }
 	
 	public String getLog() {
-        SQLiteDatabase db = getReadableDatabase();
+        SQLiteDatabase db = PebbleLockerApplication.getLogDatabase();
 
         Cursor cursor = db.query("log", new String[] {"timestamp", "message" }, "", null, null, null, "timestamp ASC");
         
@@ -73,7 +73,6 @@ public class Logger extends SQLiteOpenHelper {
         }
         
         cursor.close();
-        db.close();
 
         return response.toString();
     }
