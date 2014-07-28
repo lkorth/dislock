@@ -1,10 +1,14 @@
 package com.lukekorth.pebblelocker;
 
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
 
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.app.Application;
 import com.lukekorth.pebblelocker.logging.Logger;
+
+import java.util.Date;
 
 public class PebbleLockerApplication extends Application implements Thread.UncaughtExceptionHandler {
 
@@ -16,6 +20,23 @@ public class PebbleLockerApplication extends Application implements Thread.Uncau
         Thread.setDefaultUncaughtExceptionHandler(this);
         ActiveAndroid.initialize(this);
         mLogDatabase = new Logger(this).getWritableDatabase();
+        init();
+    }
+
+    private void init() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = prefs.edit();
+        if (BuildConfig.VERSION_CODE > prefs.getInt("version", 0)) {
+            String now = new Date().toString();
+            if (prefs.getInt("version", 0) == 0) {
+                editor.putString("install_date", now);
+            }
+
+            editor.putString("upgrade_date", now);
+            editor.putInt("version", BuildConfig.VERSION_CODE);
+        }
+
+        editor.apply();
     }
 
     @Override
