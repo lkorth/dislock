@@ -1,9 +1,4 @@
 language: android
-android:
-  components:
-    - build-tools-19.1.0
-  licenses:
-    - 'android-sdk-license-.*'
 env:
     global:
     - TERM=dumb
@@ -17,7 +12,6 @@ env:
 before_script:
     - cd pebble-locker-android
     - chmod +x gradlew
-    - echo y  | android update sdk --filter extra-google-google_play_services --no-ui
     - echo no | android create avd --force -n pebbleLockerTest -t $ANDROID_TARGET --abi $ANDROID_ABI
     - emulator -avd pebbleLockerTest -no-skin -no-audio -no-window &
     - adb wait-for-device

@@ -1,5 +1,6 @@
 import groovy.swing.SwingBuilder
 
+apply plugin: 'android-sdk-manager'
 apply plugin: 'com.android.application'
 
 android {
