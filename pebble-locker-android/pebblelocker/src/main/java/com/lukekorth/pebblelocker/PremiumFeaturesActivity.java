@@ -102,9 +102,10 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
                     inv.hasPurchase("pebblelocker.donation.5") ||
                     inv.hasPurchase("pebblelocker.donation.10") ||
                     inv.hasPurchase("pebblelocker.premium")) {
-                setPurchaseSuccessful();
+                setPurchased(true);
             } else {
                 mLogger.log("User has not purchased any of the qualifying items");
+                setPurchased(false);
             }
         }
     }
@@ -117,7 +118,7 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
 
         if (result.isSuccess()) {
             if (info.getSku().equals("pebblelocker.premium")) {
-                setPurchaseSuccessful();
+                setPurchased(true);
             }
         } else {
             showAlert(R.string.iab_error);
@@ -143,8 +144,8 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
         }
     }
 
-    private void setPurchaseSuccessful() {
-		PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("donated", true).apply();
+    private void setPurchased(boolean purchased) {
+		PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("donated", purchased).apply();
 	}
 
     @Override
