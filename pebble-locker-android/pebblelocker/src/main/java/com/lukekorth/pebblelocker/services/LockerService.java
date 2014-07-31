@@ -2,9 +2,9 @@ package com.lukekorth.pebblelocker.services;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.support.v4.content.WakefulBroadcastReceiver;
 
 import com.lukekorth.pebblelocker.Locker;
+import com.lukekorth.pebblelocker.helpers.BaseBroadcastReceiver;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.logging.Logger;
 
@@ -31,7 +31,7 @@ public class LockerService extends IntentService {
 
         DeviceHelper.sendLockStatusChangedBroadcast(this);
 
-        boolean wakeLockRemoved = WakefulBroadcastReceiver.completeWakefulIntent(intent);
+        boolean wakeLockRemoved = BaseBroadcastReceiver.completeWakefulIntent(intent);
         logger.log("WakeLock removed: " + wakeLockRemoved);
     }
 }

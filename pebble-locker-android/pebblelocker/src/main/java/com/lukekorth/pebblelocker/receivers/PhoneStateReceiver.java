@@ -21,7 +21,7 @@ public class PhoneStateReceiver extends BaseBroadcastReceiver {
             Intent lockerIntent = new Intent(context, LockerService.class);
             lockerIntent.putExtra(LockerService.TAG, TAG);
             lockerIntent.putExtra(LockerService.WITH_DELAY, false);
-            startWakefulService(context, lockerIntent);
+            startService(context, lockerIntent);
         }
 	}
 }
