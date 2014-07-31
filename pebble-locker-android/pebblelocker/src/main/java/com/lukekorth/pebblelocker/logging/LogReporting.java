@@ -68,9 +68,9 @@ public class LogReporting {
 			}
 			
 			message.append("Android version: " + Build.VERSION.SDK_INT + "\n");
-            message.append("Device manufacturer:" + Build.MANUFACTURER + "\n");
-            message.append("Device model:" + Build.MODEL + "\n");
-            message.append("Device product:" + Build.PRODUCT + "\n");
+            message.append("Device manufacturer: " + Build.MANUFACTURER + "\n");
+            message.append("Device model: " + Build.MODEL + "\n");
+            message.append("Device product: " + Build.PRODUCT + "\n");
 			message.append("App version: " + lockerVersion  + "\n");
 			message.append("Pebble app version: " + pebbleVersion + "\n");
 			message.append("Minimum password length: " + minPasswordLength + "\n");
@@ -80,7 +80,7 @@ public class LogReporting {
 			Map<String,?> keys = prefs.getAll();
 			for(Map.Entry<String,?> entry : keys.entrySet()) {
 				if(!entry.getKey().equals("key_password")) {
-					message.append(entry.getKey() + " : " + entry.getValue().toString() + "\n");
+					message.append(entry.getKey() + ": " + entry.getValue().toString() + "\n");
 				}
 			}	
 			message.append("\n\n");
