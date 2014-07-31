@@ -74,7 +74,7 @@ public class LogReporting {
 			message.append("App version: " + lockerVersion  + "\n");
 			message.append("Pebble app version: " + pebbleVersion + "\n");
 			message.append("Minimum password length: " + minPasswordLength + "\n");
-            message.append("Pebble Locker password length:" + prefs.getString("key_password", "").length());
+            message.append("Pebble Locker password length: " + prefs.getString("key_password", "").length() + "\n");
 			message.append("Encryption status: " + encryptionStatus + "\n");
 			
 			Map<String,?> keys = prefs.getAll();
