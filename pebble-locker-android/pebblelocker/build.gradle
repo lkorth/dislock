@@ -28,10 +28,6 @@ android {
             signingConfig signingConfigs.release
         }
     }
-
-    sourceSets {
-        instrumentTest.setRoot('src/test')
-    }
 }
 
 dependencies {

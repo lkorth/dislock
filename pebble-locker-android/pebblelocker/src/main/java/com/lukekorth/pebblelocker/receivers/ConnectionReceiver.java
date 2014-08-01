@@ -2,7 +2,6 @@ package com.lukekorth.pebblelocker.receivers;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
@@ -49,18 +48,18 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 			if (mAction.equals(USER_PRESENT) && deviceHelper.isUnlockNeeded()) {
 				mLogger.log("User present and need to unlock...attempting to unlock");
                 lockerIntent.putExtra(LockerService.WITH_DELAY, false);
-                startService(context, lockerIntent);
+                startService(lockerIntent);
 			} else if ((mAction.equals(PEBBLE_CONNECTED) || mAction.equals(BLUETOOTH_CONNECTED) ||
                     mAction.equals(ANDROID_WEAR_CONNECTED) ||
                     (mAction.equals(CONNECTIVITY_CHANGE) && isWifiConnected)) && deviceHelper.isLocked(true)) {
 				mLogger.log("Attempting unlock");
                 lockerIntent.putExtra(LockerService.WITH_DELAY, false);
-                startService(context, lockerIntent);
+                startService(lockerIntent);
 			} else if ((mAction.equals(PEBBLE_DISCONNECTED) || mAction.equals(BLUETOOTH_DISCONNECTED) ||
                     mAction.equals(ANDROID_WEAR_DISCONNECTED) ||
                     (mAction.equals(CONNECTIVITY_CHANGE) && !isWifiConnected)) && !deviceHelper.isLocked(false)) {
 				mLogger.log("Attempting lock");
-                startService(context, lockerIntent);
+                startService(lockerIntent);
 			}
 		} else {
 			mLogger.log("Lock state was manually set to " + lockState.getDisplayName());
