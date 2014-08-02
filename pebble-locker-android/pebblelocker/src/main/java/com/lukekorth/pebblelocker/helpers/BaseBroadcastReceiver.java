@@ -55,12 +55,10 @@ public class BaseBroadcastReceiver extends BroadcastReceiver {
                 mNextId = 1;
             }
 
-            Logger logger = new Logger(context, "[WAKEFUL-SERVICE]");
-
             intent.putExtra(EXTRA_WAKE_LOCK_ID, id);
             ComponentName comp = context.startService(intent);
             if (comp == null) {
-                logger.log("context.startService returned null");
+                new Logger(context).log("[WAKEFUL-SERVICE]", "context.startService returned null");
                 return;
             }
 
@@ -70,7 +68,6 @@ public class BaseBroadcastReceiver extends BroadcastReceiver {
             wl.setReferenceCounted(false);
             wl.acquire(60*1000);
             mActiveWakeLocks.put(id, wl);
-            logger.log("Wakeful service started: " + comp.getClassName());
         }
     }
 
@@ -84,9 +81,7 @@ public class BaseBroadcastReceiver extends BroadcastReceiver {
      */
     public static boolean completeWakefulIntent(Context context, Intent intent) {
         final int id = intent.getIntExtra(EXTRA_WAKE_LOCK_ID, 0);
-        Logger logger = new Logger(context, "[WAKEFUL-SERVICE");
         if (id == 0) {
-            logger.log("No wake lock id found");
             return false;
         }
         synchronized (mActiveWakeLocks) {
@@ -94,7 +89,6 @@ public class BaseBroadcastReceiver extends BroadcastReceiver {
             if (wl != null) {
                 wl.release();
                 mActiveWakeLocks.remove(id);
-                logger.log("Wake lock was found and removed");
                 return true;
             }
             // We return true whether or not we actually found the wake lock
@@ -103,7 +97,6 @@ public class BaseBroadcastReceiver extends BroadcastReceiver {
             // We just log a warning here if there is no wake lock found, which could
             // happen for example if this function is called twice on the same
             // intent or the process is killed and restarted before processing the intent.
-            logger.log("No active wake lock id #" + id);
             return true;
         }
     }
