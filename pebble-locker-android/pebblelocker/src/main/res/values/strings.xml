@@ -4,7 +4,7 @@
     <string name="wifi_networks">Select WiFi Networks</string>
 
     <string name="status">Status</string>
-    <string name="grace_period">Grace Period</string>
+    <string name="grace_period_title">Grace Period</string>
 
     <string name="monkey">You can\'t reset my password, you are a monkey!</string>
 
@@ -34,8 +34,8 @@
     <string name="pebble_watch_app_title">Download Pebble Watch App</string>
     <string name="pebble_watch_app_summary">Control the lock state from your Pebble watch. Options include automatic, locked and unlocked</string>
 
-    <string name="bluetooth_devices_preference_title">Bluetooth Devices</string>
-    <string name="bluetooth_devices_preference_summary">Select bluetooth devices such as Android Wear, cars and headsets that will unlock your device</string>
+    <string name="bluetooth_preference_title">Bluetooth Devices</string>
+    <string name="bluetooth_preference_summary">Select bluetooth devices such as Android Wear, cars and headsets that will unlock your device</string>
 
     <string name="wifi_preference_title">WiFi</string>
     <string name="wifi_preference_summary">Select WiFi networks that will unlock your device</string>

@@ -31,8 +31,6 @@ public abstract class PremiumFeaturesPreference extends Preference
 
     private void init(Context context) {
         mContext = context;
-        setTitle(getDisplayTitle());
-        setSummary(getDisplaySummary());
         setOnPreferenceClickListener(this);
     }
 
@@ -47,8 +45,6 @@ public abstract class PremiumFeaturesPreference extends Preference
         return true;
     }
 
-    public abstract int getDisplayTitle();
-    public abstract int getDisplaySummary();
     public abstract Intent getActionIntent();
 
 }

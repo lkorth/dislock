@@ -47,6 +47,7 @@
 
         <com.lukekorth.pebblelocker.views.GracePeriod
             android:key="key_grace_period"
+            android:title="@string/grace_period_title"
             android:entries="@array/grace_period_entries"
             android:entryValues="@array/grace_period_entry_values" />
     </PreferenceCategory>
@@ -55,13 +56,19 @@
         android:title="@string/advanced_options">
 
         <com.lukekorth.pebblelocker.views.PebbleWatchAppDownloadPreference
-            android:key="pebble_watch_app_download" />
+            android:key="pebble_watch_app_download"
+            android:title="@string/pebble_watch_app_title"
+            android:summary="@string/pebble_watch_app_summary" />
 
     	<com.lukekorth.pebblelocker.views.BluetoothPreference
-    	    android:key="bluetooth_preference" />
+            android:key="bluetooth_preference"
+            android:title="@string/bluetooth_preference_title"
+            android:summary="@string/bluetooth_preference_summary" />
 
     	<com.lukekorth.pebblelocker.views.WifiPreference
-    	    android:key="wifi_preference" />
+            android:key="wifi_preference"
+            android:title="@string/wifi_preference_title"
+            android:summary="@string/wifi_preference_summary" />
     </PreferenceCategory>
     
     <PreferenceCategory android:title="@string/help">

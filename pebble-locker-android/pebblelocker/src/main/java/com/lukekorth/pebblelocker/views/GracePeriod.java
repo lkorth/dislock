@@ -6,8 +6,6 @@ import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 
-import com.lukekorth.pebblelocker.R;
-
 public class GracePeriod extends ListPreference implements Preference.OnPreferenceChangeListener {
 
     private static final String KEY = "key_grace_period";
@@ -24,7 +22,6 @@ public class GracePeriod extends ListPreference implements Preference.OnPreferen
     }
 
     private void init(Context context) {
-        setTitle(R.string.grace_period);
         setCustomSummary(PreferenceManager.getDefaultSharedPreferences(context).getString(KEY, DEFAULT));
         setOnPreferenceChangeListener(this);
     }

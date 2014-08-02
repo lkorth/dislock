@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.util.AttributeSet;
 
 import com.lukekorth.pebblelocker.PebbleLockerApplication;
-import com.lukekorth.pebblelocker.R;
 import com.lukekorth.pebblelocker.events.ActivityResumedEvent;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.logging.Logger;
@@ -43,16 +42,6 @@ public class PebbleWatchAppDownloadPreference extends PremiumFeaturesPreference 
     @Override
     public void onPrepareForRemoval() {
         PebbleLockerApplication.getBus().unregister(this);
-    }
-
-    @Override
-    public int getDisplayTitle() {
-        return R.string.pebble_watch_app_title;
-    }
-
-    @Override
-    public int getDisplaySummary() {
-        return R.string.pebble_watch_app_summary;
     }
 
     @Override
