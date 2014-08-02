@@ -3,10 +3,10 @@ package com.lukekorth.pebblelocker.logging;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -40,43 +40,25 @@ public class LogReporting {
 		@Override
 		protected String doInBackground(Void... args) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+            DevicePolicyManager dpm = ((DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE));
 
 			String filename = "pebble-locker.log.gz";
 			StringBuilder message = new StringBuilder();
-			
-			PackageManager pManager = mContext.getPackageManager();
-			String lockerVersion;
-			try {
-				lockerVersion = pManager.getPackageInfo(mContext.getPackageName(), 0).versionName;
-			} catch (NameNotFoundException e1) {
-				lockerVersion = "not found";
-			}
-			
-			String pebbleVersion;
-			try {
-				pebbleVersion = pManager.getPackageInfo("com.getpebble.android", 0).versionName;
-			} catch (NameNotFoundException e1) {
-				pebbleVersion = "not found";
-			}
-			
-			DevicePolicyManager dpm = ((DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE));
-			int minPasswordLength = dpm.getPasswordMinimumLength(null);
-			
-			int encryptionStatus = -1;
-			if(Build.VERSION.SDK_INT >= 11) {
-				encryptionStatus = dpm.getStorageEncryptionStatus();
-			}
 			
 			message.append("Android version: " + Build.VERSION.SDK_INT + "\n");
             message.append("Device manufacturer: " + Build.MANUFACTURER + "\n");
             message.append("Device model: " + Build.MODEL + "\n");
             message.append("Device product: " + Build.PRODUCT + "\n");
-			message.append("App version: " + lockerVersion  + "\n");
-			message.append("Pebble app version: " + pebbleVersion + "\n");
-			message.append("Minimum password length: " + minPasswordLength + "\n");
+			message.append("App version: " + getAppVersion(mContext.getPackageName())+ "\n");
+			message.append("Pebble app version: " + getAppVersion("com.getpebble.android") + "\n");
+			message.append("Minimum password length: " + dpm.getPasswordMinimumLength(null) + "\n");
             message.append("Pebble Locker password length: " + prefs.getString("key_password", "").length() + "\n");
-			message.append("Encryption status: " + encryptionStatus + "\n");
-			
+			message.append("Encryption status: " + dpm.getStorageEncryptionStatus() + "\n");
+
+            for (ComponentName componentName : dpm.getActiveAdmins()) {
+                message.append("Active Admin: " + componentName.getClassName());
+            }
+
 			Map<String,?> keys = prefs.getAll();
 			for(Map.Entry<String,?> entry : keys.entrySet()) {
 				if(!entry.getKey().equals("key_password")) {
@@ -98,6 +80,14 @@ public class LogReporting {
 			
 			return filename;
 		}
+
+        private String getAppVersion(String app) {
+            try {
+                return mContext.getPackageManager().getPackageInfo(app, 0).versionName;
+            } catch (NameNotFoundException e1) {
+                return "not found";
+            }
+        }
 
 		@Override
 		protected void onPostExecute(String filename) {
