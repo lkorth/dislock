@@ -40,6 +40,11 @@ public class PebbleLockerApplication extends Application implements Thread.Uncau
     }
 
     @Override
+    public void onLowMemory() {
+        new Logger(this).log("[APPLICATION]", "Memory is low!");
+    }
+
+    @Override
     public void onTerminate() {
         super.onTerminate();
         ActiveAndroid.dispose();

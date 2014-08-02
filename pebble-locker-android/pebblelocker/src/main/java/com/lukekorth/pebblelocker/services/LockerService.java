@@ -1,9 +1,11 @@
 package com.lukekorth.pebblelocker.services;
 
 import android.app.IntentService;
+import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
+import android.support.v4.app.NotificationCompat;
 
 import com.lukekorth.pebblelocker.Locker;
 import com.lukekorth.pebblelocker.helpers.BaseBroadcastReceiver;
@@ -17,6 +19,7 @@ public class LockerService extends IntentService {
     public static final String FORCE_LOCK = "force_lock";
 
     private static final String WAKE_LOCK_TAG = "LockerServiceWakeLock";
+    private static final int FOREGROUND_ID = 483839;
 
     public LockerService() {
         super("LockerService");
@@ -27,6 +30,8 @@ public class LockerService extends IntentService {
         String tag = intent.getStringExtra(TAG);
         Logger logger = new Logger(this, tag);
         logger.log("Initializing service and acquiring wake lock to run locking");
+
+        startForeground(FOREGROUND_ID, getNotification());
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG);
@@ -43,7 +48,16 @@ public class LockerService extends IntentService {
 
         DeviceHelper.sendLockStatusChangedBroadcast(this);
 
+        stopForeground(true);
+
         logger.log("Done locking, releasing wake lock");
         wakeLock.release();
+    }
+
+    private Notification getNotification() {
+        return new NotificationCompat.Builder(this)
+                .setContentTitle("Pebble Locker")
+                .setContentText("Running...")
+                .build();
     }
 }
