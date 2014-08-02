@@ -56,7 +56,7 @@ public class LogReporting {
 			message.append("Encryption status: " + dpm.getStorageEncryptionStatus() + "\n");
 
             for (ComponentName componentName : dpm.getActiveAdmins()) {
-                message.append("Active Admin: " + componentName.getClassName());
+                message.append("Active Admin: " + componentName.getClassName() + "\n");
             }
 
 			Map<String,?> keys = prefs.getAll();
