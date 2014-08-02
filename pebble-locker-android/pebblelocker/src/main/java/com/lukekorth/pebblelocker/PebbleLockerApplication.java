@@ -7,23 +7,26 @@ import android.preference.PreferenceManager;
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.app.Application;
 import com.lukekorth.pebblelocker.logging.Logger;
+import com.squareup.otto.Bus;
 
 import java.util.Date;
 
 public class PebbleLockerApplication extends Application implements Thread.UncaughtExceptionHandler {
 
-    private static SQLiteDatabase mLogDatabase;
+    private static SQLiteDatabase sLogDatabase;
+    private static Bus sBus;
 
     @Override
     public void onCreate() {
         super.onCreate();
         Thread.setDefaultUncaughtExceptionHandler(this);
         ActiveAndroid.initialize(this);
-        mLogDatabase = new Logger(this).getWritableDatabase();
-        init();
+        sLogDatabase = new Logger(this).getWritableDatabase();
+        sBus = new Bus();
+        migrate();
     }
 
-    private void init() {
+    private void migrate() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = prefs.edit();
         if (BuildConfig.VERSION_CODE > prefs.getInt("version", 0)) {
@@ -34,9 +37,16 @@ public class PebbleLockerApplication extends Application implements Thread.Uncau
 
             editor.putString("upgrade_date", now);
             editor.putInt("version", BuildConfig.VERSION_CODE);
+            editor.apply();
         }
+    }
 
-        editor.apply();
+    public static SQLiteDatabase getLogDatabase() {
+        return sLogDatabase;
+    }
+
+    public static Bus getBus() {
+        return sBus;
     }
 
     @Override
@@ -48,11 +58,7 @@ public class PebbleLockerApplication extends Application implements Thread.Uncau
     public void onTerminate() {
         super.onTerminate();
         ActiveAndroid.dispose();
-        mLogDatabase.close();
-    }
-
-    public static SQLiteDatabase getLogDatabase() {
-        return mLogDatabase;
+        sLogDatabase.close();
     }
 
     @Override

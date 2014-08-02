@@ -14,7 +14,10 @@ import com.lukekorth.pebblelocker.billing.IabHelper.OnIabSetupFinishedListener;
 import com.lukekorth.pebblelocker.billing.IabResult;
 import com.lukekorth.pebblelocker.billing.Inventory;
 import com.lukekorth.pebblelocker.billing.Purchase;
+import com.lukekorth.pebblelocker.events.RequirePurchaseEvent;
 import com.lukekorth.pebblelocker.logging.Logger;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 public class PremiumFeaturesActivity extends PreferenceActivity implements OnIabSetupFinishedListener,
     IabHelper.OnIabPurchaseFinishedListener, IabHelper.QueryInventoryFinishedListener {
@@ -29,6 +32,7 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
     private IabHelper mIabHelper;
     private IAB_STATUS mIabStatus;
     private boolean mIabOperationInProgress;
+    private Bus mBus;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,12 +42,15 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
         mIabHelper = new IabHelper(this, BILLING_PUBLIC_KEY);
         mIabHelper.startSetup(this);
         mIabStatus = IAB_STATUS.SETTING_UP;
+        mBus = PebbleLockerApplication.getBus();
+        mBus.register(this);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         mIabHelper.dispose();
+        mBus.unregister(this);
     }
 
     public static boolean hasPurchased(Context context) {
@@ -55,7 +62,8 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
         return PremiumFeaturesActivity.hasPurchased(this);
     }
 
-    public void requirePurchase() {
+    @Subscribe
+    public void requirePurchase(RequirePurchaseEvent event) {
         new AlertDialog.Builder(this)
                 .setMessage(R.string.purchase_required)
                 .setCancelable(false)

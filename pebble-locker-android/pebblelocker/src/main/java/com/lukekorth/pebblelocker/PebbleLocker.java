@@ -26,14 +26,12 @@ import android.widget.EditText;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.lukekorth.pebblelocker.events.ActivityResumedEvent;
 import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 import com.lukekorth.pebblelocker.services.LockerService;
-import com.lukekorth.pebblelocker.views.BluetoothPreference;
 import com.lukekorth.pebblelocker.views.LockStatePreference;
-import com.lukekorth.pebblelocker.views.PebbleWatchAppDownload;
 import com.lukekorth.pebblelocker.views.Status;
-import com.lukekorth.pebblelocker.views.WifiPreference;
 
 import fr.nicolaspomepuy.discreetapprate.AppRate;
 import fr.nicolaspomepuy.discreetapprate.RetryPolicy;
@@ -61,10 +59,6 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.layout.main);
-
-        ((PebbleWatchAppDownload) findPreference("pebble_watch_app_download")).setActivity(this);
-        ((BluetoothPreference) findPreference("bluetooth_preference")).setActivity(this);
-        ((WifiPreference) findPreference("wifi_preference")).setActivity(this);
 
         mLockState = (LockStatePreference) findPreference("lock_state_preference");
 		mStatus = (Status) findPreference("status");
@@ -137,7 +131,7 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
 
         mPrefs.registerOnSharedPreferenceChangeListener(this);
 
-        ((PebbleWatchAppDownload) findPreference("pebble_watch_app_download")).refresh();
+        PebbleLockerApplication.getBus().post(new ActivityResumedEvent());
 
 		checkForRequiredPasswordByOtherApps();
 		checkForActiveAdmin();

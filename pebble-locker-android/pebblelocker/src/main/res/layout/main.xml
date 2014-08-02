@@ -54,7 +54,7 @@
     <PreferenceCategory
         android:title="@string/advanced_options">
 
-        <com.lukekorth.pebblelocker.views.PebbleWatchAppDownload
+        <com.lukekorth.pebblelocker.views.PebbleWatchAppDownloadPreference
             android:key="pebble_watch_app_download" />
 
     	<com.lukekorth.pebblelocker.views.BluetoothPreference
