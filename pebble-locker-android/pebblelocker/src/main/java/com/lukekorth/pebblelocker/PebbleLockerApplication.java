@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 
+import com.lukekorth.pebblelocker.helpers.ThreadBus;
 import com.lukekorth.pebblelocker.logging.Logger;
 import com.squareup.otto.Bus;
 
@@ -12,14 +13,14 @@ import java.util.Date;
 public class PebbleLockerApplication extends com.activeandroid.app.Application implements Thread.UncaughtExceptionHandler {
 
     private static SQLiteDatabase sLogDatabase;
-    private static Bus sBus;
+    private static ThreadBus sBus;
 
     @Override
     public void onCreate() {
         super.onCreate();
         Thread.setDefaultUncaughtExceptionHandler(this);
         sLogDatabase = new Logger(this).getWritableDatabase();
-        sBus = new Bus();
+        sBus = new ThreadBus();
         migrate();
     }
 
