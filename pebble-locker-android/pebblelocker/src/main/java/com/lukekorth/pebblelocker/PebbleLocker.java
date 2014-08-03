@@ -3,7 +3,6 @@ package com.lukekorth.pebblelocker;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.admin.DeviceAdminReceiver;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -27,6 +26,7 @@ import android.widget.EditText;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.lukekorth.pebblelocker.events.ActivityResumedEvent;
+import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
 import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 import com.lukekorth.pebblelocker.services.LockerService;
@@ -313,50 +313,4 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
         }
     }
 
-    /**
-     * All callbacks are on the UI thread and your implementations should not engage in any
-     * blocking operations, including disk I/O.
-     */
-    public static class CustomDeviceAdminReceiver extends DeviceAdminReceiver {
-    	
-        @Override
-        public void onEnabled(Context context, Intent intent) {
-        	new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Device admin enabled");
-        }
-
-        @Override
-        public CharSequence onDisableRequested(Context context, Intent intent) {
-        	new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Device admin disable requested, disabling");
-
-    		ComponentName deviceAdmin = new ComponentName(context, CustomDeviceAdminReceiver.class);    		
-    		((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE)).removeActiveAdmin(deviceAdmin);
-    		
-        	return null;
-        }
-
-        @Override
-        public void onDisabled(Context context, Intent intent) {
-        	new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Device admin disabled");
-        }
-
-        @Override
-        public void onPasswordChanged(Context context, Intent intent) {
-        	new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Password changed");
-        }
-
-        @Override
-        public void onPasswordFailed(Context context, Intent intent) {
-        	new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Password failed");
-        }
-
-        @Override
-        public void onPasswordSucceeded(Context context, Intent intent) {
-        	new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Password succeeded");
-        }
-
-        @Override
-        public void onPasswordExpiring(Context context, Intent intent) {
-        	new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Password expiring");
-        }
-    }
 }

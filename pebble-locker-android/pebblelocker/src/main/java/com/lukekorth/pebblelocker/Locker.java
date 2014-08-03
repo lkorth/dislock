@@ -8,8 +8,8 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.lukekorth.pebblelocker.PebbleLocker.CustomDeviceAdminReceiver;
 import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
+import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
