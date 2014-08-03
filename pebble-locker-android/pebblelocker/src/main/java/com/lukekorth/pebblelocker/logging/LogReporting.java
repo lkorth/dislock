@@ -14,8 +14,10 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
@@ -54,6 +56,7 @@ public class LogReporting {
 			message.append("Minimum password length: " + dpm.getPasswordMinimumLength(null) + "\n");
             message.append("Pebble Locker password length: " + prefs.getString("key_password", "").length() + "\n");
 			message.append("Encryption status: " + dpm.getStorageEncryptionStatus() + "\n");
+            message.append("Device rooted: " + isDeviceRooted() + "\n");
 
             for (ComponentName componentName : dpm.getActiveAdmins()) {
                 message.append("Active Admin: " + componentName.getClassName() + "\n");
@@ -90,7 +93,31 @@ public class LogReporting {
             }
         }
 
-		@Override
+        private String isDeviceRooted() {
+            String buildTags = android.os.Build.TAGS;
+            boolean check1 = buildTags != null && buildTags.contains("test-keys");
+
+            boolean check2;
+            try {
+                File file = new File("/system/app/Superuser.apk");
+                check2 = file.exists();
+            } catch (Exception e) {
+                check2 = false;
+            }
+
+            boolean check3;
+            try {
+                Process process = Runtime.getRuntime().exec(new String[] { "/system/xbin/which", "su" });
+                BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                check3 = in.readLine() != null;
+            } catch (Exception e) {
+                check3 = false;
+            }
+
+            return Boolean.toString(check1 || check2 || check3);
+        }
+
+        @Override
 		protected void onPostExecute(String filename) {
 			if(mLoading != null && mLoading.isShowing())
 				mLoading.cancel();
