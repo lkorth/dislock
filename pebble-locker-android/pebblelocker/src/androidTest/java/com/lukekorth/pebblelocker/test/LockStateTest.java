@@ -1,8 +1,5 @@
 package com.lukekorth.pebblelocker.test;
 
-import android.preference.PreferenceManager;
-import android.test.AndroidTestCase;
-
 import com.lukekorth.pebblelocker.LockState;
 import com.lukekorth.pebblelocker.Locker;
 import com.lukekorth.pebblelocker.logging.Logger;
@@ -11,17 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class LockStateTest extends AndroidTestCase {
-
-    @Override
-    public void setUp() throws Exception {
-        System.setProperty("dexmaker.dexcache", getContext().getCacheDir().getPath());
-    }
-
-    @Override
-    public void tearDown() {
-        PreferenceManager.getDefaultSharedPreferences(getContext()).edit().clear().apply();
-    }
+public class LockStateTest extends BaseApplicationTestCase {
 
     public void testAutoReturnsCorrectValues() {
         assertEquals(0, LockState.AUTO.getState());
@@ -102,9 +89,6 @@ public class LockStateTest extends AndroidTestCase {
 
     /* helpers */
     private void setLockState(int state) {
-        PreferenceManager.getDefaultSharedPreferences(getContext())
-                .edit()
-                .putInt(LockState.LOCK_STATE, state)
-                .apply();
+        mPrefs.edit().putInt(LockState.LOCK_STATE, state).apply();
     }
 }

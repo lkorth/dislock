@@ -4,18 +4,18 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.test.ApplicationTestCase;
 
-import com.activeandroid.app.Application;
+import com.lukekorth.pebblelocker.PebbleLockerApplication;
 import com.lukekorth.pebblelocker.models.AndroidWearDevices;
 import com.lukekorth.pebblelocker.models.BluetoothDevices;
 
 import org.mockito.MockitoAnnotations;
 
-public class BaseApplicationTestCase extends ApplicationTestCase<Application> {
+public class BaseApplicationTestCase extends ApplicationTestCase<PebbleLockerApplication> {
 
     protected SharedPreferences mPrefs;
 
     public BaseApplicationTestCase() {
-        super(Application.class);
+        super(PebbleLockerApplication.class);
     }
 
     @Override
@@ -31,6 +31,7 @@ public class BaseApplicationTestCase extends ApplicationTestCase<Application> {
     public void tearDown() throws Exception {
         mPrefs.edit().clear().apply();
         getContext().deleteDatabase("pebble_locker.db");
+        getContext().deleteDatabase("pebble-locker-logger");
         super.tearDown();
     }
 
