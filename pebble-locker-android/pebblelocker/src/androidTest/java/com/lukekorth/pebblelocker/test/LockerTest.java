@@ -35,6 +35,18 @@ public class LockerTest extends BaseApplicationTestCase {
                 mPebbleHelper, mDPM);
     }
 
+    public void testHandleLockingRespectsWithDelayOption() {
+        mPrefs.edit().putString("key_grace_period", "2").apply();
+
+        long startTime = System.currentTimeMillis();
+        mLocker.handleLocking(false, false);
+        assertTrue((System.currentTimeMillis() - startTime) < 2000);
+
+        startTime = System.currentTimeMillis();
+        mLocker.handleLocking(true, false);
+        assertTrue((System.currentTimeMillis() - startTime) > 2000);
+    }
+
     public void testHandleLockingProxiesForceLockOption() {
         setEnabled();
         mPrefs.edit().putBoolean("key_force_lock", true).apply();
@@ -92,7 +104,7 @@ public class LockerTest extends BaseApplicationTestCase {
         verify(mDPM, never()).resetPassword("1234", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
     }
 
-    public void testLockSetsPasswordCorrectlyAndSendsBroadcast() {
+    public void testLockSetsPasswordCorrectlyAndSendsEvent() {
         setEnabled();
 
         mLocker.lock();
@@ -148,7 +160,7 @@ public class LockerTest extends BaseApplicationTestCase {
         verify(mDPM, never()).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
     }
 
-    public void testSetsNeedToUnlockToTrueWhenScreenIsOnAndOnLockscreen() {
+    public void testSetsNeedToUnlockToTrueWhenScreenIsOnAndOnLockScreen() {
         setEnabled();
 
         when(mDeviceHelper.isOnLockscreen()).thenReturn(true);
@@ -172,7 +184,7 @@ public class LockerTest extends BaseApplicationTestCase {
         assertTrue(mPrefs.getBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false));
     }
 
-    public void testUnlockUnlocksAndSendsBroadcast() {
+    public void testUnlockUnlocksAndSendsEvent() {
         setEnabled();
 
         mLocker.unlock();
