@@ -4,8 +4,8 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 
 import com.lukekorth.pebblelocker.Locker;
-import com.lukekorth.pebblelocker.PebbleLocker;
 import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
+import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
@@ -210,7 +210,7 @@ public class LockerTest extends BaseApplicationTestCase {
     }
 
     public void testEnabledIsFalseWhenAnyConditionIsNotMet() {
-        when(mDPM.isAdminActive(new ComponentName(mContext, PebbleLocker.CustomDeviceAdminReceiver.class))).thenReturn(true);
+        when(mDPM.isAdminActive(new ComponentName(mContext, CustomDeviceAdminReceiver.class))).thenReturn(true);
         mPrefs.edit().putBoolean("key_enable_locker", true).apply();
 
         assertFalse(mLocker.enabled());
@@ -242,7 +242,7 @@ public class LockerTest extends BaseApplicationTestCase {
 
     /* helpers */
     private void setEnabled() {
-        when(mDPM.isAdminActive(new ComponentName(mContext, PebbleLocker.CustomDeviceAdminReceiver.class))).thenReturn(true);
+        when(mDPM.isAdminActive(new ComponentName(mContext, CustomDeviceAdminReceiver.class))).thenReturn(true);
         mPrefs.edit().putBoolean("key_enable_locker", true).apply();
         mPrefs.edit().putString("key_password", "1234").apply();
     }
