@@ -4,7 +4,6 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -14,6 +13,7 @@ import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
 import com.lukekorth.pebblelocker.logging.Logger;
+import com.lukekorth.pebblelocker.models.BluetoothDevices;
 import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 
 public class Locker {
@@ -58,10 +58,14 @@ public class Locker {
 
             if (delay != 0) {
                 mLogger.log("Sleeping for " + delay + " seconds");
-                SystemClock.sleep(delay * 1000);
+                try {
+                    Thread.sleep(delay * 1000);
+                } catch (InterruptedException e) {
+                    mLogger.log("Sleep was interrupted: " + e.getMessage());
+                }
             }
 
-            mLogger.log("Locking...");
+            mLogger.log("Grace period is over, handling locking...");
         }
 
         boolean connectedToDeviceOrWifi = isConnectedToDeviceOrWifi();
@@ -77,23 +81,26 @@ public class Locker {
 	}
 
 	public void lock(boolean forceLock) {
-		if (!enabled())
-			return;
+		if (!enabled()) {
+            return;
+        }
 
 		boolean passwordChanged = mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
 		mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false).apply();
 
 		mLogger.log("Successfully locked: " + passwordChanged);
 
-		if (forceLock && mPrefs.getBoolean("key_force_lock", false))
-			mDPM.lockNow();
+		if (forceLock && mPrefs.getBoolean("key_force_lock", false)) {
+            mDPM.lockNow();
+        }
 
         mDeviceHelper.sendLockStatusChangedEvent();
 	}
 
 	public void unlock() {
-		if (!enabled())
-			return;
+		if (!enabled()) {
+            return;
+        }
 
 		if (mDeviceHelper.isOnLockscreen() && mDeviceHelper.isScreenOn()) {
 			mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true).apply();
@@ -147,7 +154,7 @@ public class Locker {
 	public boolean isConnectedToDeviceOrWifi() {
 		boolean pebble = mPebbleHelper.isEnabledAndConnected();
         boolean wear = mAndroidWearHelper.isTrustedDeviceConnected();
-		boolean bluetooth = com.lukekorth.pebblelocker.models.BluetoothDevices.isTrustedDeviceConnected();
+		boolean bluetooth = BluetoothDevices.isTrustedDeviceConnected();
 		boolean wifi = mWifiHelper.isTrustedWifiConnected();
 
 		mLogger.log("Pebble: " + pebble + " Wear: " + wear + " Bluetooth: " + bluetooth + " Wifi: " + wifi);
