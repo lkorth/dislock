@@ -10,7 +10,6 @@ import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 
 import com.lukekorth.pebblelocker.LockState;
-import com.lukekorth.pebblelocker.R;
 import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 
@@ -41,7 +40,6 @@ public class LockStatePreference extends Preference implements Preference.OnPref
         mContext = context;
         mLogger = new Logger(mContext, TAG);
 
-        setSummary(R.string.click_to_change);
         setOnPreferenceClickListener(this);
 
         mStatusReceiver = new BroadcastReceiver() {

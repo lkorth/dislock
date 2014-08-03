@@ -7,10 +7,12 @@
         android:title="@string/status">
 
         <com.lukekorth.pebblelocker.views.LockStatePreference
-            android:key="lock_state_preference" />
+            android:key="lock_state_preference"
+            android:summary="@string/click_to_change" />
 
         <com.lukekorth.pebblelocker.views.Status
-            android:key="status" />
+            android:key="status"
+            android:title="@string/connected_trusted_devices" />
     </PreferenceCategory>
     
     <PreferenceCategory
@@ -72,7 +74,11 @@
     </PreferenceCategory>
     
     <PreferenceCategory android:title="@string/help">
-        <com.lukekorth.pebblelocker.views.Contact />
-        <com.lukekorth.pebblelocker.views.Version />
+        <com.lukekorth.pebblelocker.views.Contact
+            android:title="@string/contact_title"
+            android:summary="@string/contact_summary" />
+
+        <com.lukekorth.pebblelocker.views.Version
+            android:title="@string/version" />
     </PreferenceCategory>
 </PreferenceScreen>

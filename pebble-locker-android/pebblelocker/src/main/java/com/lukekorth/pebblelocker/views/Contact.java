@@ -4,7 +4,6 @@ import android.content.Context;
 import android.preference.Preference;
 import android.util.AttributeSet;
 
-import com.lukekorth.pebblelocker.R;
 import com.lukekorth.pebblelocker.logging.LogReporting;
 
 public class Contact extends Preference implements Preference.OnPreferenceClickListener {
@@ -28,8 +27,6 @@ public class Contact extends Preference implements Preference.OnPreferenceClickL
 
     private void init(Context context) {
         mContext = context;
-        setTitle(R.string.contact_title);
-        setSummary(R.string.contact_summary);
         setOnPreferenceClickListener(this);
     }
 

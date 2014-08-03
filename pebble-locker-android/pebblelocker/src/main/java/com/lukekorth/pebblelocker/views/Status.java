@@ -9,7 +9,6 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import com.lukekorth.pebblelocker.PremiumFeaturesActivity;
-import com.lukekorth.pebblelocker.R;
 import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
@@ -47,8 +46,6 @@ public class Status extends Preference implements AndroidWearHelper.Listener {
     private void init(Context context) {
         mContext = context;
         mLogger = new Logger(mContext, TAG);
-
-        setTitle(R.string.connected_trusted_devices);
 
         mStatusReceiver = new BroadcastReceiver() {
             @Override
