@@ -2,11 +2,13 @@ package com.lukekorth.pebblelocker.helpers;
 
 import android.app.KeyguardManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
-import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
+
+import com.lukekorth.pebblelocker.PebbleLockerApplication;
+import com.lukekorth.pebblelocker.events.StatusChangedEvent;
 import com.lukekorth.pebblelocker.logging.Logger;
+import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 
 public class DeviceHelper {
 
@@ -49,12 +51,8 @@ public class DeviceHelper {
         return needToUnlock;
     }
 
-    public static void sendLockStatusChangedBroadcast(Context context) {
-        context.sendBroadcast(new Intent(ConnectionReceiver.STATUS_CHANGED_INTENT));
-    }
-
-    public void sendLockStatusChangedBroadcast() {
-        DeviceHelper.sendLockStatusChangedBroadcast(mContext);
+    public void sendLockStatusChangedEvent() {
+        PebbleLockerApplication.getBus().post(new StatusChangedEvent());
     }
 
 }

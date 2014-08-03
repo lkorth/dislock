@@ -88,7 +88,7 @@ public class Locker {
 		if (forceLock && mPrefs.getBoolean("key_force_lock", false))
 			mDPM.lockNow();
 
-        mDeviceHelper.sendLockStatusChangedBroadcast();
+        mDeviceHelper.sendLockStatusChangedEvent();
 	}
 
 	public void unlock() {
@@ -123,7 +123,7 @@ public class Locker {
 			mLogger.log("Successfully unlocked: " + passwordChanged);
 		}
 
-        mDeviceHelper.sendLockStatusChangedBroadcast();
+        mDeviceHelper.sendLockStatusChangedEvent();
 	}
 
 	public boolean enabled() {

@@ -1,21 +1,20 @@
 package com.lukekorth.pebblelocker.views;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.preference.Preference;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
+import com.lukekorth.pebblelocker.PebbleLockerApplication;
 import com.lukekorth.pebblelocker.PremiumFeaturesActivity;
+import com.lukekorth.pebblelocker.events.StatusChangedEvent;
 import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
 import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.models.AndroidWearDevices;
 import com.lukekorth.pebblelocker.models.BluetoothDevices;
-import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
+import com.squareup.otto.Subscribe;
 
 import java.util.List;
 
@@ -25,7 +24,6 @@ public class Status extends Preference implements AndroidWearHelper.Listener {
 
     private Context mContext;
     private Logger mLogger;
-    private BroadcastReceiver mStatusReceiver;
     private AndroidWearHelper mAndroidWearHelper;
 
     public Status(Context context) {
@@ -46,16 +44,17 @@ public class Status extends Preference implements AndroidWearHelper.Listener {
     private void init(Context context) {
         mContext = context;
         mLogger = new Logger(mContext, TAG);
-
-        mStatusReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                update();
-            }
-        };
+        PebbleLockerApplication.getBus().register(this);
+        update(new StatusChangedEvent());
     }
 
-    private void update() {
+    @Override
+    public void onPrepareForRemoval() {
+        PebbleLockerApplication.getBus().unregister(this);
+    }
+
+    @Subscribe
+    public void update(StatusChangedEvent event) {
         String connectedDevices = getConnectedDevices();
         if (TextUtils.isEmpty(connectedDevices)) {
             connectedDevices = "No trusted devices connected";
@@ -110,16 +109,6 @@ public class Status extends Preference implements AndroidWearHelper.Listener {
         }
 
         setSummary(connectedDevices);
-    }
-
-    public void registerListener() {
-        mContext.registerReceiver(mStatusReceiver,
-                new IntentFilter(ConnectionReceiver.STATUS_CHANGED_INTENT));
-        update();
-    }
-
-    public void unregisterListener() {
-        mContext.unregisterReceiver(mStatusReceiver);
     }
 
     private String conditionallyAddNewLine(String base, String addition) {

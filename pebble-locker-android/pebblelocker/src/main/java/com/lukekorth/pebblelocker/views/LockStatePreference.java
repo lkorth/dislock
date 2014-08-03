@@ -1,25 +1,23 @@
 package com.lukekorth.pebblelocker.views;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 
 import com.lukekorth.pebblelocker.LockState;
+import com.lukekorth.pebblelocker.PebbleLockerApplication;
+import com.lukekorth.pebblelocker.events.StatusChangedEvent;
 import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
+import com.squareup.otto.Subscribe;
 
 public class LockStatePreference extends Preference implements Preference.OnPreferenceClickListener {
 
     private static final String TAG = "[LOCK-STATE-PREFERENCE]";
 
     private Context mContext;
-    private Logger mLogger;
-    private BroadcastReceiver mStatusReceiver;
 
     public LockStatePreference(Context context) {
         super(context);
@@ -38,19 +36,18 @@ public class LockStatePreference extends Preference implements Preference.OnPref
 
     private void init(Context context) {
         mContext = context;
-        mLogger = new Logger(mContext, TAG);
-
+        PebbleLockerApplication.getBus().register(this);
+        update(new StatusChangedEvent());
         setOnPreferenceClickListener(this);
-
-        mStatusReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                update();
-            }
-        };
     }
 
-    private void update() {
+    @Override
+    public void onPrepareForRemoval() {
+        PebbleLockerApplication.getBus().unregister(this);
+    }
+
+    @Subscribe
+    public void update(StatusChangedEvent event) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         LockState lockState = LockState.getCurrentState(mContext);
         String title = "";
@@ -66,16 +63,6 @@ public class LockStatePreference extends Preference implements Preference.OnPref
         }
 
         setTitle(title);
-    }
-
-    public void registerListener() {
-        mContext.registerReceiver(mStatusReceiver,
-                new IntentFilter(ConnectionReceiver.STATUS_CHANGED_INTENT));
-        update();
-    }
-
-    public void unregisterListener() {
-        mContext.unregisterReceiver(mStatusReceiver);
     }
 
     @Override

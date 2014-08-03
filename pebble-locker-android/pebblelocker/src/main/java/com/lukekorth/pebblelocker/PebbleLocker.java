@@ -30,8 +30,6 @@ import com.lukekorth.pebblelocker.events.ActivityResumedEvent;
 import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 import com.lukekorth.pebblelocker.services.LockerService;
-import com.lukekorth.pebblelocker.views.LockStatePreference;
-import com.lukekorth.pebblelocker.views.Status;
 
 import fr.nicolaspomepuy.discreetapprate.AppRate;
 import fr.nicolaspomepuy.discreetapprate.RetryPolicy;
@@ -44,8 +42,6 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
 	private DevicePolicyManager mDPM;
 	private ComponentName mDeviceAdmin;
 
-    private LockStatePreference mLockState;
-	private Status mStatus;
 	private CheckBoxPreference mAdmin;
 	private EditTextPreference mPassword;
 	private CheckBoxPreference mEnable;
@@ -60,8 +56,6 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.layout.main);
 
-        mLockState = (LockStatePreference) findPreference("lock_state_preference");
-		mStatus = (Status) findPreference("status");
 		mAdmin     = (CheckBoxPreference) findPreference("key_enable_admin");
 		mPassword  = (EditTextPreference) findPreference("key_password");
 		mEnable    = (CheckBoxPreference) findPreference("key_enable_locker");
@@ -136,9 +130,6 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
 		checkForRequiredPasswordByOtherApps();
 		checkForActiveAdmin();
 
-        mLockState.registerListener();
-        mStatus.registerListener();
-
 		if(!mPrefs.getString("key_password", "").equals("") &&
                 timeStamp < (System.currentTimeMillis() - 60000) &&
 				mPrefs.getBoolean(ConnectionReceiver.LOCKED, true)) {
@@ -155,8 +146,6 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
 	public void onPause() {
 		super.onPause();
         mPrefs.unregisterOnSharedPreferenceChangeListener(this);
-        mLockState.unregisterListener();
-        mStatus.unregisterListener();
 	}
 	
 	/**

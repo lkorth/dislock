@@ -100,7 +100,7 @@ public class LockerTest extends BaseApplicationTestCase {
         verify(mDPM).resetPassword("1234", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
         assertTrue(mPrefs.getBoolean(ConnectionReceiver.LOCKED, false));
         assertFalse(mPrefs.getBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true));
-        verify(mDeviceHelper).sendLockStatusChangedBroadcast();
+        verify(mDeviceHelper).sendLockStatusChangedEvent();
     }
 
     public void testLockDefaultsToForceLocking() {
@@ -158,7 +158,7 @@ public class LockerTest extends BaseApplicationTestCase {
 
         assertTrue(mPrefs.getBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false));
         verify(mDPM, never()).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-        verify(mDeviceHelper, times(1)).sendLockStatusChangedBroadcast();
+        verify(mDeviceHelper, times(1)).sendLockStatusChangedEvent();
     }
 
     public void testUnlockRequiresPasswordOnceOnReconnectIfOptionIsEnabled() {
@@ -179,7 +179,7 @@ public class LockerTest extends BaseApplicationTestCase {
 
         verify(mDPM, times(1)).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
         assertFalse(mPrefs.getBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true));
-        verify(mDeviceHelper, times(1)).sendLockStatusChangedBroadcast();
+        verify(mDeviceHelper, times(1)).sendLockStatusChangedEvent();
     }
 
     public void testUnlockRestoresPasswordWhenUnlockFails() {

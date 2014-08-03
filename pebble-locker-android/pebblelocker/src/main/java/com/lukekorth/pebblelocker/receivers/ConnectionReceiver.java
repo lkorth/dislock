@@ -22,7 +22,6 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
     public static final String ANDROID_WEAR_DISCONNECTED = "com.lukekorth.pebblelocker.android_wear_disconnected";
     private static final String CONNECTIVITY_CHANGE    = "android.net.conn.connectivity_change";
 	private static final String USER_PRESENT           = "android.intent.action.user_present";
-	public  static final String STATUS_CHANGED_INTENT  = "com.lukekorth.pebblelocker.status_changed";
 	public  static final String LOCKED                 = "locked";
 
 	private String mAction;
@@ -36,7 +35,7 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 		mLogger.log("ConnectionReceiver: " + mAction);
 
         DeviceHelper deviceHelper = new DeviceHelper(context, mLogger);
-        deviceHelper.sendLockStatusChangedBroadcast();
+        deviceHelper.sendLockStatusChangedEvent();
 
 		LockState lockState = LockState.getCurrentState(context);
 		if (lockState == LockState.AUTO) {

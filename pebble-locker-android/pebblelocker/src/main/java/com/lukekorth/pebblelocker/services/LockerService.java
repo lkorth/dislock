@@ -4,8 +4,9 @@ import android.app.IntentService;
 import android.content.Intent;
 
 import com.lukekorth.pebblelocker.Locker;
+import com.lukekorth.pebblelocker.PebbleLockerApplication;
+import com.lukekorth.pebblelocker.events.StatusChangedEvent;
 import com.lukekorth.pebblelocker.helpers.BaseBroadcastReceiver;
-import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.logging.Logger;
 
 public class LockerService extends IntentService {
@@ -28,7 +29,7 @@ public class LockerService extends IntentService {
         locker.handleLocking(intent.getBooleanExtra(WITH_DELAY, true),
                 intent.getBooleanExtra(FORCE_LOCK, true));
 
-        DeviceHelper.sendLockStatusChangedBroadcast(this);
+        PebbleLockerApplication.getBus().post(new StatusChangedEvent());
 
         boolean wakeLockRemoved = BaseBroadcastReceiver.completeWakefulIntent(this, intent);
         logger.log("Done locking, releasing BroadcastReceiver wake lock: " + wakeLockRemoved);
