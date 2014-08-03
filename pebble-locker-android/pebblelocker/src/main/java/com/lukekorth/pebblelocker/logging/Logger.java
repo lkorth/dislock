@@ -67,9 +67,17 @@ public class Logger extends SQLiteOpenHelper {
         Cursor cursor = db.query("log", new String[] {"timestamp", "message" }, "", null, null, null, "timestamp ASC");
         
         StringBuffer response = new StringBuffer();
-        
+        String line;
+        String currentTag;
+        String lastTag = null;
         while(cursor.moveToNext()) {
-        	response.append(cursor.getString(cursor.getColumnIndex("message")) + "\n");
+            line = cursor.getString(cursor.getColumnIndex("message"));
+            currentTag = line.substring(0, line.indexOf("]") + 1);
+            if (!currentTag.equals(lastTag)) {
+                lastTag = currentTag;
+                response.append("\n");
+            }
+            response.append(line + "\n");
         }
         
         cursor.close();

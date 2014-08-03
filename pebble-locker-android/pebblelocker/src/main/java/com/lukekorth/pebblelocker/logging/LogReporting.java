@@ -64,8 +64,9 @@ public class LogReporting {
 				if(!entry.getKey().equals("key_password")) {
 					message.append(entry.getKey() + ": " + entry.getValue().toString() + "\n");
 				}
-			}	
-			message.append("\n\n");
+			}
+			message.append("---------------------------");
+            message.append("\n");
 			message.append(new Logger(mContext).getLog());
 			
 			try {				
