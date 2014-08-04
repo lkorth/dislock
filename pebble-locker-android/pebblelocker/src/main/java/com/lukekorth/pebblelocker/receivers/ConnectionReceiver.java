@@ -29,6 +29,8 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
     private DeviceHelper mDeviceHelper;
     private boolean mTrustedWifiConnected;
 
+    public ConnectionReceiver() {}
+
     public ConnectionReceiver(Context context, Intent intent, String tag, Logger logger,
                               DeviceHelper deviceHelper, boolean trustedWifiConnected) {
         mContext = context;
