@@ -51,7 +51,7 @@ public class DevicesActivity extends PreferenceActivity implements AndroidWearHe
 
         // Android Wear
         mAndroidWear = new PreferenceCategory(this);
-        mAndroidWear.setTitle("Android Wear - Beta");
+        mAndroidWear.setTitle("Android Wear");
         root.addPreference(mAndroidWear);
         mAndroidWearHelper = new AndroidWearHelper(this);
 
