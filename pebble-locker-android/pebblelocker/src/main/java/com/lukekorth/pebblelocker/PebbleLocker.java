@@ -26,10 +26,12 @@ import android.widget.EditText;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.lukekorth.pebblelocker.events.ActivityResumedEvent;
+import com.lukekorth.pebblelocker.events.RequirePurchaseEvent;
 import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
 import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
 import com.lukekorth.pebblelocker.services.LockerService;
+import com.squareup.otto.Subscribe;
 
 import fr.nicolaspomepuy.discreetapprate.AppRate;
 import fr.nicolaspomepuy.discreetapprate.RetryPolicy;
@@ -113,13 +115,20 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
 
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
+        PebbleLockerApplication.getBus().register(this);
+
         AppRate.with(this)
                 .text("Rate Pebble Locker")
                 .initialLaunchCount(3)
                 .retryPolicy(RetryPolicy.EXPONENTIAL)
                 .checkAndShow();
 	}
-	
+
+    @Subscribe
+    public void onRequirePurchaseEvent(RequirePurchaseEvent event) {
+        requirePurchase();
+    }
+
 	public void onResume() {
 		super.onResume();
 
@@ -142,11 +151,18 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
             }
         }
 	}
-	
+
+    @Override
 	public void onPause() {
 		super.onPause();
         mPrefs.unregisterOnSharedPreferenceChangeListener(this);
 	}
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        PebbleLockerApplication.getBus().unregister(this);
+    }
 	
 	/**
      * This is dangerous, so we prevent automated tests from doing it, and we
