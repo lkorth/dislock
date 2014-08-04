@@ -72,7 +72,7 @@ public class Logger extends SQLiteOpenHelper {
         String lastTag = null;
         while(cursor.moveToNext()) {
             line = cursor.getString(cursor.getColumnIndex("message"));
-            currentTag = line.substring(0, line.indexOf("]") + 1);
+            currentTag = line.substring(line.indexOf("["), line.indexOf("]") + 1);
             if (!currentTag.equals(lastTag)) {
                 lastTag = currentTag;
                 response.append("\n");
