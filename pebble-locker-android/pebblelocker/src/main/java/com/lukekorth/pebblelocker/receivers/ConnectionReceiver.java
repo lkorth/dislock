@@ -34,12 +34,13 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 	    mAction = intent.getAction().toLowerCase();
 		mLogger.log("ConnectionReceiver: " + mAction);
 
+        checkForBluetoothDevice(intent);
+
         DeviceHelper deviceHelper = new DeviceHelper(context, mLogger);
         deviceHelper.sendLockStatusChangedEvent();
 
 		LockState lockState = LockState.getCurrentState(context);
 		if (lockState == LockState.AUTO) {
-			checkForBluetoothDevice(((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)));
 			boolean isWifiConnected = new WifiHelper(context, mLogger).isTrustedWifiConnected();
 
             Intent lockerIntent = new Intent(context, LockerService.class);
@@ -65,10 +66,15 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
 		}
 	}
 
-	private void checkForBluetoothDevice(BluetoothDevice device) {
-		if (mAction.equals(BLUETOOTH_CONNECTED)) {
+	private void checkForBluetoothDevice(Intent intent) {
+        BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+		if (mAction.equals(BLUETOOTH_CONNECTED) && device != null) {
+            mLogger.log("Setting bluetooth device " + device.getName() + " " + device.getAddress() +
+                " connected");
             BluetoothDevices.setDeviceConnected(device, true);
-		} else if (mAction.equals(BLUETOOTH_DISCONNECTED)) {
+		} else if (mAction.equals(BLUETOOTH_DISCONNECTED) && device != null) {
+            mLogger.log("Setting bluetooth device " + device.getName() + " " + device.getAddress() +
+                    " disconnected");
             BluetoothDevices.setDeviceConnected(device, false);
 		}
 	}
