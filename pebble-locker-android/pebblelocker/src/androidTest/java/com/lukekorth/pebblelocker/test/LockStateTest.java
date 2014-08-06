@@ -68,7 +68,7 @@ public class LockStateTest extends BaseApplicationTestCase {
         Locker locker = mock(Locker.class);
 
 //        LockState.setCurrentState(getContext(), logger, locker, false, LockState.AUTO.getState());
-        verify(locker, times(1)).handleLocking(false, false);
+        verify(locker, times(1)).handleLocking(false);
     }
 
     public void pendingSetCurrentStateCallsUnlockForManualUnlock() {

@@ -58,6 +58,8 @@
                 <action android:name="com.lukekorth.pebblelocker.android_wear_connected" />
                 <action android:name="com.lukekorth.pebblelocker.android_wear_disconnected" />
 
+                <action android:name="com.lukekorth.pebblelocker.delayed_lock" />
+
         		<action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
 
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

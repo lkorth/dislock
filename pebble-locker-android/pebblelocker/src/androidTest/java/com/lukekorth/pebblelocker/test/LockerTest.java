@@ -32,26 +32,14 @@ public class LockerTest extends BaseApplicationTestCase {
         mLocker = new Locker(getContext(), "TEST", mDeviceHelper, mWifiHelper, mPebbleHelper, mDPM);
     }
 
-    public void testHandleLockingRespectsWithDelayOption() {
-        mPrefs.edit().putString("key_grace_period", "2").apply();
-
-        long startTime = System.currentTimeMillis();
-        mLocker.handleLocking(false, false);
-        assertTrue((System.currentTimeMillis() - startTime) < 2000);
-
-        startTime = System.currentTimeMillis();
-        mLocker.handleLocking(true, false);
-        assertTrue((System.currentTimeMillis() - startTime) > 2000);
-    }
-
     public void testHandleLockingProxiesForceLockOption() {
         setEnabled();
         mPrefs.edit().putBoolean("key_force_lock", true).apply();
 
-        mLocker.handleLocking(false, false);
+        mLocker.handleLocking(false);
         verify(mDPM, never()).lockNow();
 
-        mLocker.handleLocking(false, true);
+        mLocker.handleLocking(true);
         verify(mDPM, times(1)).lockNow();
     }
 
@@ -60,7 +48,7 @@ public class LockerTest extends BaseApplicationTestCase {
         setConnected(true);
         when(mDeviceHelper.isLocked(true)).thenReturn(true);
 
-        mLocker.handleLocking(false, false);
+        mLocker.handleLocking(false);
 
         verify(mDPM, times(1)).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
     }
@@ -70,7 +58,7 @@ public class LockerTest extends BaseApplicationTestCase {
         setConnected(true);
         when(mDeviceHelper.isLocked(true)).thenReturn(false);
 
-        mLocker.handleLocking(false, false);
+        mLocker.handleLocking(false);
 
         verify(mDPM, never()).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
     }
@@ -80,7 +68,7 @@ public class LockerTest extends BaseApplicationTestCase {
         setConnected(false);
         when(mDeviceHelper.isLocked(false)).thenReturn(false);
 
-        mLocker.handleLocking(false, false);
+        mLocker.handleLocking(false);
 
         verify(mDPM, times(1)).resetPassword("1234", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
     }
@@ -90,13 +78,13 @@ public class LockerTest extends BaseApplicationTestCase {
         setConnected(false);
         when(mDeviceHelper.isLocked(false)).thenReturn(true);
 
-        mLocker.handleLocking(false, false);
+        mLocker.handleLocking(false);
 
         verify(mDPM, never()).resetPassword("1234", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
     }
 
     public void testLockReturnsEarlyIfNotEnabled() {
-        mLocker.lock();
+        mLocker.lock(true);
 
         verify(mDPM, never()).resetPassword("1234", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
     }
@@ -104,21 +92,12 @@ public class LockerTest extends BaseApplicationTestCase {
     public void testLockSetsPasswordCorrectlyAndSendsEvent() {
         setEnabled();
 
-        mLocker.lock();
+        mLocker.lock(true);
 
         verify(mDPM).resetPassword("1234", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
         assertTrue(mPrefs.getBoolean(ConnectionReceiver.LOCKED, false));
         assertFalse(mPrefs.getBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true));
         verify(mDeviceHelper).sendLockStatusChangedEvent();
-    }
-
-    public void testLockDefaultsToForceLocking() {
-        setEnabled();
-        mPrefs.edit().putBoolean("key_force_lock", true).apply();
-
-        mLocker.lock();
-
-        verify(mDPM).lockNow();
     }
 
     public void testLockForceLocksScreenWhenForceLockIsTrue() {
@@ -143,11 +122,11 @@ public class LockerTest extends BaseApplicationTestCase {
         setEnabled();
 
         mPrefs.edit().putBoolean("key_force_lock", false).apply();
-        mLocker.lock();
+        mLocker.lock(true);
         verify(mDPM, never()).lockNow();
 
         mPrefs.edit().putBoolean("key_force_lock", true).apply();
-        mLocker.lock();
+        mLocker.lock(true);
         verify(mDPM, times(1)).lockNow();
     }
 

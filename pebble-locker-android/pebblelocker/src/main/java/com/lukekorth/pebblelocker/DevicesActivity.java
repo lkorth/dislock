@@ -154,7 +154,7 @@ public class DevicesActivity extends PreferenceActivity {
 
     private void handleLocking() {
         if (LockState.getCurrentState(this) == LockState.AUTO) {
-            new Locker(this, "[DEVICE-ACTIVITY]").handleLocking(false, false);
+            new Locker(this, "[DEVICE-ACTIVITY]").handleLocking(false);
         }
     }
 

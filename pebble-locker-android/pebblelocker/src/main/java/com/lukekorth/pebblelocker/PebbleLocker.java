@@ -188,7 +188,7 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
                     .show();
         }
 
-        new Locker(this, "[USER-TRIGGERED]").handleLocking(false, false);
+        new Locker(this, "[USER-TRIGGERED]").handleLocking(false);
     }
 
     private void removePassword() {

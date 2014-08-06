@@ -48,32 +48,13 @@ public class Locker {
         mDPM = dpm;
     }
 
-	public void handleLocking(boolean withDelay, boolean forceLock) {
-        if (withDelay) {
-            int delay = Integer.parseInt(mPrefs.getString("key_grace_period", "2"));
-
-            if (delay != 0) {
-                mLogger.log("Sleeping for " + delay + " seconds");
-                try {
-                    Thread.sleep(delay * 1000);
-                } catch (InterruptedException e) {
-                    mLogger.log("Sleep was interrupted: " + e.getMessage());
-                }
-            }
-
-            mLogger.log("Grace period is over, handling locking...");
-        }
-
+	public void handleLocking(boolean forceLock) {
         boolean connectedToDeviceOrWifi = isConnectedToDeviceOrWifi();
 		if (connectedToDeviceOrWifi && mDeviceHelper.isLocked(true)) {
             unlock();
         } else if (!connectedToDeviceOrWifi && !mDeviceHelper.isLocked(false)) {
             lock(forceLock);
         }
-	}
-
-	public void lock() {
-		lock(true);
 	}
 
 	public void lock(boolean forceLock) {

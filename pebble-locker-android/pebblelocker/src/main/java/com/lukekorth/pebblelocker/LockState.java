@@ -67,7 +67,7 @@ public enum LockState {
                 .edit().putInt(LOCK_STATE, state).apply();
 
         if (lockState == LockState.AUTO) {
-            new Locker(context, logger.getTag()).handleLocking(false, forceLock);
+            new Locker(context, logger.getTag()).handleLocking(forceLock);
         } else if (lockState == LockState.MANUAL_UNLOCKED) {
             new Locker(context, logger.getTag()).unlock();
         } else if (lockState == LockState.MANUAL_LOCKED) {

@@ -68,7 +68,7 @@ public class WiFiNetworks extends PreferenceActivity implements Preference.OnPre
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         if (LockState.getCurrentState(this) == LockState.AUTO) {
-            new Locker(this, "[WIFI-ACTIVITY]").handleLocking(false, false);
+            new Locker(this, "[WIFI-ACTIVITY]").handleLocking(false);
         }
         return true;
     }
