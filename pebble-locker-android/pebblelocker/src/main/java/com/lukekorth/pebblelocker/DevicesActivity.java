@@ -1,7 +1,6 @@
 package com.lukekorth.pebblelocker;
 
 import android.bluetooth.BluetoothDevice;
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -11,56 +10,36 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 
 import com.activeandroid.query.Select;
-import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
 import com.lukekorth.pebblelocker.models.AndroidWearDevices;
 import com.lukekorth.pebblelocker.models.BluetoothDevices;
-import com.lukekorth.pebblelocker.services.LockerService;
 
 import java.util.List;
 import java.util.Set;
 
-public class DevicesActivity extends PreferenceActivity implements AndroidWearHelper.Listener {
+public class DevicesActivity extends PreferenceActivity {
+
+    private PreferenceScreen mPreferenceScreen;
 
     private PreferenceCategory mAndroidWear;
     private Preference mAndroidWearStatus;
-    private AndroidWearHelper mAndroidWearHelper;
     private PreferenceCategory mBluetooth;
     private Preference mBluetoothStatus;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mPreferenceScreen = getPreferenceManager().createPreferenceScreen(this);
 
-        PreferenceScreen root = getPreferenceManager().createPreferenceScreen(this);
+        addPebbleOption();
 
-        // Any Pebble
-        PreferenceCategory pebble = new PreferenceCategory(this);
-        pebble.setTitle("Pebble");
-        root.addPreference(pebble);
-        CheckBoxPreference pebblePref = new CheckBoxPreference(this);
-        pebblePref.setKey("pebble");
-        pebblePref.setTitle("Allow any Pebble to unlock");
-        pebblePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                handleLocking();
-                return true;
-            }
-        });
-        pebblePref.setChecked(PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pebble", true));
-        pebble.addPreference(pebblePref);
-
-        // Android Wear
         mAndroidWear = new PreferenceCategory(this);
-        mAndroidWear.setTitle("Android Wear");
-        root.addPreference(mAndroidWear);
-        mAndroidWearHelper = new AndroidWearHelper(this);
+        mAndroidWear.setTitle(R.string.android_wear);
+        mPreferenceScreen.addPreference(mAndroidWear);
 
-        // Bluetooth
         mBluetooth = new PreferenceCategory(this);
-        mBluetooth.setTitle("Bluetooth Devices");
-        root.addPreference(mBluetooth);
+        mBluetooth.setTitle(R.string.bluetooth_devices_preference_category);
+        mPreferenceScreen.addPreference(mBluetooth);
 
-        setPreferenceScreen(root);
+        setPreferenceScreen(mPreferenceScreen);
     }
 
     @Override
@@ -68,6 +47,72 @@ public class DevicesActivity extends PreferenceActivity implements AndroidWearHe
         super.onResume();
         getAndroidWearDevices();
         getBluetoothDevices();
+    }
+
+    private void addPebbleOption() {
+        PreferenceCategory pebble = new PreferenceCategory(this);
+        pebble.setTitle(R.string.pebble);
+        mPreferenceScreen.addPreference(pebble);
+        CheckBoxPreference pref = new CheckBoxPreference(this);
+        pref.setKey("pebble");
+        pref.setTitle(R.string.any_pebble);
+        pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                handleLocking();
+                return true;
+            }
+        });
+        pref.setChecked(PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pebble", true));
+        pebble.addPreference(pref);
+    }
+
+    private void getBluetoothDevices() {
+        mBluetooth.removeAll();
+
+        Set<BluetoothDevice> pairedDevices = BluetoothDevices.getPairedDevices();
+        if (pairedDevices.size() == 0) {
+            if (mBluetoothStatus == null) {
+                mBluetoothStatus = new Preference(this);
+                mBluetoothStatus.setKey("bluetooth_status");
+                mBluetoothStatus.setTitle("Bluetooth unavailable");
+                mBluetoothStatus.setSummary("Bluetooth is turned off or you do not have any paired " +
+                        "devices. Please enable and/or pair a device.");
+            }
+
+            mBluetooth.addPreference(mBluetoothStatus);
+        } else {
+            for (BluetoothDevice device : pairedDevices) {
+                CheckBoxPreference pref = new CheckBoxPreference(this);
+                pref.setKey(device.getAddress());
+                pref.setTitle(device.getName());
+                pref.setOnPreferenceChangeListener(bluetoothPreferenceListener);
+                mBluetooth.addPreference(pref);
+            }
+        }
+    }
+
+    private void getAndroidWearDevices() {
+        mAndroidWear.removeAll();
+
+        List<AndroidWearDevices> devices = AndroidWearDevices.getDevices();
+        if (devices.size() == 0) {
+            if (mAndroidWearStatus == null) {
+                mAndroidWearStatus = new Preference(this);
+                mAndroidWearStatus.setKey("android_wear_status");
+                mAndroidWearStatus.setTitle("No devices found");
+            }
+
+            mAndroidWear.addPreference(mAndroidWearStatus);
+        } else {
+            for(AndroidWearDevices device : devices) {
+                CheckBoxPreference pref = new CheckBoxPreference(this);
+                pref.setKey(device.deviceId);
+                pref.setTitle(device.name);
+                pref.setOnPreferenceChangeListener(androidWearPreferenceListener);
+                mAndroidWear.addPreference(pref);
+            }
+        }
     }
 
     Preference.OnPreferenceChangeListener bluetoothPreferenceListener = new Preference.OnPreferenceChangeListener() {
@@ -95,8 +140,13 @@ public class DevicesActivity extends PreferenceActivity implements AndroidWearHe
     Preference.OnPreferenceChangeListener androidWearPreferenceListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            mAndroidWearHelper.setDeviceTrusted(preference.getTitle().toString(), preference.getKey(),
-                    Boolean.parseBoolean(newValue.toString()));
+            AndroidWearDevices device = new Select()
+                    .from(AndroidWearDevices.class)
+                    .where("deviceId = ?", preference.getKey())
+                    .executeSingle();
+
+            device.trusted = Boolean.parseBoolean(newValue.toString());
+            device.save();
             handleLocking();
             return true;
         }
@@ -104,69 +154,7 @@ public class DevicesActivity extends PreferenceActivity implements AndroidWearHe
 
     private void handleLocking() {
         if (LockState.getCurrentState(this) == LockState.AUTO) {
-            Intent intent = new Intent(this, LockerService.class);
-            intent.putExtra(LockerService.TAG, "[DEVICE-ACTIVITY]");
-            intent.putExtra(LockerService.WITH_DELAY, false);
-            intent.putExtra(LockerService.FORCE_LOCK, false);
-            startService(intent);
-        }
-    }
-
-    private void getBluetoothDevices() {
-        if (mBluetoothStatus == null) {
-            mBluetoothStatus = new Preference(this);
-            mBluetoothStatus.setKey("bluetooth_status");
-            mBluetoothStatus.setTitle("Bluetooth unavailable");
-            mBluetoothStatus.setSummary("Bluetooth is turned off or you do not have any paired " +
-                    "devices. Please enable and/or pair a device.");
-        }
-
-        mBluetooth.removeAll();
-
-        Set<BluetoothDevice> pairedDevices = BluetoothDevices.getPairedDevices();
-        if (pairedDevices.size() == 0) {
-            mBluetooth.addPreference(mBluetoothStatus);
-        } else {
-            // Loop through paired devices
-            for (BluetoothDevice device : pairedDevices) {
-                // Checkbox preference
-                CheckBoxPreference checkboxPref = new CheckBoxPreference(this);
-                checkboxPref.setKey(device.getAddress());
-                checkboxPref.setTitle(device.getName());
-                checkboxPref.setOnPreferenceChangeListener(bluetoothPreferenceListener);
-                mBluetooth.addPreference(checkboxPref);
-            }
-        }
-    }
-
-    private void getAndroidWearDevices() {
-        if (mAndroidWearStatus == null) {
-            mAndroidWearStatus = new Preference(this);
-            mAndroidWearStatus.setKey("android_wear_status");
-        }
-
-        mAndroidWear.removeAll();
-        mAndroidWearStatus.setTitle("Scanning...");
-        mAndroidWear.addPreference(mAndroidWearStatus);
-
-        new AndroidWearHelper(this).getConnectedDevices(this, true);
-    }
-
-    @Override
-    public void onKnownDevicesLoaded(List<AndroidWearDevices> devices) {
-        mAndroidWear.removeAll();
-
-        if (devices.size() > 0) {
-            for(AndroidWearDevices device : devices) {
-                CheckBoxPreference checkboxPref = new CheckBoxPreference(this);
-                checkboxPref.setKey(device.deviceId);
-                checkboxPref.setTitle(device.name);
-                checkboxPref.setOnPreferenceChangeListener(androidWearPreferenceListener);
-                mAndroidWear.addPreference(checkboxPref);
-            }
-        } else {
-            mAndroidWearStatus.setTitle("No devices found");
-            mAndroidWear.addPreference(mAndroidWearStatus);
+            new Locker(this, "[DEVICE-ACTIVITY]").handleLocking(false, false);
         }
     }
 

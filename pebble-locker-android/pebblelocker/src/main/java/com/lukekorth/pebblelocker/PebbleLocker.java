@@ -30,7 +30,6 @@ import com.lukekorth.pebblelocker.events.RequirePurchaseEvent;
 import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
 import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
-import com.lukekorth.pebblelocker.services.LockerService;
 import com.squareup.otto.Subscribe;
 
 import fr.nicolaspomepuy.discreetapprate.AppRate;
@@ -189,11 +188,7 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
                     .show();
         }
 
-        Intent intent = new Intent(this, LockerService.class);
-        intent.putExtra(LockerService.TAG, "[USER-TRIGGERED]");
-        intent.putExtra(LockerService.WITH_DELAY, false);
-        intent.putExtra(LockerService.FORCE_LOCK, false);
-        startService(intent);
+        new Locker(this, "[USER-TRIGGERED]").handleLocking(false, false);
     }
 
     private void removePassword() {

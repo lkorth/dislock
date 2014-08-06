@@ -4,7 +4,6 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 
 import com.lukekorth.pebblelocker.Locker;
-import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
 import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
@@ -22,7 +21,6 @@ public class LockerTest extends BaseApplicationTestCase {
 
     @Mock DeviceHelper mDeviceHelper;
     @Mock WifiHelper mWifiHelper;
-    @Mock AndroidWearHelper mAndroidWearHelper;
     @Mock PebbleHelper mPebbleHelper;
     @Mock DevicePolicyManager mDPM;
 
@@ -31,8 +29,7 @@ public class LockerTest extends BaseApplicationTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mLocker = new Locker(getContext(), "TEST", mDeviceHelper, mWifiHelper, mAndroidWearHelper,
-                mPebbleHelper, mDPM);
+        mLocker = new Locker(getContext(), "TEST", mDeviceHelper, mWifiHelper, mPebbleHelper, mDPM);
     }
 
     public void testHandleLockingRespectsWithDelayOption() {

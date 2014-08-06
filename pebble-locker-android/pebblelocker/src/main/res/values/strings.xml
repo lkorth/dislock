@@ -36,6 +36,10 @@
 
     <string name="bluetooth_preference_title">Bluetooth Devices</string>
     <string name="bluetooth_preference_summary">Select bluetooth devices such as Android Wear, cars and headsets that will unlock your device</string>
+    <string name="pebble">Pebble</string>
+    <string name="any_pebble">Allow any Pebble to unlock</string>
+    <string name="android_wear">Android Wear</string>
+    <string name="bluetooth_devices_preference_category">Bluetooth Devices</string>
 
     <string name="wifi_preference_title">WiFi</string>
     <string name="wifi_preference_summary">Select WiFi networks that will unlock your device</string>

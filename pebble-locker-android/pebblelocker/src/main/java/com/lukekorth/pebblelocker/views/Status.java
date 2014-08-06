@@ -8,7 +8,6 @@ import android.util.AttributeSet;
 import com.lukekorth.pebblelocker.PebbleLockerApplication;
 import com.lukekorth.pebblelocker.PremiumFeaturesActivity;
 import com.lukekorth.pebblelocker.events.StatusChangedEvent;
-import com.lukekorth.pebblelocker.helpers.AndroidWearHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
 import com.lukekorth.pebblelocker.logging.Logger;
@@ -16,15 +15,12 @@ import com.lukekorth.pebblelocker.models.AndroidWearDevices;
 import com.lukekorth.pebblelocker.models.BluetoothDevices;
 import com.squareup.otto.Subscribe;
 
-import java.util.List;
-
-public class Status extends Preference implements AndroidWearHelper.Listener {
+public class Status extends Preference {
 
     private static final String TAG = "[STATUS-PREFERENCE]";
 
     private Context mContext;
     private Logger mLogger;
-    private AndroidWearHelper mAndroidWearHelper;
 
     public Status(Context context) {
         super(context);
@@ -55,19 +51,6 @@ public class Status extends Preference implements AndroidWearHelper.Listener {
 
     @Subscribe
     public void update(StatusChangedEvent event) {
-        String connectedDevices = getConnectedDevices();
-        if (TextUtils.isEmpty(connectedDevices)) {
-            connectedDevices = "No trusted devices connected";
-        }
-
-        setSummary(connectedDevices);
-
-        if (PremiumFeaturesActivity.hasPurchased(mContext)) {
-            getConnectedAndroidWears();
-        }
-    }
-
-    private String getConnectedDevices() {
         String connectedDevices = "";
 
         connectedDevices = conditionallyAddNewLine(connectedDevices,
@@ -77,31 +60,9 @@ public class Status extends Preference implements AndroidWearHelper.Listener {
             connectedDevices = conditionallyAddNewLine(connectedDevices,
                     new WifiHelper(mContext, mLogger).getConnectionStatus());
             connectedDevices = conditionallyAddNewLine(connectedDevices,
+                    AndroidWearDevices.getConnectionStatus());
+            connectedDevices = conditionallyAddNewLine(connectedDevices,
                     BluetoothDevices.getConnectionStatus());
-        }
-
-        return connectedDevices;
-    }
-
-    private void getConnectedAndroidWears() {
-        if (mAndroidWearHelper == null) {
-            mAndroidWearHelper = new AndroidWearHelper(mContext, mLogger);
-        }
-
-        mAndroidWearHelper.getConnectedDevices(this);
-    }
-
-    @Override
-    public void onKnownDevicesLoaded(List<AndroidWearDevices> devices) {
-        String connectedDevices = getConnectedDevices();
-
-        if (devices.size() > 0) {
-            for(AndroidWearDevices device : devices) {
-                if (device.trusted) {
-                    connectedDevices = conditionallyAddNewLine(connectedDevices, "Android Wear Connected");
-                    break;
-                }
-            }
         }
 
         if (TextUtils.isEmpty(connectedDevices)) {

@@ -1,11 +1,9 @@
 package com.lukekorth.pebblelocker;
 
 import android.content.Context;
-import android.content.Intent;
 import android.preference.PreferenceManager;
 
 import com.lukekorth.pebblelocker.logging.Logger;
-import com.lukekorth.pebblelocker.services.LockerService;
 
 public enum LockState {
     AUTO(0, "Auto"),
@@ -69,11 +67,7 @@ public enum LockState {
                 .edit().putInt(LOCK_STATE, state).apply();
 
         if (lockState == LockState.AUTO) {
-            Intent intent = new Intent(context, LockerService.class);
-            intent.putExtra(LockerService.TAG, logger.getTag());
-            intent.putExtra(LockerService.WITH_DELAY, false);
-            intent.putExtra(LockerService.FORCE_LOCK, forceLock);
-            context.startService(intent);
+            new Locker(context, logger.getTag()).handleLocking(false, forceLock);
         } else if (lockState == LockState.MANUAL_UNLOCKED) {
             new Locker(context, logger.getTag()).unlock();
         } else if (lockState == LockState.MANUAL_LOCKED) {

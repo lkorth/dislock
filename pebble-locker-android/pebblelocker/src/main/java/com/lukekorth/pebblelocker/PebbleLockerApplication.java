@@ -1,11 +1,13 @@
 package com.lukekorth.pebblelocker;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 
 import com.lukekorth.pebblelocker.helpers.ThreadBus;
 import com.lukekorth.pebblelocker.logging.Logger;
+import com.lukekorth.pebblelocker.services.AndroidWearDetectionService;
 import com.squareup.otto.Bus;
 
 import java.util.Date;
@@ -22,6 +24,8 @@ public class PebbleLockerApplication extends com.activeandroid.app.Application i
         sLogDatabase = new Logger(this).getWritableDatabase();
         sBus = new ThreadBus();
         migrate();
+
+        startService(new Intent(this, AndroidWearDetectionService.class));
     }
 
     private void migrate() {

@@ -35,10 +35,12 @@ public class BaseApplicationTestCase extends ApplicationTestCase<PebbleLockerApp
         super.tearDown();
     }
 
-    protected AndroidWearDevices createAndroidWearDevice(String name, String id, boolean trusted) {
+    protected AndroidWearDevices createAndroidWearDevice(String name, String id, boolean connected,
+                                                         boolean trusted) {
         AndroidWearDevices device = new AndroidWearDevices();
         device.name = name;
         device.deviceId = id;
+        device.connected = connected;
         device.trusted = trusted;
         device.save();
         return device;
