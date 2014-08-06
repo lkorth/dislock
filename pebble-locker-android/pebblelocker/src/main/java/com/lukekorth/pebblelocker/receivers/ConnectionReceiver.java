@@ -18,6 +18,7 @@ import com.lukekorth.pebblelocker.models.BluetoothDevices;
 public class ConnectionReceiver extends BaseBroadcastReceiver {
 
     private static final String BOOT_ACTION            = "android.intent.action.boot_completed";
+    private static final String ACTION_SHUTDOWN        = "android.intent.action.action_shutdown";
     private static final String DELAYED_LOCK           = "com.lukekorth.pebblelocker.delayed_lock";
 	private static final String PEBBLE_CONNECTED       = "com.getpebble.action.pebble_connected";
 	private static final String PEBBLE_DISCONNECTED    = "com.getpebble.action.pebble_disconnected";
@@ -54,6 +55,9 @@ public class ConnectionReceiver extends BaseBroadcastReceiver {
             if (mAction.equals(DELAYED_LOCK)) {
                 mLogger.log("Got a delayed lock broadcast, locking");
                 new Locker(mContext, mTag).handleLocking(true);
+            } else if (mAction.equals(ACTION_SHUTDOWN)) {
+                mLogger.log("Phone is shutting down, locking without checking trusted devices");
+                new Locker(mContext, mTag).lock(false);
             } else if (mAction.equals(BOOT_ACTION)) {
                 mLogger.log("Phone completed booting, locking");
                 new Locker(context, mTag).handleLocking(true);
