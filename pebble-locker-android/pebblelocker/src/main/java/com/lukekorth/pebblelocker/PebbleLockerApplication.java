@@ -71,6 +71,6 @@ public class PebbleLockerApplication extends com.activeandroid.app.Application i
             logger.log(trace.toString());
         }
 
-        System.exit(1);
+        throw new RuntimeException(ex);
     }
 }
