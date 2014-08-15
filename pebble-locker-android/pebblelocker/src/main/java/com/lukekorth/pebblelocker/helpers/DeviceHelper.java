@@ -2,8 +2,11 @@ package com.lukekorth.pebblelocker.helpers;
 
 import android.app.KeyguardManager;
 import android.content.Context;
+import android.os.Build;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.view.Display;
+import android.view.WindowManager;
 
 import com.lukekorth.pebblelocker.PebbleLockerApplication;
 import com.lukekorth.pebblelocker.events.StatusChangedEvent;
@@ -30,10 +33,22 @@ public class DeviceHelper {
     }
 
     public boolean isScreenOn() {
-        boolean screen = ((PowerManager) mContext.getSystemService(Context.POWER_SERVICE))
-                .isScreenOn();
-        mLogger.log("Screen is on: " + screen);
-        return screen;
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+            int screen = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE))
+                    .getDefaultDisplay().getState();
+            if (screen == Display.STATE_ON || screen == Display.STATE_DOZING) {
+                mLogger.log("Screen is on or dozing. " + screen);
+                return true;
+            } else {
+                mLogger.log("Screen is off or unknown. " + screen);
+                return false;
+            }
+        } else {
+            boolean screen = ((PowerManager) mContext.getSystemService(Context.POWER_SERVICE))
+                    .isScreenOn();
+            mLogger.log("Screen is on: " + screen);
+            return screen;
+        }
     }
 
     public boolean isLocked(boolean defaultState) {
