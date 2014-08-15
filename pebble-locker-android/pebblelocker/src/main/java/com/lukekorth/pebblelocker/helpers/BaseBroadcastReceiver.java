@@ -4,9 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.lukekorth.pebblelocker.PebbleLockerApplication;
 import com.lukekorth.pebblelocker.logging.Logger;
-
-import java.util.UUID;
 
 public class BaseBroadcastReceiver extends BroadcastReceiver {
 
@@ -17,7 +16,7 @@ public class BaseBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         mContext = context;
-        mTag = "[" + UUID.randomUUID().toString().split("-")[1] + "]";
+        mTag = PebbleLockerApplication.getUniqueTag();
         mLogger = new Logger(context, mTag);
     }
 

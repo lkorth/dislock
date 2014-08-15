@@ -7,8 +7,7 @@
         android:title="@string/status">
 
         <com.lukekorth.pebblelocker.views.LockStatePreference
-            android:key="lock_state_preference"
-            android:summary="@string/click_to_change" />
+            android:key="lock_state_preference" />
 
         <com.lukekorth.pebblelocker.views.Status
             android:key="status"

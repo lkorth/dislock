@@ -1,6 +1,7 @@
 package com.lukekorth.pebblelocker.views;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
@@ -8,9 +9,11 @@ import android.util.AttributeSet;
 
 import com.lukekorth.pebblelocker.LockState;
 import com.lukekorth.pebblelocker.PebbleLockerApplication;
+import com.lukekorth.pebblelocker.R;
 import com.lukekorth.pebblelocker.events.StatusChangedEvent;
 import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
+import com.lukekorth.pebblelocker.services.LockStateIntentService;
 import com.squareup.otto.Subscribe;
 
 public class LockStatePreference extends Preference implements Preference.OnPreferenceClickListener {
@@ -18,6 +21,7 @@ public class LockStatePreference extends Preference implements Preference.OnPref
     private static final String TAG = "[LOCK-STATE-PREFERENCE]";
 
     private Context mContext;
+    private Logger mLogger;
 
     public LockStatePreference(Context context) {
         super(context);
@@ -36,6 +40,7 @@ public class LockStatePreference extends Preference implements Preference.OnPref
 
     private void init(Context context) {
         mContext = context;
+        mLogger = new Logger(mContext, TAG);
         PebbleLockerApplication.getBus().register(this);
         update(new StatusChangedEvent());
         setOnPreferenceClickListener(this);
@@ -63,11 +68,18 @@ public class LockStatePreference extends Preference implements Preference.OnPref
         }
 
         setTitle(title);
+        setSummary(R.string.click_to_change);
+
+        mLogger.log("Updating status to " + title);
     }
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
-        LockState.switchToNextState(mContext, new Logger(mContext, TAG), false);
+        mContext.startService(new Intent(mContext, LockStateIntentService.class));
+
+        setTitle(R.string.please_wait);
+        setSummary("");
+
         return true;
     }
 

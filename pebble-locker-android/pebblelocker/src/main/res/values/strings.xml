@@ -13,6 +13,7 @@
     <string name="password_cleared">Your password has been removed and Pebble Locker has been disabled</string>
 
     <string name="click_to_change">Click to change</string>
+    <string name="please_wait">Please wait...</string>
     <string name="connected_trusted_devices">Connected Trusted Devices</string>
 
     <string name="reset_password_warning">

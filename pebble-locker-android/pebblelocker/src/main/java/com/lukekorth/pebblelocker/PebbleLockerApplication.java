@@ -11,6 +11,7 @@ import com.lukekorth.pebblelocker.services.AndroidWearDetectionService;
 import com.squareup.otto.Bus;
 
 import java.util.Date;
+import java.util.UUID;
 
 public class PebbleLockerApplication extends com.activeandroid.app.Application implements Thread.UncaughtExceptionHandler {
 
@@ -49,6 +50,10 @@ public class PebbleLockerApplication extends com.activeandroid.app.Application i
 
     public static Bus getBus() {
         return sBus;
+    }
+
+    public static String getUniqueTag() {
+        return "[" + UUID.randomUUID().toString().split("-")[1] + "]";
     }
 
     @Override
