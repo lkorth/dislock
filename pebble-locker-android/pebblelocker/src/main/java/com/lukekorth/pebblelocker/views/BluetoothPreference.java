@@ -22,7 +22,7 @@ public class BluetoothPreference extends PremiumFeaturesPreference {
 
     @Override
     public Intent getActionIntent() {
-        return new Intent(mContext, DevicesActivity.class);
+        return new Intent(getContext(), DevicesActivity.class);
     }
 
 }

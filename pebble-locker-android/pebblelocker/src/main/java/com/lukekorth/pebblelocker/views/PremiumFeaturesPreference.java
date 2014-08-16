@@ -12,32 +12,29 @@ import com.lukekorth.pebblelocker.events.RequirePurchaseEvent;
 public abstract class PremiumFeaturesPreference extends Preference
         implements Preference.OnPreferenceClickListener {
 
-    protected Context mContext;
-
     public PremiumFeaturesPreference(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     public PremiumFeaturesPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init();
     }
 
     public PremiumFeaturesPreference(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init(context);
+        init();
     }
 
-    private void init(Context context) {
-        mContext = context;
+    private void init() {
         setOnPreferenceClickListener(this);
     }
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
-        if(PremiumFeaturesActivity.hasPurchased(mContext)) {
-            mContext.startActivity(getActionIntent());
+        if(PremiumFeaturesActivity.hasPurchased(getContext())) {
+            getContext().startActivity(getActionIntent());
         } else {
             PebbleLockerApplication.getBus().post(new RequirePurchaseEvent());
         }

@@ -35,7 +35,7 @@ public class PebbleWatchAppDownloadPreference extends PremiumFeaturesPreference 
 
     @Subscribe
     public void refresh(ActivityResumedEvent event) {
-        setEnabled(new PebbleHelper(mContext, new Logger(mContext, "[PEBBLE-WATCH-DOWNLOAD]"))
+        setEnabled(new PebbleHelper(getContext(), new Logger(getContext(), "[PEBBLE-WATCH-DOWNLOAD]"))
                 .isPebbleAppInstalled());
     }
 

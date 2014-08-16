@@ -13,16 +13,16 @@ public class GracePeriod extends ListPreference implements Preference.OnPreferen
 
     public GracePeriod(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     public GracePeriod(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init();
     }
 
-    private void init(Context context) {
-        setCustomSummary(PreferenceManager.getDefaultSharedPreferences(context).getString(KEY, DEFAULT));
+    private void init() {
+        setCustomSummary(PreferenceManager.getDefaultSharedPreferences(getContext()).getString(KEY, DEFAULT));
         setOnPreferenceChangeListener(this);
     }
 

@@ -20,27 +20,25 @@ public class LockStatePreference extends Preference implements Preference.OnPref
 
     private static final String TAG = "[LOCK-STATE-PREFERENCE]";
 
-    private Context mContext;
     private Logger mLogger;
 
     public LockStatePreference(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     public LockStatePreference(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init();
     }
 
     public LockStatePreference(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init(context);
+        init();
     }
 
-    private void init(Context context) {
-        mContext = context;
-        mLogger = new Logger(mContext, TAG);
+    private void init() {
+        mLogger = new Logger(getContext(), TAG);
         PebbleLockerApplication.getBus().register(this);
         update(new StatusChangedEvent());
         setOnPreferenceClickListener(this);
@@ -53,8 +51,8 @@ public class LockStatePreference extends Preference implements Preference.OnPref
 
     @Subscribe
     public void update(StatusChangedEvent event) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        LockState lockState = LockState.getCurrentState(mContext);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        LockState lockState = LockState.getCurrentState(getContext());
         String title = "";
 
         if (lockState == LockState.AUTO) {
@@ -75,7 +73,7 @@ public class LockStatePreference extends Preference implements Preference.OnPref
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
-        mContext.startService(new Intent(mContext, LockStateIntentService.class));
+        getContext().startService(new Intent(getContext(), LockStateIntentService.class));
 
         setTitle(R.string.please_wait);
         setSummary("");

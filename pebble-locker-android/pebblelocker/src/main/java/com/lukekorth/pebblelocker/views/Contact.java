@@ -8,31 +8,28 @@ import com.lukekorth.pebblelocker.logging.LogReporting;
 
 public class Contact extends Preference implements Preference.OnPreferenceClickListener {
 
-    private Context mContext;
-
     public Contact(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     public Contact(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init();
     }
 
     public Contact(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init(context);
+        init();
     }
 
-    private void init(Context context) {
-        mContext = context;
+    private void init() {
         setOnPreferenceClickListener(this);
     }
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
-        new LogReporting(mContext).collectAndSendLogs();
+        new LogReporting(getContext()).collectAndSendLogs();
         return true;
     }
 

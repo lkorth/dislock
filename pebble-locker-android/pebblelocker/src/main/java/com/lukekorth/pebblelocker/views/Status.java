@@ -19,27 +19,25 @@ public class Status extends Preference {
 
     private static final String TAG = "[STATUS-PREFERENCE]";
 
-    private Context mContext;
     private Logger mLogger;
 
     public Status(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     public Status(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init();
     }
 
     public Status(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init(context);
+        init();
     }
 
-    private void init(Context context) {
-        mContext = context;
-        mLogger = new Logger(mContext, TAG);
+    private void init() {
+        mLogger = new Logger(getContext(), TAG);
         PebbleLockerApplication.getBus().register(this);
         update(new StatusChangedEvent());
     }
@@ -54,11 +52,11 @@ public class Status extends Preference {
         String connectedDevices = "";
 
         connectedDevices = conditionallyAddNewLine(connectedDevices,
-                new PebbleHelper(mContext, mLogger).getConnectionStatus());
+                new PebbleHelper(getContext(), mLogger).getConnectionStatus());
 
-        if (PremiumFeaturesActivity.hasPurchased(mContext)) {
+        if (PremiumFeaturesActivity.hasPurchased(getContext())) {
             connectedDevices = conditionallyAddNewLine(connectedDevices,
-                    new WifiHelper(mContext, mLogger).getConnectionStatus());
+                    new WifiHelper(getContext(), mLogger).getConnectionStatus());
             connectedDevices = conditionallyAddNewLine(connectedDevices,
                     AndroidWearDevices.getConnectionStatus());
             connectedDevices = conditionallyAddNewLine(connectedDevices,

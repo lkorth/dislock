@@ -22,6 +22,6 @@ public class WifiPreference extends PremiumFeaturesPreference {
 
     @Override
     public Intent getActionIntent() {
-        return new Intent(mContext, WiFiNetworks.class);
+        return new Intent(getContext(), WiFiNetworks.class);
     }
 }
