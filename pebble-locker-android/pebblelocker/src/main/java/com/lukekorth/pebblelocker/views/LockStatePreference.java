@@ -12,7 +12,7 @@ import com.lukekorth.pebblelocker.PebbleLockerApplication;
 import com.lukekorth.pebblelocker.R;
 import com.lukekorth.pebblelocker.events.StatusChangedEvent;
 import com.lukekorth.pebblelocker.logging.Logger;
-import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
+import com.lukekorth.pebblelocker.receivers.BaseBroadcastReceiver;
 import com.lukekorth.pebblelocker.services.LockStateIntentService;
 import com.squareup.otto.Subscribe;
 
@@ -58,7 +58,7 @@ public class LockStatePreference extends Preference implements Preference.OnPref
         String title = "";
 
         if (lockState == LockState.AUTO) {
-            if (prefs.getBoolean(ConnectionReceiver.LOCKED, false)) {
+            if (prefs.getBoolean(BaseBroadcastReceiver.LOCKED, false)) {
                 title = "Locked (Automatic)";
             } else {
                 title = "Unlocked (Automatic)";

@@ -7,14 +7,14 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
 import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.models.AndroidWearDevices;
 import com.lukekorth.pebblelocker.models.BluetoothDevices;
-import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
+import com.lukekorth.pebblelocker.receivers.BaseBroadcastReceiver;
+import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
 
 public class Locker {
 
@@ -63,7 +63,7 @@ public class Locker {
         }
 
 		boolean passwordChanged = mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-		mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false).apply();
+		mPrefs.edit().putBoolean(BaseBroadcastReceiver.LOCKED, true).putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false).apply();
 
 		mLogger.log("Successfully locked: " + passwordChanged);
 
@@ -91,10 +91,10 @@ public class Locker {
 
 			try {
 				passwordChanged = mDPM.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-				mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, false).apply();
+				mPrefs.edit().putBoolean(BaseBroadcastReceiver.LOCKED, false).apply();
 			} catch (IllegalArgumentException e) {
                 boolean passwordReset = mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-                mPrefs.edit().putBoolean(ConnectionReceiver.LOCKED, true).apply();
+                mPrefs.edit().putBoolean(BaseBroadcastReceiver.LOCKED, true).apply();
                 mLogger.log("There was an exception when setting the password to blank, setting it back. Successfully reset: " + passwordReset + " " + Log.getStackTraceString(e));
             }
 

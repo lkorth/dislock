@@ -45,24 +45,41 @@
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
-        
-        <receiver android:name=".receivers.ConnectionReceiver">
+
+        <receiver android:name=".receivers.PebbleConnectionReceiver">
             <intent-filter>
                 <action android:name="com.getpebble.action.PEBBLE_CONNECTED" />
                 <action android:name="com.getpebble.action.PEBBLE_DISCONNECTED" />
-                
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".receivers.UserPresentReceiver">
+            <intent-filter>
                 <action android:name="android.intent.action.USER_PRESENT" />
-                
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".receivers.BluetoothReceiver">
+            <intent-filter>
                 <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
-        		<action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />
+                <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />
+            </intent-filter>
+        </receiver>
 
-                <action android:name="com.lukekorth.pebblelocker.android_wear_connected" />
-                <action android:name="com.lukekorth.pebblelocker.android_wear_disconnected" />
-
+        <receiver android:name=".receivers.DelayedLockReceiver">
+            <intent-filter>
                 <action android:name="com.lukekorth.pebblelocker.delayed_lock" />
+            </intent-filter>
+        </receiver>
 
-        		<action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+        <receiver android:name=".receivers.WiFiReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
 
+        <receiver android:name=".receivers.BootReceiver">
+            <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.ACTION_SHUTDOWN" />
             </intent-filter>

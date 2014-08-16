@@ -4,11 +4,11 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 
 import com.lukekorth.pebblelocker.Locker;
-import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
-import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
+import com.lukekorth.pebblelocker.receivers.BaseBroadcastReceiver;
+import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
 
 import org.mockito.Mock;
 
@@ -95,7 +95,7 @@ public class LockerTest extends BaseApplicationTestCase {
         mLocker.lock(true);
 
         verify(mDPM).resetPassword("1234", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-        assertTrue(mPrefs.getBoolean(ConnectionReceiver.LOCKED, false));
+        assertTrue(mPrefs.getBoolean(BaseBroadcastReceiver.LOCKED, false));
         assertFalse(mPrefs.getBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true));
         verify(mDeviceHelper).sendLockStatusChangedEvent();
     }

@@ -46,6 +46,13 @@ public class BluetoothDevices extends Model {
         return pairedDevices;
     }
 
+    public static boolean isADeviceTrusted() {
+        return new Select()
+                .from(BluetoothDevices.class)
+                .where("trusted = ?", true)
+                .exists();
+    }
+
     public static boolean isTrustedDeviceConnected() {
         return new Select()
                 .from(BluetoothDevices.class)

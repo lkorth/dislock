@@ -27,9 +27,9 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.lukekorth.pebblelocker.events.ActivityResumedEvent;
 import com.lukekorth.pebblelocker.events.RequirePurchaseEvent;
-import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
 import com.lukekorth.pebblelocker.logging.Logger;
-import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
+import com.lukekorth.pebblelocker.receivers.BaseBroadcastReceiver;
+import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
 import com.squareup.otto.Subscribe;
 
 import fr.nicolaspomepuy.discreetapprate.AppRate;
@@ -140,7 +140,7 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
 
 		if(!mPrefs.getString("key_password", "").equals("") &&
                 timeStamp < (System.currentTimeMillis() - 60000) &&
-				mPrefs.getBoolean(ConnectionReceiver.LOCKED, true)) {
+				mPrefs.getBoolean(BaseBroadcastReceiver.LOCKED, true)) {
             requestPassword();
         } else {
             int response = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);

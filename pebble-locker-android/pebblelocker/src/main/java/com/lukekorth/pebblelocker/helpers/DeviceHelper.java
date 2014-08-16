@@ -11,7 +11,7 @@ import android.view.WindowManager;
 import com.lukekorth.pebblelocker.PebbleLockerApplication;
 import com.lukekorth.pebblelocker.events.StatusChangedEvent;
 import com.lukekorth.pebblelocker.logging.Logger;
-import com.lukekorth.pebblelocker.receivers.ConnectionReceiver;
+import com.lukekorth.pebblelocker.receivers.BaseBroadcastReceiver;
 
 public class DeviceHelper {
 
@@ -53,7 +53,7 @@ public class DeviceHelper {
 
     public boolean isLocked(boolean defaultState) {
         boolean locked = PreferenceManager.getDefaultSharedPreferences(mContext)
-                .getBoolean(ConnectionReceiver.LOCKED, defaultState);
+                .getBoolean(BaseBroadcastReceiver.LOCKED, defaultState);
         mLogger.log("Locked: " + locked);
         return locked;
     }
