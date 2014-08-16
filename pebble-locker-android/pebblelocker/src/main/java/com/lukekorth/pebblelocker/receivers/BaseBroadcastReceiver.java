@@ -42,10 +42,10 @@ public abstract class BaseBroadcastReceiver extends BroadcastReceiver {
         LockState lockState = LockState.getCurrentState(mContext);
         if (lockState == LockState.AUTO) {
             handle();
-            mDeviceHelper.sendLockStatusChangedEvent();
         } else {
             mLogger.log("Lock state was manually set to " + lockState.getDisplayName());
         }
+        mDeviceHelper.sendLockStatusChangedEvent();
     }
 
     protected void handleLocking() {

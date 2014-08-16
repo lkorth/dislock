@@ -1,6 +1,7 @@
 package com.lukekorth.pebblelocker;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -12,6 +13,7 @@ import android.preference.PreferenceScreen;
 import com.activeandroid.query.Select;
 import com.lukekorth.pebblelocker.models.AndroidWearDevices;
 import com.lukekorth.pebblelocker.models.BluetoothDevices;
+import com.lukekorth.pebblelocker.services.LockingIntentService;
 
 import java.util.List;
 import java.util.Set;
@@ -153,9 +155,7 @@ public class DevicesActivity extends PreferenceActivity {
     };
 
     private void handleLocking() {
-        if (LockState.getCurrentState(this) == LockState.AUTO) {
-            new Locker(this, "[DEVICE-ACTIVITY]").handleLocking(false);
-        }
+        startService(new Intent(this, LockingIntentService.class));
     }
 
 }

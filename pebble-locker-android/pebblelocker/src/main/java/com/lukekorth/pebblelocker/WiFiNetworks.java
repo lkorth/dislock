@@ -14,6 +14,7 @@ import android.preference.PreferenceScreen;
 import android.provider.Settings;
 
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
+import com.lukekorth.pebblelocker.services.LockingIntentService;
 
 import java.util.List;
 import java.util.Map;
@@ -67,9 +68,7 @@ public class WiFiNetworks extends PreferenceActivity implements Preference.OnPre
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        if (LockState.getCurrentState(this) == LockState.AUTO) {
-            new Locker(this, "[WIFI-ACTIVITY]").handleLocking(false);
-        }
+        startService(new Intent(this, LockingIntentService.class));
         return true;
     }
 }
