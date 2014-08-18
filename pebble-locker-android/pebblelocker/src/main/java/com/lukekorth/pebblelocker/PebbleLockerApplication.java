@@ -18,10 +18,14 @@ public class PebbleLockerApplication extends com.activeandroid.app.Application i
     private static SQLiteDatabase sLogDatabase;
     private static ThreadBus sBus;
 
+    private Thread.UncaughtExceptionHandler mExceptionHandler;
+
     @Override
     public void onCreate() {
         super.onCreate();
+        mExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(this);
+
         sLogDatabase = new Logger(this).getWritableDatabase();
         sBus = new ThreadBus();
         migrate();
@@ -66,16 +70,22 @@ public class PebbleLockerApplication extends com.activeandroid.app.Application i
     public void uncaughtException(Thread thread, Throwable ex) {
         Logger logger = new Logger(this, "[EXCEPTION]");
 
-        logger.log("Crashed!");
         logger.log("thread.toString(): " + thread.toString());
-
-        logger.log("Exception string: " + ex.toString());
-        logger.log("Exception message: " + ex.getMessage());
+        logger.log("Exception: " + ex.toString());
         logger.log("Exception stacktrace:");
         for (StackTraceElement trace : ex.getStackTrace()) {
             logger.log(trace.toString());
         }
 
-        throw new RuntimeException(ex);
+        logger.log("");
+
+        logger.log("cause.toString(): " + ex.getCause().toString());
+        logger.log("Cause: " + ex.getCause().toString());
+        logger.log("Cause stacktrace:");
+        for (StackTraceElement trace : ex.getCause().getStackTrace()) {
+            logger.log(trace.toString());
+        }
+
+        mExceptionHandler.uncaughtException(thread, ex);
     }
 }
