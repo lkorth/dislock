@@ -15,11 +15,11 @@
     </PreferenceCategory>
     
     <PreferenceCategory
-        android:title="Device Admin" >
+        android:title="Device Administrator" >
 
         <CheckBoxPreference
             android:key="key_enable_admin"
-            android:title="Enable Device Admin"
+            android:title="Enable Device Administrator"
             android:summary="Must be enabled for Pebble Locker to function" />
     </PreferenceCategory>
     
