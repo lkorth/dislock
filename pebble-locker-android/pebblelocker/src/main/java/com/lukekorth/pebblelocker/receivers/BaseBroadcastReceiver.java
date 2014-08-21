@@ -12,7 +12,9 @@ import com.lukekorth.pebblelocker.LockState;
 import com.lukekorth.pebblelocker.Locker;
 import com.lukekorth.pebblelocker.PebbleLockerApplication;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
-import com.lukekorth.pebblelocker.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class BaseBroadcastReceiver extends BroadcastReceiver {
 
@@ -30,12 +32,12 @@ public abstract class BaseBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         mContext = context;
         mTag = PebbleLockerApplication.getUniqueTag();
-        mLogger = new Logger(context, mTag);
-        mDeviceHelper = new DeviceHelper(context, mLogger);
+        mLogger = LoggerFactory.getLogger(mTag);
+        mDeviceHelper = new DeviceHelper(context, mTag);
         mAction = intent.getAction().toLowerCase();
         mIntent = intent;
 
-        mLogger.log("BroadcastReceiver action: " + mAction);
+        mLogger.debug("BroadcastReceiver action: " + mAction);
 
         onReceive();
 
@@ -43,7 +45,7 @@ public abstract class BaseBroadcastReceiver extends BroadcastReceiver {
         if (lockState == LockState.AUTO) {
             handle();
         } else {
-            mLogger.log("Lock state was manually set to " + lockState.getDisplayName());
+            mLogger.debug("Lock state was manually set to " + lockState.getDisplayName());
         }
         mDeviceHelper.sendLockStatusChangedEvent();
     }
@@ -57,18 +59,19 @@ public abstract class BaseBroadcastReceiver extends BroadcastReceiver {
     }
 
     protected void lockWithDelay() {
-        BaseBroadcastReceiver.lockWithDelay(mContext, mLogger);
+        BaseBroadcastReceiver.lockWithDelay(mContext, mTag);
     }
 
-    protected static void lockWithDelay(Context context, Logger logger) {
+    protected static void lockWithDelay(Context context, String tag) {
+        Logger logger = LoggerFactory.getLogger(tag);
         int delay = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(context)
                 .getString("key_grace_period", "2"));
 
         if (delay == 0) {
-            logger.log("No delay, handling locking now");
-            BaseBroadcastReceiver.handleLocking(context, logger.getTag());
+            logger.debug("No delay, handling locking now");
+            BaseBroadcastReceiver.handleLocking(context, tag);
         } else {
-            logger.log("Delay of " + delay + "seconds, setting alarm");
+            logger.debug("Delay of " + delay + "seconds, setting alarm");
 
             long wakeupTime = System.currentTimeMillis() +  (delay * 1000);
             PendingIntent wakeupIntent = PendingIntent.getBroadcast(context,

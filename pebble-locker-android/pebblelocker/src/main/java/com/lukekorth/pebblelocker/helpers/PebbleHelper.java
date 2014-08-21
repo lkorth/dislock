@@ -6,7 +6,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 
-import com.lukekorth.pebblelocker.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PebbleHelper {
 
@@ -15,13 +16,9 @@ public class PebbleHelper {
     private Context mContext;
     private Logger mLogger;
 
-    public PebbleHelper(Context context) {
+    public PebbleHelper(Context context, String tag) {
         mContext = context;
-    }
-
-    public PebbleHelper(Context context, Logger logger) {
-        mContext = context;
-        mLogger = logger;
+        mLogger = LoggerFactory.getLogger(tag);
     }
 
     public boolean isEnabled() {
@@ -34,7 +31,7 @@ public class PebbleHelper {
             c = mContext.getApplicationContext().getContentResolver()
                     .query(Uri.parse("content://com.getpebble.android.provider/state"), null, null, null, null);
         } catch (Exception e) {
-            mLogger.log("Exception getting Pebble connection status " + e.getClass() + ": " +
+            mLogger.error("Exception getting Pebble connection status " + e.getClass() + ": " +
                 e.getMessage());
         }
 
@@ -56,7 +53,7 @@ public class PebbleHelper {
         if (isEnabled()) {
             return isConnected();
         } else {
-            mLogger.log("Unlock via any Pebble is not enabled");
+            mLogger.debug("Unlock via any Pebble is not enabled");
             return false;
         }
     }

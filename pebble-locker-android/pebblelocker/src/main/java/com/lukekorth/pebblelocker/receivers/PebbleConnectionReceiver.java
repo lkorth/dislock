@@ -9,12 +9,12 @@ public class PebbleConnectionReceiver extends BaseBroadcastReceiver {
 
     @Override
     protected void handle() {
-        if (new PebbleHelper(mContext, mLogger).isEnabled()) {
+        if (new PebbleHelper(mContext, mTag).isEnabled()) {
             if (mAction.equals(PEBBLE_CONNECTED)) {
-                mLogger.log("Pebble connected, attempting unlock");
+                mLogger.debug("Pebble connected, attempting unlock");
                 handleLocking();
             } else if (mAction.equals(PEBBLE_DISCONNECTED)) {
-                mLogger.log("Pebble disconnected, attempting lock with delay");
+                mLogger.debug("Pebble disconnected, attempting lock with delay");
                 lockWithDelay();
             }
         }

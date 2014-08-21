@@ -27,11 +27,13 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.lukekorth.pebblelocker.events.ActivityResumedEvent;
 import com.lukekorth.pebblelocker.events.RequirePurchaseEvent;
-import com.lukekorth.pebblelocker.logging.Logger;
-import com.lukekorth.pebblelocker.receivers.BaseBroadcastReceiver;
 import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
+import com.lukekorth.pebblelocker.receivers.BaseBroadcastReceiver;
+import com.lukekorth.pebblelocker.services.AndroidWearDetectionService;
 import com.lukekorth.pebblelocker.services.LockingIntentService;
 import com.squareup.otto.Subscribe;
+
+import org.slf4j.LoggerFactory;
 
 import fr.nicolaspomepuy.discreetapprate.AppRate;
 import fr.nicolaspomepuy.discreetapprate.RetryPolicy;
@@ -122,6 +124,8 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
                 .initialLaunchCount(3)
                 .retryPolicy(RetryPolicy.EXPONENTIAL)
                 .checkAndShow();
+
+        startService(new Intent(this, AndroidWearDetectionService.class));
 	}
 
     @Subscribe
@@ -178,7 +182,7 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
         mPrefs.edit().putString("key_password", newPassword).apply();
 
         if(newPassword.length() == 0) {
-            new Logger(this).log("[USER]", "Password was set to empty");
+            LoggerFactory.getLogger("User").debug("Password was set to empty");
             mEnable.setChecked(false);
             showAlert(R.string.password_cleared);
         } else {
@@ -310,7 +314,7 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
             message = "User changed " + key;
         }
 
-        new Logger(this, "[SETTINGS_CHANGED]").log(message);
+        LoggerFactory.getLogger("Settings_Changed").debug(message);
     }
 
 	/**

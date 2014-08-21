@@ -3,7 +3,8 @@ package com.lukekorth.pebblelocker;
 import android.content.Context;
 import android.preference.PreferenceManager;
 
-import com.lukekorth.pebblelocker.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public enum LockState {
     AUTO(0, "Auto"),
@@ -47,31 +48,32 @@ public enum LockState {
                         LockState.AUTO.getState()));
     }
 
-    public static LockState switchToNextState(Context context, Logger logger, boolean forceLock) {
+    public static LockState switchToNextState(Context context, String tag, boolean forceLock) {
         LockState lockState = getCurrentState(context);
         if (lockState == AUTO) {
-            return setCurrentState(context, logger, forceLock, MANUAL_UNLOCKED.getState());
+            return setCurrentState(context, tag, forceLock, MANUAL_UNLOCKED.getState());
         } else if (lockState == MANUAL_UNLOCKED) {
-            return setCurrentState(context, logger, forceLock, MANUAL_LOCKED.getState());
+            return setCurrentState(context, tag, forceLock, MANUAL_LOCKED.getState());
         } else if (lockState == MANUAL_LOCKED) {
-            return setCurrentState(context, logger, forceLock, AUTO.getState());
+            return setCurrentState(context, tag, forceLock, AUTO.getState());
         }
 
         return lockState;
     }
 
-    public static LockState setCurrentState(Context context, Logger logger, boolean forceLock, int state) {
+    public static LockState setCurrentState(Context context, String tag, boolean forceLock, int state) {
         LockState lockState = LockState.getInstance(state);
-        logger.log("Setting lock state: " + lockState.getDisplayName());
+        Logger logger = LoggerFactory.getLogger(tag);
+        logger.debug("Setting lock state: " + lockState.getDisplayName());
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit().putInt(LOCK_STATE, state).apply();
 
         if (lockState == LockState.AUTO) {
-            new Locker(context, logger.getTag()).handleLocking(forceLock);
+            new Locker(context, tag).handleLocking(forceLock);
         } else if (lockState == LockState.MANUAL_UNLOCKED) {
-            new Locker(context, logger.getTag()).unlock();
+            new Locker(context, tag).unlock();
         } else if (lockState == LockState.MANUAL_LOCKED) {
-            new Locker(context, logger.getTag()).lock(forceLock);
+            new Locker(context, tag).lock(forceLock);
         }
 
         return lockState;

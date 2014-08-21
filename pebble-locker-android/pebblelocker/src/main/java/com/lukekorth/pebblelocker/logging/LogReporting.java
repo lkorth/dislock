@@ -13,10 +13,16 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
+import com.lukekorth.pebblelocker.BuildConfig;
+import com.lukekorth.pebblelocker.PebbleLockerApplication;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Map;
@@ -57,6 +63,7 @@ public class LogReporting {
             message.append("Pebble Locker password length: " + prefs.getString("key_password", "").length() + "\n");
 			message.append("Encryption status: " + dpm.getStorageEncryptionStatus() + "\n");
             message.append("Device rooted: " + isDeviceRooted() + "\n");
+            message.append("Debug: " + BuildConfig.DEBUG + "\n");
 
             for (ComponentName componentName : dpm.getActiveAdmins()) {
                 message.append("Active Admin: " + componentName.getClassName() + "\n");
@@ -70,7 +77,7 @@ public class LogReporting {
 			}
 			message.append("---------------------------");
             message.append("\n");
-			message.append(new Logger(mContext).getLog());
+			message.append(getLog());
 			
 			try {				
 				File file = new File(mContext.getExternalFilesDir(null), filename);
@@ -115,6 +122,39 @@ public class LogReporting {
             }
 
             return Boolean.toString(check1 || check2 || check3);
+        }
+
+        private String getLog() {
+            StringBuilder response = new StringBuilder();
+            InputStream in = null;
+            try {
+                in = new FileInputStream(
+                        ((PebbleLockerApplication) mContext.getApplicationContext()).getLogFilePath());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+                String line = reader.readLine();
+                String currentTag;
+                String lastTag = null;
+                while(line != null) {
+                    currentTag = line.substring(line.indexOf("[", 30), line.indexOf("]", 30) + 1);
+                    if (!currentTag.equals(lastTag)) {
+                        lastTag = currentTag;
+                        response.append("\n");
+                    }
+                    response.append(line + "\n");
+                    line = reader.readLine();
+                }
+
+                return response.toString();
+            } catch (FileNotFoundException e) {
+                return "FileNotFoundException: " + e.toString();
+            } catch (IOException e) {
+                return "IOException: " + e.toString();
+            } finally {
+                if (in != null) {
+                    try { in.close(); } catch (IOException e) {}
+                }
+            }
         }
 
         @Override

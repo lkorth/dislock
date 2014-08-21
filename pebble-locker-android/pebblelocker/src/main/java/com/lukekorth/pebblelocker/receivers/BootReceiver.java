@@ -10,10 +10,10 @@ public class BootReceiver extends BaseBroadcastReceiver {
     @Override
     protected void handle() {
         if (mAction.equals(ACTION_SHUTDOWN)) {
-            mLogger.log("Shutting down, locking without checking trusted devices");
+            mLogger.debug("Shutting down, locking without checking trusted devices");
             new Locker(mContext, mTag).lock(false);
         } else if (mAction.equals(BOOT_ACTION)) {
-            mLogger.log("Boot complete, handling locking");
+            mLogger.debug("Boot complete, handling locking");
             handleLocking();
         }
     }

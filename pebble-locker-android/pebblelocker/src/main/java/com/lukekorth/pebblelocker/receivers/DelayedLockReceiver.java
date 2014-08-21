@@ -7,7 +7,7 @@ public class DelayedLockReceiver extends BaseBroadcastReceiver {
     @Override
     protected void handle() {
         if (mAction.equals(DELAYED_LOCK)) {
-            mLogger.log("Delayed lock broadcast, handling locking");
+            mLogger.debug("Delayed lock broadcast, handling locking");
             handleLocking();
         }
     }

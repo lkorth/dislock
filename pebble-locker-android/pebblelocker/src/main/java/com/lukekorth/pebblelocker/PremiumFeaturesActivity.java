@@ -14,7 +14,9 @@ import com.lukekorth.pebblelocker.billing.IabHelper.OnIabSetupFinishedListener;
 import com.lukekorth.pebblelocker.billing.IabResult;
 import com.lukekorth.pebblelocker.billing.Inventory;
 import com.lukekorth.pebblelocker.billing.Purchase;
-import com.lukekorth.pebblelocker.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PremiumFeaturesActivity extends PreferenceActivity implements OnIabSetupFinishedListener,
     IabHelper.OnIabPurchaseFinishedListener, IabHelper.QueryInventoryFinishedListener {
@@ -34,7 +36,7 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mLogger = new Logger(this, "[PREMIUM-FEATURES]");
+        mLogger = LoggerFactory.getLogger("Premium_Features");
         mIabHelper = new IabHelper(this, BILLING_PUBLIC_KEY);
         mIabHelper.startSetup(this);
         mIabStatus = IAB_STATUS.SETTING_UP;
@@ -77,13 +79,13 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
 
     @Override
     public void onIabSetupFinished(IabResult result) {
-        mLogger.log("IabHelper setup finished, result success: " + result.isSuccess() +
+        mLogger.debug("IabHelper setup finished, result success: " + result.isSuccess() +
                 " message: " + result.getMessage());
 
         if (result.isSuccess()) {
             mIabStatus = IAB_STATUS.SET_UP;
             mIabOperationInProgress = true;
-            mLogger.log("Checking for previous purchases");
+            mLogger.debug("Checking for previous purchases");
             mIabHelper.queryInventoryAsync(this);
         } else {
             mIabStatus = IAB_STATUS.FAILED;
@@ -92,7 +94,7 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
 
     @Override
     public void onQueryInventoryFinished(IabResult result, Inventory inv) {
-        mLogger.log("Inventory query finished, result success: " + result.isSuccess() +
+        mLogger.debug("Inventory query finished, result success: " + result.isSuccess() +
                 " message: " + result.getMessage());
 
         mIabOperationInProgress = false;
@@ -104,7 +106,7 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
                     inv.hasPurchase("pebblelocker.premium")) {
                 setPurchased(true);
             } else {
-                mLogger.log("User has not purchased any of the qualifying items");
+                mLogger.debug("User has not purchased any of the qualifying items");
                 setPurchased(false);
             }
         }
@@ -112,7 +114,7 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
 
     @Override
     public void onIabPurchaseFinished(IabResult result, Purchase info) {
-        mLogger.log("Purchase finished, result success: " + result.isSuccess() + " message: " + result.getMessage());
+        mLogger.debug("Purchase finished, result success: " + result.isSuccess() + " message: " + result.getMessage());
 
         mIabOperationInProgress = false;
 
@@ -126,18 +128,18 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
     }
 
     private void initiatePurchase() {
-        mLogger.log("Attempting purchase");
+        mLogger.debug("Attempting purchase");
 
         if (mIabStatus == IAB_STATUS.SET_UP) {
             if (mIabOperationInProgress) {
-                mLogger.log("Another IAB task is in progress");
+                mLogger.debug("Another IAB task is in progress");
                 showAlert(R.string.iab_setting_up);
             } else {
                 mIabOperationInProgress = true;
                 mIabHelper.launchPurchaseFlow(this, "pebblelocker.premium", 1, this, "premium");
             }
         } else if (mIabStatus == IAB_STATUS.SETTING_UP) {
-            mLogger.log("Still waiting for IAB setup to complete");
+            mLogger.debug("Still waiting for IAB setup to complete");
             showAlert(R.string.iab_setting_up);
         } else if (mIabStatus == IAB_STATUS.FAILED) {
            showAlert(R.string.iab_setup_error);

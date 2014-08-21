@@ -31,7 +31,7 @@ public class WiFiNetworks extends PreferenceActivity implements Preference.OnPre
         inlinePrefCat.setTitle("WiFi Networks");
         root.addPreference(inlinePrefCat);
 
-        WifiHelper wifiHelper = new WifiHelper(this);
+        WifiHelper wifiHelper = new WifiHelper(this, "Wifi_Networks");
 
         List<WifiConfiguration> networks = wifiHelper.getStoredNetworks();
         if (networks == null) {

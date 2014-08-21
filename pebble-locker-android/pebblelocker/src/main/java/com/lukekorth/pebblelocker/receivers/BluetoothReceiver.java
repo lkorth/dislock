@@ -13,11 +13,11 @@ public class BluetoothReceiver extends BaseBroadcastReceiver {
     protected void onReceive() {
         BluetoothDevice device = mIntent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
         if (mAction.equals(BLUETOOTH_CONNECTED) && device != null) {
-            mLogger.log("Setting bluetooth device " + device.getName() + " " + device.getAddress() +
+            mLogger.debug("Setting bluetooth device " + device.getName() + " " + device.getAddress() +
                     " connected");
             BluetoothDevices.setDeviceConnected(device, true);
         } else if (mAction.equals(BLUETOOTH_DISCONNECTED) && device != null) {
-            mLogger.log("Setting bluetooth device " + device.getName() + " " + device.getAddress() +
+            mLogger.debug("Setting bluetooth device " + device.getName() + " " + device.getAddress() +
                     " disconnected");
             BluetoothDevices.setDeviceConnected(device, false);
         }
@@ -27,10 +27,10 @@ public class BluetoothReceiver extends BaseBroadcastReceiver {
     protected void handle() {
         if (BluetoothDevices.isADeviceTrusted()) {
             if (mAction.equals(BLUETOOTH_CONNECTED)) {
-                mLogger.log("Bluetooth connected, attempting unlock");
+                mLogger.debug("Bluetooth connected, attempting unlock");
                 handleLocking();
             } else if (mAction.equals(BLUETOOTH_DISCONNECTED)) {
-                mLogger.log("Bluetooth disconnected, attempting lock with delay");
+                mLogger.debug("Bluetooth disconnected, attempting lock with delay");
                 lockWithDelay();
             }
         }

@@ -8,12 +8,12 @@ public class WiFiReceiver extends BaseBroadcastReceiver {
 
     @Override
     protected void handle() {
-        boolean trustedWifiConnected = new WifiHelper(mContext, mLogger).isTrustedWifiConnected();
+        boolean trustedWifiConnected = new WifiHelper(mContext, mTag).isTrustedWifiConnected();
         if (mAction.equals(CONNECTIVITY_CHANGE) && trustedWifiConnected) {
-            mLogger.log("Wifi connected, attempting unlock");
+            mLogger.debug("Wifi connected, attempting unlock");
             handleLocking();
         } else if (mAction.equals(CONNECTIVITY_CHANGE) && !trustedWifiConnected) {
-            mLogger.log("Wifi disconnected, attempting lock with delay");
+            mLogger.debug("Wifi disconnected, attempting lock with delay");
             lockWithDelay();
         }
     }

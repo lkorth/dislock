@@ -11,14 +11,16 @@ import com.lukekorth.pebblelocker.LockState;
 import com.lukekorth.pebblelocker.PebbleLockerApplication;
 import com.lukekorth.pebblelocker.R;
 import com.lukekorth.pebblelocker.events.StatusChangedEvent;
-import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.receivers.BaseBroadcastReceiver;
 import com.lukekorth.pebblelocker.services.LockStateIntentService;
 import com.squareup.otto.Subscribe;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class LockStatePreference extends Preference implements Preference.OnPreferenceClickListener {
 
-    private static final String TAG = "[LOCK-STATE-PREFERENCE]";
+    private static final String TAG = "Lock_State_Preference";
 
     private Logger mLogger;
 
@@ -38,7 +40,7 @@ public class LockStatePreference extends Preference implements Preference.OnPref
     }
 
     private void init() {
-        mLogger = new Logger(getContext(), TAG);
+        mLogger = LoggerFactory.getLogger(TAG);
         PebbleLockerApplication.getBus().register(this);
         update(new StatusChangedEvent());
         setOnPreferenceClickListener(this);
@@ -68,7 +70,7 @@ public class LockStatePreference extends Preference implements Preference.OnPref
         setTitle(title);
         setSummary(R.string.click_to_change);
 
-        mLogger.log("Updating status to " + title);
+        mLogger.debug("Updating status to " + title);
     }
 
     @Override

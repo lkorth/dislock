@@ -6,7 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
-import com.lukekorth.pebblelocker.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * All callbacks are on the UI thread and your implementations should not engage in any
@@ -14,14 +14,16 @@ import com.lukekorth.pebblelocker.logging.Logger;
  */
 public class CustomDeviceAdminReceiver extends DeviceAdminReceiver {
 
+    private static final String TAG = "Device_Admin_Receiver";
+
     @Override
     public void onEnabled(Context context, Intent intent) {
-        new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Device admin enabled");
+        LoggerFactory.getLogger(TAG).debug("Device admin enabled");
     }
 
     @Override
     public CharSequence onDisableRequested(Context context, Intent intent) {
-        new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Device admin disable requested, disabling");
+        LoggerFactory.getLogger(TAG).debug("Device admin disable requested, disabling");
 
         ComponentName deviceAdmin = new ComponentName(context, CustomDeviceAdminReceiver.class);
         ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE)).removeActiveAdmin(deviceAdmin);
@@ -31,27 +33,27 @@ public class CustomDeviceAdminReceiver extends DeviceAdminReceiver {
 
     @Override
     public void onDisabled(Context context, Intent intent) {
-        new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Device admin disabled");
+        LoggerFactory.getLogger(TAG).debug("Device admin disabled");
     }
 
     @Override
     public void onPasswordChanged(Context context, Intent intent) {
-        new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Password changed");
+        LoggerFactory.getLogger(TAG).debug("Password changed");
     }
 
     @Override
     public void onPasswordFailed(Context context, Intent intent) {
-        new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Password failed");
+        LoggerFactory.getLogger(TAG).debug("Password failed");
     }
 
     @Override
     public void onPasswordSucceeded(Context context, Intent intent) {
-        new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Password succeeded");
+        LoggerFactory.getLogger(TAG).debug("Password succeeded");
     }
 
     @Override
     public void onPasswordExpiring(Context context, Intent intent) {
-        new Logger(context).log("[DEVICE_ADMIN_RECEIVER]", "Password expiring");
+        LoggerFactory.getLogger(TAG).debug("Password expiring");
     }
 
 }

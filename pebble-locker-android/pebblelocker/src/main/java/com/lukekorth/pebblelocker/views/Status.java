@@ -10,16 +10,13 @@ import com.lukekorth.pebblelocker.PremiumFeaturesActivity;
 import com.lukekorth.pebblelocker.events.StatusChangedEvent;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
-import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.models.AndroidWearDevices;
 import com.lukekorth.pebblelocker.models.BluetoothDevices;
 import com.squareup.otto.Subscribe;
 
 public class Status extends Preference {
 
-    private static final String TAG = "[STATUS-PREFERENCE]";
-
-    private Logger mLogger;
+    private static final String TAG = "Status_Preference";
 
     public Status(Context context) {
         super(context);
@@ -37,7 +34,6 @@ public class Status extends Preference {
     }
 
     private void init() {
-        mLogger = new Logger(getContext(), TAG);
         PebbleLockerApplication.getBus().register(this);
         update(new StatusChangedEvent());
     }
@@ -52,11 +48,11 @@ public class Status extends Preference {
         String connectedDevices = "";
 
         connectedDevices = conditionallyAddNewLine(connectedDevices,
-                new PebbleHelper(getContext(), mLogger).getConnectionStatus());
+                new PebbleHelper(getContext(), TAG).getConnectionStatus());
 
         if (PremiumFeaturesActivity.hasPurchased(getContext())) {
             connectedDevices = conditionallyAddNewLine(connectedDevices,
-                    new WifiHelper(getContext(), mLogger).getConnectionStatus());
+                    new WifiHelper(getContext(), TAG).getConnectionStatus());
             connectedDevices = conditionallyAddNewLine(connectedDevices,
                     AndroidWearDevices.getConnectionStatus());
             connectedDevices = conditionallyAddNewLine(connectedDevices,
@@ -79,4 +75,5 @@ public class Status extends Preference {
             return addition;
         }
     }
+
 }

@@ -8,7 +8,8 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import com.lukekorth.pebblelocker.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,14 +20,9 @@ public class WifiHelper {
     private Context mContext;
     private Logger mLogger;
 
-    public WifiHelper(Context context) {
+    public WifiHelper(Context context, String tag) {
         mContext = context;
-        mLogger = new Logger(context, "[WIFI-HELPER]");
-    }
-
-    public WifiHelper(Context context, Logger logger) {
-        mContext = context;
-        mLogger = logger;
+        mLogger = LoggerFactory.getLogger(tag);
     }
 
     /**
@@ -58,7 +54,7 @@ public class WifiHelper {
         String ssid = getConnectedNetworkSsid();
         String encodedSsid = base64Encode(ssid);
 
-        mLogger.log("Wifi network " + ssid + " is connected: " + encodedSsid);
+        mLogger.debug("Wifi network " + ssid + " is connected: " + encodedSsid);
 
         if (PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(encodedSsid, false)) {
             return true;
@@ -81,10 +77,10 @@ public class WifiHelper {
             if (wifiInfo.getSSID() != null) {
                 return stripQuotes(wifiInfo.getSSID());
             } else {
-                mLogger.log("wifiInfo.getSSID is null");
+                mLogger.debug("wifiInfo.getSSID is null");
             }
         } else {
-            mLogger.log("wifiInfo is null");
+            mLogger.debug("wifiInfo is null");
         }
 
         return "";
@@ -100,4 +96,5 @@ public class WifiHelper {
     private String base64Encode(String input) {
         return Base64.encodeToString(input.getBytes(), Base64.DEFAULT).trim();
     }
+
 }

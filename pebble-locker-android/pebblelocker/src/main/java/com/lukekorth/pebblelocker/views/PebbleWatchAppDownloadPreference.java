@@ -8,7 +8,6 @@ import android.util.AttributeSet;
 import com.lukekorth.pebblelocker.PebbleLockerApplication;
 import com.lukekorth.pebblelocker.events.ActivityResumedEvent;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
-import com.lukekorth.pebblelocker.logging.Logger;
 import com.squareup.otto.Subscribe;
 
 public class PebbleWatchAppDownloadPreference extends PremiumFeaturesPreference {
@@ -35,8 +34,7 @@ public class PebbleWatchAppDownloadPreference extends PremiumFeaturesPreference 
 
     @Subscribe
     public void refresh(ActivityResumedEvent event) {
-        setEnabled(new PebbleHelper(getContext(), new Logger(getContext(), "[PEBBLE-WATCH-DOWNLOAD]"))
-                .isPebbleAppInstalled());
+        setEnabled(new PebbleHelper(getContext(), "Pebble_Watch_Download").isPebbleAppInstalled());
     }
 
     @Override

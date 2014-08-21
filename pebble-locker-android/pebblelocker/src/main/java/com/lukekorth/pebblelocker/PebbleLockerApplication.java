@@ -1,21 +1,26 @@
 package com.lukekorth.pebblelocker;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 
 import com.lukekorth.pebblelocker.helpers.ThreadBus;
-import com.lukekorth.pebblelocker.logging.Logger;
-import com.lukekorth.pebblelocker.services.AndroidWearDetectionService;
 import com.squareup.otto.Bus;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
 import java.util.Date;
 import java.util.UUID;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.android.LogcatAppender;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.FileAppender;
+
 public class PebbleLockerApplication extends com.activeandroid.app.Application implements Thread.UncaughtExceptionHandler {
 
-    private static SQLiteDatabase sLogDatabase;
     private static ThreadBus sBus;
 
     private Thread.UncaughtExceptionHandler mExceptionHandler;
@@ -26,11 +31,43 @@ public class PebbleLockerApplication extends com.activeandroid.app.Application i
         mExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(this);
 
-        sLogDatabase = new Logger(this).getWritableDatabase();
-        sBus = new ThreadBus();
         migrate();
+        initLogger();
+        sBus = new ThreadBus();
+    }
 
-        startService(new Intent(this, AndroidWearDetectionService.class));
+    public String getLogFilePath() {
+        return getFileStreamPath("debug.log").getAbsolutePath();
+    }
+
+    private void initLogger() {
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        loggerContext.reset();
+
+        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+        encoder.setContext(loggerContext);
+        encoder.setPattern("%-30(%date{MMM dd | HH:mm:ss.SSS} [%thread]) %highlight(%-5level) %-25([%logger{36}]) %msg%n");
+        encoder.start();
+
+        FileAppender<ILoggingEvent> fileAppender = new FileAppender<ILoggingEvent>();
+        fileAppender.setContext(loggerContext);
+        fileAppender.setFile(getLogFilePath());
+        fileAppender.setAppend(true);
+        fileAppender.setEncoder(encoder);
+        fileAppender.start();
+
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger)
+                LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.addAppender(fileAppender);
+
+        if (BuildConfig.DEBUG) {
+            LogcatAppender logcatAppender = new LogcatAppender();
+            logcatAppender.setContext(loggerContext);
+            logcatAppender.setEncoder(encoder);
+            logcatAppender.start();
+
+            root.addAppender(logcatAppender);
+        }
     }
 
     private void migrate() {
@@ -45,11 +82,9 @@ public class PebbleLockerApplication extends com.activeandroid.app.Application i
             editor.putString("upgrade_date", now);
             editor.putInt("version", BuildConfig.VERSION_CODE);
             editor.apply();
-        }
-    }
 
-    public static SQLiteDatabase getLogDatabase() {
-        return sLogDatabase;
+            new File(getLogFilePath()).delete();
+        }
     }
 
     public static Bus getBus() {
@@ -57,35 +92,30 @@ public class PebbleLockerApplication extends com.activeandroid.app.Application i
     }
 
     public static String getUniqueTag() {
-        return "[" + UUID.randomUUID().toString().split("-")[1] + "]";
-    }
-
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-        sLogDatabase.close();
+        return UUID.randomUUID().toString().split("-")[1];
     }
 
     @Override
     public void uncaughtException(Thread thread, Throwable ex) {
-        Logger logger = new Logger(this, "[EXCEPTION]");
+        Logger logger = LoggerFactory.getLogger("Exception");
 
-        logger.log("thread.toString(): " + thread.toString());
-        logger.log("Exception: " + ex.toString());
-        logger.log("Exception stacktrace:");
+        logger.error("thread.toString(): " + thread.toString());
+        logger.error("Exception: " + ex.toString());
+        logger.error("Exception stacktrace:");
         for (StackTraceElement trace : ex.getStackTrace()) {
-            logger.log(trace.toString());
+            logger.error(trace.toString());
         }
 
-        logger.log("");
+        logger.error("");
 
-        logger.log("cause.toString(): " + ex.getCause().toString());
-        logger.log("Cause: " + ex.getCause().toString());
-        logger.log("Cause stacktrace:");
+        logger.error("cause.toString(): " + ex.getCause().toString());
+        logger.error("Cause: " + ex.getCause().toString());
+        logger.error("Cause stacktrace:");
         for (StackTraceElement trace : ex.getCause().getStackTrace()) {
-            logger.log(trace.toString());
+            logger.error(trace.toString());
         }
 
         mExceptionHandler.uncaughtException(thread, ex);
     }
+
 }

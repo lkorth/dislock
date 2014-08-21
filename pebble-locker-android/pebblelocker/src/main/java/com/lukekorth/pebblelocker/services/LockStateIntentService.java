@@ -6,7 +6,8 @@ import android.content.Intent;
 import com.lukekorth.pebblelocker.LockState;
 import com.lukekorth.pebblelocker.PebbleLockerApplication;
 import com.lukekorth.pebblelocker.events.StatusChangedEvent;
-import com.lukekorth.pebblelocker.logging.Logger;
+
+import org.slf4j.LoggerFactory;
 
 public class LockStateIntentService extends IntentService {
 
@@ -20,9 +21,9 @@ public class LockStateIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Logger logger = new Logger(this, PebbleLockerApplication.getUniqueTag());
-        logger.log("Got intent to switch to the next lock state");
-        LockState.switchToNextState(this, logger, false);
+        String tag = PebbleLockerApplication.getUniqueTag();
+        LoggerFactory.getLogger(tag).debug("Got intent to switch to the next lock state");
+        LockState.switchToNextState(this, tag, false);
         PebbleLockerApplication.getBus().post(new StatusChangedEvent());
     }
 }

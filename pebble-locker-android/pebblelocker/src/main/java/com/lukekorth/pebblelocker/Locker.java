@@ -7,14 +7,16 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
-import com.lukekorth.pebblelocker.logging.Logger;
 import com.lukekorth.pebblelocker.models.AndroidWearDevices;
 import com.lukekorth.pebblelocker.models.BluetoothDevices;
 import com.lukekorth.pebblelocker.receivers.BaseBroadcastReceiver;
-import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Locker {
 
@@ -30,10 +32,10 @@ public class Locker {
 	public Locker(Context context, String tag) {
 		mContext = context;
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-		mLogger = new Logger(context, tag);
-        mDeviceHelper = new DeviceHelper(context, mLogger);
-        mWifiHelper = new WifiHelper(context, mLogger);
-        mPebbleHelper = new PebbleHelper(context, mLogger);
+		mLogger = LoggerFactory.getLogger(tag);
+        mDeviceHelper = new DeviceHelper(context, tag);
+        mWifiHelper = new WifiHelper(context, tag);
+        mPebbleHelper = new PebbleHelper(context, tag);
 		mDPM = ((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE));
 	}
 
@@ -41,7 +43,7 @@ public class Locker {
                   PebbleHelper pebbleHelper, DevicePolicyManager dpm) {
         mContext = context;
         mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        mLogger = new Logger(context, tag);
+        mLogger = LoggerFactory.getLogger(tag);
         mDeviceHelper = deviceHelper;
         mWifiHelper = wifiHelper;
         mPebbleHelper = pebbleHelper;
@@ -65,7 +67,7 @@ public class Locker {
 		boolean passwordChanged = mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
 		mPrefs.edit().putBoolean(BaseBroadcastReceiver.LOCKED, true).putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false).apply();
 
-		mLogger.log("Successfully locked: " + passwordChanged);
+		mLogger.debug("Successfully locked: " + passwordChanged);
 
 		if (forceLock && mPrefs.getBoolean("key_force_lock", false)) {
             mDPM.lockNow();
@@ -81,10 +83,10 @@ public class Locker {
 
 		if (mDeviceHelper.isOnLockscreen() && mDeviceHelper.isScreenOn()) {
 			mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true).apply();
-			mLogger.log("Screen is on lock screen, setting unlock true for future unlock");
+			mLogger.debug("Screen is on lock screen, setting unlock true for future unlock");
 		} else if (mPrefs.getBoolean("key_require_password_on_reconnect", false) && !mPrefs.getBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false)) {
             mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true).apply();
-            mLogger.log("Requiring user to re-authenticate once before unlocking");
+            mLogger.debug("Requiring user to re-authenticate once before unlocking");
         } else {
 			boolean passwordChanged = false;
             boolean screen = mDeviceHelper.isScreenOn();
@@ -95,7 +97,7 @@ public class Locker {
 			} catch (IllegalArgumentException e) {
                 boolean passwordReset = mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
                 mPrefs.edit().putBoolean(BaseBroadcastReceiver.LOCKED, true).apply();
-                mLogger.log("There was an exception when setting the password to blank, setting it back. Successfully reset: " + passwordReset + " " + Log.getStackTraceString(e));
+                mLogger.error("There was an exception when setting the password to blank, setting it back. Successfully reset: " + passwordReset + " " + Log.getStackTraceString(e));
             }
 
             if(!screen && mDeviceHelper.isScreenOn() && passwordChanged) {
@@ -104,7 +106,7 @@ public class Locker {
 
 			mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false).apply();
 
-			mLogger.log("Successfully unlocked: " + passwordChanged);
+			mLogger.debug("Successfully unlocked: " + passwordChanged);
 		}
 
         mDeviceHelper.sendLockStatusChangedEvent();
@@ -116,13 +118,13 @@ public class Locker {
         boolean password = !(mPrefs.getString("key_password", "").equals(""));
 
 		if (!activeAdmin) {
-            mLogger.log("Not an active admin");
+            mLogger.error("Not an active admin");
         }
 		if (!enabled) {
-            mLogger.log("key_enable_locker is false");
+            mLogger.error("key_enable_locker is false");
         }
         if (!password) {
-            mLogger.log("User's password is empty");
+            mLogger.error("User's password is empty");
         }
 
 		return activeAdmin && enabled && password;
@@ -134,7 +136,7 @@ public class Locker {
 		boolean bluetooth = BluetoothDevices.isTrustedDeviceConnected();
 		boolean wifi = mWifiHelper.isTrustedWifiConnected();
 
-		mLogger.log("Pebble: " + pebble + " Wear: " + wear + " Bluetooth: " + bluetooth + " Wifi: " + wifi);
+		mLogger.debug("Pebble: " + pebble + " Wear: " + wear + " Bluetooth: " + bluetooth + " Wifi: " + wifi);
 
 		return (pebble || wear || bluetooth || wifi);
 	}

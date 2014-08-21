@@ -2,7 +2,6 @@ package com.lukekorth.pebblelocker.test;
 
 import com.lukekorth.pebblelocker.LockState;
 import com.lukekorth.pebblelocker.Locker;
-import com.lukekorth.pebblelocker.logging.Logger;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -46,25 +45,23 @@ public class LockStateTest extends BaseApplicationTestCase {
     }
 
     public void testSwitchToNextStateTransitionsCorrectly() {
-        Logger logger = mock(Logger.class);
         LockState state;
         setLockState(LockState.AUTO.getState());
 
-        state = LockState.switchToNextState(getContext(), logger, false);
+        state = LockState.switchToNextState(getContext(), "TEST", false);
         assertEquals(LockState.MANUAL_UNLOCKED, state);
         assertEquals(LockState.MANUAL_UNLOCKED.getState(), LockState.getCurrentState(getContext()).getState());
 
-        state = LockState.switchToNextState(getContext(), logger, false);
+        state = LockState.switchToNextState(getContext(), "TEST", false);
         assertEquals(LockState.MANUAL_LOCKED, state);
         assertEquals(LockState.MANUAL_LOCKED.getState(), LockState.getCurrentState(getContext()).getState());
 
-        state = LockState.switchToNextState(getContext(), logger, false);
+        state = LockState.switchToNextState(getContext(), "TEST", false);
         assertEquals(LockState.AUTO, state);
         assertEquals(LockState.AUTO.getState(), LockState.getCurrentState(getContext()).getState());
     }
 
     public void pendingSetCurrentStateCallsHandleLockingForAuto() {
-        Logger logger = mock(Logger.class);
         Locker locker = mock(Locker.class);
 
 //        LockState.setCurrentState(getContext(), logger, locker, false, LockState.AUTO.getState());
@@ -72,7 +69,6 @@ public class LockStateTest extends BaseApplicationTestCase {
     }
 
     public void pendingSetCurrentStateCallsUnlockForManualUnlock() {
-        Logger logger = mock(Logger.class);
         Locker locker = mock(Locker.class);
 
 //        LockState.setCurrentState(getContext(), logger, locker, false, LockState.MANUAL_UNLOCKED.getState());
@@ -80,7 +76,6 @@ public class LockStateTest extends BaseApplicationTestCase {
     }
 
     public void pendingSetCurrentStateCallsLockForManualLock() {
-        Logger logger = mock(Logger.class);
         Locker locker = mock(Locker.class);
 
 //        LockState.setCurrentState(getContext(), logger, locker, false, LockState.MANUAL_LOCKED.getState());

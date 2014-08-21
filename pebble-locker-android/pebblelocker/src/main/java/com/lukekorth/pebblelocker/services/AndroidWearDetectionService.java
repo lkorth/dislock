@@ -11,6 +11,9 @@ import com.lukekorth.pebblelocker.PebbleLockerApplication;
 import com.lukekorth.pebblelocker.events.StatusChangedEvent;
 import com.lukekorth.pebblelocker.models.AndroidWearDevices;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 
 public class AndroidWearDetectionService extends IntentService {
@@ -26,8 +29,10 @@ public class AndroidWearDetectionService extends IntentService {
         NodeApi.GetConnectedNodesResult connectedNodes = Wearable.NodeApi.getConnectedNodes(client)
                 .await();
 
+        Logger logger = LoggerFactory.getLogger("Android_Wear_Detection_Service");
         List<Node> devices = connectedNodes.getNodes();
         for (Node device : devices) {
+            logger.debug("Android Wear " + device.getId() + " connected");
             AndroidWearDevices.setDeviceConnected(device, true);
         }
         PebbleLockerApplication.getBus().post(new StatusChangedEvent());
