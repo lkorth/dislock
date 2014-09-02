@@ -4,6 +4,7 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -81,15 +82,24 @@ public class Locker {
             return;
         }
 
+        boolean needToTurnOffScreen = false;
 		if (mDeviceHelper.isOnLockscreen() && mDeviceHelper.isScreenOn()) {
-			mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true).apply();
-			mLogger.debug("Screen is on lock screen, setting unlock true for future unlock");
-		} else if (mPrefs.getBoolean("key_require_password_on_reconnect", false) && !mPrefs.getBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false)) {
+			mLogger.debug("Screen is on and on lock screen, turning off to unlock and then turning back on");
+            needToTurnOffScreen = true;
+	    }
+
+        if (mPrefs.getBoolean("key_require_password_on_reconnect", false) && !mPrefs.getBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false)) {
             mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, true).apply();
             mLogger.debug("Requiring user to re-authenticate once before unlocking");
         } else {
+            if (needToTurnOffScreen) {
+                mLogger.debug("Turning off screen");
+                mDPM.lockNow();
+            }
+
 			boolean passwordChanged = false;
             boolean screen = mDeviceHelper.isScreenOn();
+            mLogger.debug("Screen is currently on: " + screen);
 
 			try {
 				passwordChanged = mDPM.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
@@ -100,8 +110,17 @@ public class Locker {
                 mLogger.error("There was an exception when setting the password to blank, setting it back. Successfully reset: " + passwordReset + " " + Log.getStackTraceString(e));
             }
 
-            if(!screen && mDeviceHelper.isScreenOn() && passwordChanged) {
+            if(!screen && mDeviceHelper.isScreenOn() && passwordChanged && !needToTurnOffScreen) {
+                mLogger.debug("Turning off screen because it turned on after unlock");
                 mDPM.lockNow();
+            }
+
+            if (needToTurnOffScreen) {
+                mLogger.debug("Waking screen because it was on when unlock started");
+                PowerManager.WakeLock wakeLock = ((PowerManager) mContext.getSystemService(Context.POWER_SERVICE))
+                        .newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "PebbleLocker-Locker");
+                wakeLock.acquire();
+                wakeLock.release();
             }
 
 			mPrefs.edit().putBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false).apply();
