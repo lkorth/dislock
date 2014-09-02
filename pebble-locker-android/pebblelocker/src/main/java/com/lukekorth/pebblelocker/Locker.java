@@ -8,13 +8,13 @@ import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
 import com.lukekorth.pebblelocker.models.AndroidWearDevices;
 import com.lukekorth.pebblelocker.models.BluetoothDevices;
 import com.lukekorth.pebblelocker.receivers.BaseBroadcastReceiver;
+import com.lukekorth.pebblelocker.receivers.PebbleLockerDeviceAdminReceiver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,8 +139,8 @@ public class Locker {
     }
 
 	public boolean enabled() {
-		boolean activeAdmin = mDPM.isAdminActive(new ComponentName(mContext, CustomDeviceAdminReceiver.class));
-	    boolean isSlide = (ScreenLockType.getCurrent(mContext) == ScreenLockType.SLIDE);
+		boolean activeAdmin = mDPM.isAdminActive(new ComponentName(mContext, PebbleLockerDeviceAdminReceiver.class));
+        boolean isSlide = (ScreenLockType.getCurrent(mContext) == ScreenLockType.SLIDE);
         boolean password = !(mPrefs.getString("key_password", "").equals(""));
 
 		if (!activeAdmin) {

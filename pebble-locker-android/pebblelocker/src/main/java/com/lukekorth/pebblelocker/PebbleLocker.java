@@ -24,7 +24,7 @@ import com.lukekorth.pebblelocker.events.ActivityResumedEvent;
 import com.lukekorth.pebblelocker.events.AuthenticationActivityResultEvent;
 import com.lukekorth.pebblelocker.events.AuthenticationRequestEvent;
 import com.lukekorth.pebblelocker.events.RequirePurchaseEvent;
-import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
+import com.lukekorth.pebblelocker.receivers.PebbleLockerDeviceAdminReceiver;
 import com.lukekorth.pebblelocker.receivers.BaseBroadcastReceiver;
 import com.lukekorth.pebblelocker.services.AndroidWearDetectionService;
 import com.lukekorth.pebblelocker.views.ScreenLockTypePreference;
@@ -60,7 +60,7 @@ public class PebbleLocker extends PremiumFeaturesActivity
         mOptionsCategory.setOrderingAsAdded(false);
 
 		mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
-		mDeviceAdmin = new ComponentName(this, CustomDeviceAdminReceiver.class);
+		mDeviceAdmin = new ComponentName(this, PebbleLockerDeviceAdminReceiver.class);
 
         mAdmin.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
             @Override

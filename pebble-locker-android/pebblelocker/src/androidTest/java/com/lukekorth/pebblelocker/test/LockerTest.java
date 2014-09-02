@@ -5,11 +5,11 @@ import android.content.ComponentName;
 
 import com.lukekorth.pebblelocker.Locker;
 import com.lukekorth.pebblelocker.ScreenLockType;
-import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
 import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
 import com.lukekorth.pebblelocker.receivers.BaseBroadcastReceiver;
+import com.lukekorth.pebblelocker.receivers.PebbleLockerDeviceAdminReceiver;
 
 import org.mockito.Mock;
 
@@ -198,7 +198,7 @@ public class LockerTest extends BaseApplicationTestCase {
     }
 
     public void testEnabledIsFalseWhenAnyConditionIsNotMet() {
-        when(mDPM.isAdminActive(new ComponentName(mContext, CustomDeviceAdminReceiver.class))).thenReturn(true);
+        when(mDPM.isAdminActive(new ComponentName(mContext, PebbleLockerDeviceAdminReceiver.class))).thenReturn(true);
         mPrefs.edit().putBoolean("key_enable_locker", true).apply();
 
         assertFalse(mLocker.enabled());
@@ -230,7 +230,7 @@ public class LockerTest extends BaseApplicationTestCase {
 
     /* helpers */
     private void setEnabled() {
-        when(mDPM.isAdminActive(new ComponentName(mContext, CustomDeviceAdminReceiver.class))).thenReturn(true);
+        when(mDPM.isAdminActive(new ComponentName(mContext, PebbleLockerDeviceAdminReceiver.class))).thenReturn(true);
         mPrefs.edit().putBoolean("key_enable_locker", true).apply();
         mPrefs.edit().putString("key_password", "1234").apply();
         mPrefs.edit().putString(ScreenLockType.SCREEN_LOCK_TYPE_KEY, ScreenLockType.PIN.getType()).apply();
