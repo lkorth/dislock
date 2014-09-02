@@ -72,19 +72,22 @@ public abstract class BaseBroadcastReceiver extends BroadcastReceiver {
             BaseBroadcastReceiver.handleLocking(context, tag);
         } else {
             logger.debug("Delay of " + delay + "seconds, setting alarm");
+            setDelayedLockAlarm(context, (delay * 1000));
+        }
+    }
 
-            long wakeupTime = System.currentTimeMillis() +  (delay * 1000);
-            PendingIntent wakeupIntent = PendingIntent.getBroadcast(context,
-                    DELAYED_LOCK_REQUEST_CODE,
-                    new Intent(DelayedLockReceiver.DELAYED_LOCK),
-                    PendingIntent.FLAG_CANCEL_CURRENT);
+    protected static void setDelayedLockAlarm(Context context, int delay) {
+        long wakeupTime = System.currentTimeMillis() + delay;
+        PendingIntent wakeupIntent = PendingIntent.getBroadcast(context,
+                DELAYED_LOCK_REQUEST_CODE,
+                new Intent(DelayedLockReceiver.DELAYED_LOCK),
+                PendingIntent.FLAG_CANCEL_CURRENT);
 
-            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, wakeupIntent);
-            } else {
-                alarmManager.set(AlarmManager.RTC_WAKEUP, wakeupTime, wakeupIntent);
-            }
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, wakeupIntent);
+        } else {
+            alarmManager.set(AlarmManager.RTC_WAKEUP, wakeupTime, wakeupIntent);
         }
     }
 

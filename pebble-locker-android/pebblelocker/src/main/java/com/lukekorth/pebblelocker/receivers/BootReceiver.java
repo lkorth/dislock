@@ -1,7 +1,5 @@
 package com.lukekorth.pebblelocker.receivers;
 
-import com.lukekorth.pebblelocker.Locker;
-
 public class BootReceiver extends BaseBroadcastReceiver {
 
     private static final String BOOT_ACTION = "android.intent.action.boot_completed";
@@ -9,12 +7,9 @@ public class BootReceiver extends BaseBroadcastReceiver {
 
     @Override
     protected void handle() {
-        if (mAction.equals(ACTION_SHUTDOWN)) {
-            mLogger.debug("Shutting down, locking without checking trusted devices");
-            new Locker(mContext, mTag).lock(false);
-        } else if (mAction.equals(BOOT_ACTION)) {
-            mLogger.debug("Boot complete, handling locking");
-            handleLocking();
+        if (mAction.equals(BOOT_ACTION)) {
+            mLogger.debug("Boot complete, setting alarm to handle locking in 10 seconds");
+            setDelayedLockAlarm(mContext, 10000);
         }
     }
 
