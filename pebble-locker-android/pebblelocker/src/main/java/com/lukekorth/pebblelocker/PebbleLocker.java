@@ -268,17 +268,18 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
 	private void requestPassword() {
 		if(requirePassword == null || !requirePassword.isShowing()) {
 			LayoutInflater factory = LayoutInflater.from(this);
-	        final View textEntryView = factory.inflate(R.layout.password_prompt, null);
-	        
-	        if(mPrefs.getString("key_password", "").matches("[0-9]+") && android.os.Build.VERSION.SDK_INT >= 11)
-	        	((EditText) textEntryView.findViewById(R.id.password_edit)).setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+	        View textEntryView = factory.inflate(R.layout.password_prompt, null);
+	        final EditText passwordEditText = (EditText) textEntryView.findViewById(R.id.password_edit);
+	        if(mPrefs.getString("key_password", "").matches("[0-9]+")) {
+                passwordEditText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+            }
 	        
 	        requirePassword = new AlertDialog.Builder(PebbleLocker.this)
 	            .setTitle("Enter your pin/password to continue")
 	            .setView(textEntryView)
 	            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 	                public void onClick(DialogInterface dialog, int whichButton) {
-	                	String password = ((EditText) textEntryView.findViewById(R.id.password_edit)).getText().toString();
+                        String password = passwordEditText.getText().toString();
 	                	
 	                	dialog.cancel();
 	                	

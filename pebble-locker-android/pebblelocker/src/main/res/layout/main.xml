@@ -34,6 +34,8 @@
         <EditTextPreference
             android:key="key_password"
             android:title="Pin/Password"
+            android:singleLine="true"
+            android:imeOptions="actionDone"
             android:dialogTitle="Set your pin or password" />
 
         <CheckBoxPreference
