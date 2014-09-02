@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
@@ -38,6 +39,8 @@ public abstract class BaseBroadcastReceiver extends BroadcastReceiver {
         mIntent = intent;
 
         mLogger.debug("BroadcastReceiver action: " + mAction);
+
+        checkForMalformedPassword();
 
         onReceive();
 
@@ -88,6 +91,16 @@ public abstract class BaseBroadcastReceiver extends BroadcastReceiver {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, wakeupIntent);
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, wakeupTime, wakeupIntent);
+        }
+    }
+
+    private void checkForMalformedPassword() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        String originalPassword = prefs.getString("key_password", "");
+        String trimmedPassword = originalPassword.trim();
+        if (!originalPassword.equals(trimmedPassword)) {
+            prefs.edit().putString("key_password", trimmedPassword).apply();
+            new Locker(mContext, "Malformed-Password").lock(false);
         }
     }
 
