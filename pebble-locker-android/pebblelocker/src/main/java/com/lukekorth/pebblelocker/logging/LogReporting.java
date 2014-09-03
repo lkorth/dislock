@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
@@ -65,8 +66,13 @@ public class LogReporting {
             message.append("Device rooted: " + isDeviceRooted() + "\n");
             message.append("Debug: " + BuildConfig.DEBUG + "\n");
 
-            for (ComponentName componentName : dpm.getActiveAdmins()) {
-                message.append("Active Admin: " + componentName.getClassName() + "\n");
+            List<ComponentName> admins = dpm.getActiveAdmins();
+            if (admins != null) {
+                for (ComponentName componentName : dpm.getActiveAdmins()) {
+                    message.append("Active Admin: " + componentName.getClassName() + "\n");
+                }
+            } else {
+                message.append("No active admins");
             }
 
 			Map<String,?> keys = prefs.getAll();
