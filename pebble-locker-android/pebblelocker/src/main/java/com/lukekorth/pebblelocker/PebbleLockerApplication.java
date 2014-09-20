@@ -46,7 +46,7 @@ public class PebbleLockerApplication extends com.activeandroid.app.Application i
 
         PatternLayoutEncoder encoder = new PatternLayoutEncoder();
         encoder.setContext(loggerContext);
-        encoder.setPattern("%-30(%date{MMM dd | HH:mm:ss.SSS} [%thread]) %highlight(%-5level) %-25([%logger{36}]) %msg%n");
+        encoder.setPattern("%date{MMM dd | HH:mm:ss.SSS} %highlight(%-5level) %-25([%logger{36}]) %msg%n");
         encoder.start();
 
         FileAppender<ILoggingEvent> fileAppender = new FileAppender<ILoggingEvent>();

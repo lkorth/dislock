@@ -11,10 +11,14 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.support.v4.content.FileProvider;
 
 import com.lukekorth.pebblelocker.BuildConfig;
 import com.lukekorth.pebblelocker.PebbleLockerApplication;
+
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -43,15 +47,14 @@ public class LogReporting {
 		mLoading = ProgressDialog.show(mContext, "", "Loading. Please wait...", true);
 		new GenerateLogFile().execute();
 	}
-	
-	private class GenerateLogFile extends AsyncTask<Void, Void, String> {
+
+	private class GenerateLogFile extends AsyncTask<Void, Void, Void> {
 		@SuppressLint("NewApi")
 		@Override
-		protected String doInBackground(Void... args) {
+		protected Void doInBackground(Void... args) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
             DevicePolicyManager dpm = ((DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE));
 
-			String filename = "pebble-locker.log.gz";
 			StringBuilder message = new StringBuilder();
 			
 			message.append("Android version: " + Build.VERSION.SDK_INT + "\n");
@@ -85,17 +88,22 @@ public class LogReporting {
             message.append("\n");
 			message.append(getLog());
 			
-			try {				
-				File file = new File(mContext.getExternalFilesDir(null), filename);
+			try {
+				File file = getFile();
 				file.createNewFile();
 				
 				GZIPOutputStream gos = new GZIPOutputStream(new BufferedOutputStream(new PrintStream(file)));
 				gos.write(message.toString().getBytes());
 				gos.close();
 			} catch (IOException e) {
-			}
-			
-			return filename;
+                LoggerFactory.getLogger("LogBuilder").warn("IOException while building emailable log file. "
+                        + e.getMessage());
+            }
+
+            // Ensure we show the spinner and don't just flash the screen
+            SystemClock.sleep(1000);
+
+            return null;
 		}
 
         private String getAppVersion(String app) {
@@ -142,7 +150,7 @@ public class LogReporting {
                 String currentTag;
                 String lastTag = null;
                 while(line != null) {
-                    currentTag = line.substring(line.indexOf("[", 30), line.indexOf("]", 30) + 1);
+                    currentTag = line.substring(line.indexOf("["), line.indexOf("]") + 1);
                     if (!currentTag.equals(lastTag)) {
                         lastTag = currentTag;
                         response.append("\n");
@@ -163,17 +171,25 @@ public class LogReporting {
             }
         }
 
+        private File getFile() {
+            File emailableLogsDir  = new File(mContext.getFilesDir(), "emailable_logs");
+            emailableLogsDir.mkdir();
+            return new File(emailableLogsDir, "pebble-locker.log.gz");
+        }
+
         @Override
-		protected void onPostExecute(String filename) {
-			if(mLoading != null && mLoading.isShowing())
-				mLoading.cancel();
-			
-			Uri fileUri = Uri.fromFile(new File(mContext.getExternalFilesDir(null), filename));
-			
+		protected void onPostExecute(Void args) {
+			if(mLoading != null && mLoading.isShowing()) {
+                mLoading.cancel();
+            }
+
+			Uri fileUri = FileProvider.getUriForFile(mContext, "com.lukekorth.pebblelocker.fileprovider", getFile());
+
 		    Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
 		    emailIntent.setType("text/plain");
-		    emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{ "korth.luke@gmail.com" });
-		    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Pebble Locker Debug Log"); 
+		    emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{ "pebble-locker@lukekorth.com" });
+		    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Pebble Locker Debug Log");
+            emailIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 		    emailIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
 		    mContext.startActivity(Intent.createChooser(emailIntent, "Send email via"));
 		}
