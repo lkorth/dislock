@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.lukekorth.pebblelocker">
     
     <uses-permission android:name="com.android.vending.BILLING" />
@@ -48,7 +49,8 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".receivers.PebbleConnectionReceiver">
+        <receiver android:name=".receivers.PebbleConnectionReceiver" android:exported="true"
+            tools:ignore="ExportedReceiver">
             <intent-filter>
                 <action android:name="com.getpebble.action.PEBBLE_CONNECTED" />
                 <action android:name="com.getpebble.action.PEBBLE_DISCONNECTED" />
@@ -68,7 +70,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".receivers.DelayedLockReceiver">
+        <receiver android:name=".receivers.DelayedLockReceiver" android:exported="false">
             <intent-filter>
                 <action android:name="com.lukekorth.pebblelocker.delayed_lock" />
             </intent-filter>
@@ -86,13 +88,15 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".receivers.AndroidWearReceiver">
+        <service android:name=".receivers.AndroidWearReceiver"
+            tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
             </intent-filter>
         </service>
 
-        <receiver android:name=".receivers.PebbleRequestReceiver">
+        <receiver android:name=".receivers.PebbleRequestReceiver" android:exported="true"
+            tools:ignore="ExportedReceiver">
           <intent-filter>
             <action android:name="com.getpebble.action.app.RECEIVE" />
           </intent-filter>
