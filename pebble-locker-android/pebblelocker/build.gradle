@@ -33,8 +33,8 @@ android {
 dependencies {
     compile project(':libraries:ActiveAndroid')
     compile project(':libraries:PebbleKit')
-    compile 'com.google.android.gms:play-services:5.0.77'
-    compile 'fr.nicolaspomepuy:discreetapprate:2.0+@aar'
+    compile 'com.google.android.gms:play-services:5.2.08'
+    compile 'fr.nicolaspomepuy:discreetapprate:2.0@aar'
     compile 'com.squareup:otto:1.3.5'
     compile 'com.github.tony19:logback-android-core:1.1.1-3'
     compile 'com.github.tony19:logback-android-classic:1.1.1-3'
