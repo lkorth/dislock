@@ -155,11 +155,15 @@ public class LogReporting {
                 String currentTag;
                 String lastTag = null;
                 while(line != null) {
-                    currentTag = line.substring(line.indexOf("["), line.indexOf("]") + 1);
-                    if (!currentTag.equals(lastTag)) {
-                        lastTag = currentTag;
-                        response.append("\n");
+                    try {
+                        currentTag = line.substring(line.indexOf("["), line.indexOf("]") + 1);
+                        if (!currentTag.equals(lastTag)) {
+                            lastTag = currentTag;
+                            response.append("\n");
+                        }
+                    } catch (StringIndexOutOfBoundsException e) {
                     }
+
                     response.append(line + "\n");
                     line = reader.readLine();
                 }
