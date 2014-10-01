@@ -67,6 +67,12 @@ public class LogReporting {
 			message.append("App version: " + getAppVersion(mContext.getPackageName())+ "\n");
 			message.append("Pebble app version: " + getAppVersion("com.getpebble.android") + "\n");
 			message.append("Minimum password length: " + dpm.getPasswordMinimumLength(null) + "\n");
+            message.append("Minimum letters in password: " + dpm.getPasswordMinimumLetters(null) + "\n");
+            message.append("Minimum lower case letters in password: " + dpm.getPasswordMinimumLowerCase(null) + "\n");
+            message.append("Minimum non-letters in password: " + dpm.getPasswordMinimumNonLetter(null) + "\n");
+            message.append("Minimum numeric in password: " + dpm.getPasswordMinimumNumeric(null) + "\n");
+            message.append("Minimum symbols in password: " + dpm.getPasswordMinimumSymbols(null) + "\n");
+            message.append("Minimum upper case letters in password: " + dpm.getPasswordMinimumUpperCase(null) + "\n");
             message.append("Pebble Locker password length: " + prefs.getString("key_password", "").length() + "\n");
 			message.append("Encryption status: " + dpm.getStorageEncryptionStatus() + "\n");
             message.append("Device rooted: " + isDeviceRooted() + "\n");
@@ -206,10 +212,10 @@ public class LogReporting {
 
         @Override
 		protected void onPostExecute(Void args) {
+            mContext.startActivity(Intent.createChooser(mEmailIntent, "Send email via"));
 			if(mLoading != null && mLoading.isShowing()) {
                 mLoading.cancel();
             }
-		    mContext.startActivity(Intent.createChooser(mEmailIntent, "Send email via"));
 		}
 	}
 }
