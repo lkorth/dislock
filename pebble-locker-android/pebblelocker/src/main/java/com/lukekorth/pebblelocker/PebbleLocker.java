@@ -10,7 +10,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
@@ -229,11 +228,7 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
 	
 	@SuppressLint("NewApi")
 	private void checkForRequiredPasswordByOtherApps() {
-		int encryptionStatus = -1;
-		if(Build.VERSION.SDK_INT >= 11) {
-            encryptionStatus = mDPM.getStorageEncryptionStatus();
-        }
-		
+		int encryptionStatus = mDPM.getStorageEncryptionStatus();
 		boolean encryptionEnabled = (
                 encryptionStatus == DevicePolicyManager.ENCRYPTION_STATUS_ACTIVATING ||
 				encryptionStatus == DevicePolicyManager.ENCRYPTION_STATUS_ACTIVE
