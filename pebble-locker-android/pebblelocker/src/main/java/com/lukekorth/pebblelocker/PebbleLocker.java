@@ -235,22 +235,16 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
         );
 		
 		if((mDPM.getPasswordMinimumLength(null) > 0 || encryptionEnabled) && !mPrefs.getBoolean("ignore_warning", false)) {
-			String warning = "Your device is encrypted or there are other apps installed that require a password or pin to be set. " +
-					         "Pebble Locker does not work on encrypted devices or with other apps that require a pin or password. " +
-					         "If you wish to use Pebble Locker you will need to decrypt your device, disabled or uninstall any apps " +
-					         "that require a pin or password or try to use it anyway. WARNING: Trying to use Pebble Locker " +
-                             "in spite of this warning may cause you to lose all data on your device, you have been warned.";
-
             new AlertDialog.Builder(this)
-                    .setMessage(warning)
+                    .setMessage(R.string.incompatable_warning)
                     .setCancelable(false)
-                    .setPositiveButton("Do not use", new OnClickListener() {
+                    .setPositiveButton(R.string.do_not_use, new OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             PebbleLocker.this.finish();
                         }
                     })
-                    .setNegativeButton("Use anyway", new OnClickListener() {
+                    .setNegativeButton(R.string.use_anyway, new OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             mPrefs.edit().putBoolean("ignore_warning", true).apply();
