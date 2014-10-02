@@ -266,7 +266,7 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
 	        requirePassword = new AlertDialog.Builder(PebbleLocker.this)
 	            .setTitle("Enter your pin/password to continue")
 	            .setView(textEntryView)
-	            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+	            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 	                public void onClick(DialogInterface dialog, int whichButton) {
                         String password = passwordEditText.getText().toString();
 	                	
@@ -278,7 +278,7 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
 	                		timeStamp = System.currentTimeMillis();
 	                }
 	            })
-	            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+	            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 	                public void onClick(DialogInterface dialog, int whichButton) {
 	                	dialog.cancel();
 	                	requestPassword();
