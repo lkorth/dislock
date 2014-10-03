@@ -136,7 +136,7 @@ public class LockerTest extends BaseApplicationTestCase {
         verify(mDPM, never()).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
     }
 
-    public void testSetsNeedToUnlockToTrueWhenScreenIsOnAndOnLockScreen() {
+    public void testUnlocksWhenScreenIsOnAndOnLockScreen() {
         setEnabled();
 
         when(mDeviceHelper.isOnLockscreen()).thenReturn(true);
@@ -144,8 +144,7 @@ public class LockerTest extends BaseApplicationTestCase {
 
         mLocker.unlock();
 
-        assertTrue(mPrefs.getBoolean(DeviceHelper.NEED_TO_UNLOCK_KEY, false));
-        verify(mDPM, never()).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+        verify(mDPM, times(1)).resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
         verify(mDeviceHelper, times(1)).sendLockStatusChangedEvent();
     }
 
