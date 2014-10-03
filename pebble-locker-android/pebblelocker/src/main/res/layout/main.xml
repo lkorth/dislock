@@ -26,17 +26,11 @@
     <PreferenceCategory
         android:title="Options" >
 
-        <CheckBoxPreference
-            android:key="key_enable_locker"
-            android:title="Enable Pebble Locker"
-            android:summary="Lock or unlock your phone based on your device's connection status" />
-
-        <EditTextPreference
-            android:key="key_password"
-            android:title="Pin/Password"
-            android:singleLine="true"
-            android:imeOptions="actionDone"
-            android:dialogTitle="Set your pin or password" />
+        <com.lukekorth.pebblelocker.views.ScreenLockTypePreference
+            android:key="key_screen_lock_type"
+            android:title="@string/screen_lock_type_title"
+            android:entries="@array/screen_lock_type_entries"
+            android:entryValues="@array/screen_lock_type_entry_values" />
 
         <CheckBoxPreference
             android:key="key_force_lock"

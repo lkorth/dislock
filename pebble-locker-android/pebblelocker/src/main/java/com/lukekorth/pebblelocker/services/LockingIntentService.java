@@ -12,6 +12,7 @@ import com.lukekorth.pebblelocker.helpers.DeviceHelper;
 public class LockingIntentService extends IntentService {
 
     public static final String LOCK = "lock_key";
+    public static final String UNLOCK = "unlock_key";
 
     private static final String TAG = "Locking_Intent_Service";
 
@@ -25,9 +26,10 @@ public class LockingIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (intent.getBooleanExtra(LOCK, false) &&
-                new DeviceHelper(this, TAG).isLocked(false)) {
+        if (intent.getBooleanExtra(LOCK, false) && new DeviceHelper(this, TAG).isLocked(false)) {
             new Locker(this, TAG).lock(false);
+        } else if (intent.getBooleanExtra(UNLOCK, false)) {
+
         } else if (LockState.getCurrentState(this) == LockState.AUTO) {
             new Locker(this, TAG).handleLocking(false);
             PebbleLockerApplication.getBus().post(new StatusChangedEvent());

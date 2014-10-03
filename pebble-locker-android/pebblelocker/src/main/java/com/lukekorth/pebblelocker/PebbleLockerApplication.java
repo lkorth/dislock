@@ -2,6 +2,7 @@ package com.lukekorth.pebblelocker;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 import com.lukekorth.pebblelocker.helpers.ThreadBus;
 import com.squareup.otto.Bus;
@@ -20,6 +21,8 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
 
 public class PebbleLockerApplication extends com.activeandroid.app.Application implements Thread.UncaughtExceptionHandler {
+
+    private static final String VERSION = "version";
 
     private static ThreadBus sBus;
 
@@ -73,14 +76,30 @@ public class PebbleLockerApplication extends com.activeandroid.app.Application i
     private void migrate() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = prefs.edit();
-        if (BuildConfig.VERSION_CODE > prefs.getInt("version", 0)) {
+
+        int previousVersion = prefs.getInt(VERSION, 0);
+        if (previousVersion < BuildConfig.VERSION_CODE) {
+            // update old version prefs
+            if (previousVersion <= 35) {
+                editor.remove("key_enable_locker");
+
+                String password = prefs.getString("key_password", "");
+                if (TextUtils.isEmpty(password)) {
+                    editor.putString(ScreenLockType.SCREEN_LOCK_TYPE_KEY, ScreenLockType.SLIDE.getType());
+                } else if (password.matches("[0-9]+")) {
+                    editor.putString(ScreenLockType.SCREEN_LOCK_TYPE_KEY, ScreenLockType.PIN.getType());
+                } else {
+                    editor.putString(ScreenLockType.SCREEN_LOCK_TYPE_KEY, ScreenLockType.PASSWORD.getType());
+                }
+            }
+
             String now = new Date().toString();
-            if (prefs.getInt("version", 0) == 0) {
+            if (prefs.getInt(VERSION, 0) == 0) {
                 editor.putString("install_date", now);
             }
 
             editor.putString("upgrade_date", now);
-            editor.putInt("version", BuildConfig.VERSION_CODE);
+            editor.putInt(VERSION, BuildConfig.VERSION_CODE);
             editor.apply();
 
             new File(getLogFilePath()).delete();

@@ -133,20 +133,20 @@ public class Locker {
 
 	public boolean enabled() {
 		boolean activeAdmin = mDPM.isAdminActive(new ComponentName(mContext, CustomDeviceAdminReceiver.class));
-		boolean enabled = mPrefs.getBoolean("key_enable_locker", false);
+	    boolean isSlide = (ScreenLockType.getCurrent(mContext) == ScreenLockType.SLIDE);
         boolean password = !(mPrefs.getString("key_password", "").equals(""));
 
 		if (!activeAdmin) {
             mLogger.error("Not an active admin");
         }
-		if (!enabled) {
-            mLogger.error("key_enable_locker is false");
+		if (isSlide) {
+            mLogger.error("ScreenLockType is set to SLIDE");
         }
         if (!password) {
             mLogger.error("User's password is empty");
         }
 
-		return activeAdmin && enabled && password;
+		return activeAdmin && !isSlide && password;
 	}
 
 	public boolean isConnectedToDeviceOrWifi() {

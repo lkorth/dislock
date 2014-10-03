@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">Pebble Locker</string>
+
+    <string name="screen_lock_type_title">Screen Lock Type</string>
+    <string name="slide">Slide</string>
+    <string name="pin">Pin</string>
+    <string name="password">Password</string>
+
     <string name="bluetooth_devices">Select Devices</string>
     <string name="wifi_networks">Select WiFi Networks</string>
 
@@ -26,9 +32,6 @@
     <string name="require_password_title">Require Unlock on Reconnect</string>
     <string name="require_password_summary">Requires you to enter your pin or password once after a trusted device or WiFi network has connected</string>
 
-    <string name="ok">Ok</string>
-    <string name="cancel">Cancel</string>
-
     <string name="purchase_required">This option requires the premium version of the app, press Ok to purchase</string>
     <string name="iab_setting_up">In app purchases are still loading, please try again in a minute. If this problem persists, please contact the developer</string>
     <string name="iab_setup_error">In app purchases are not possible at this time, please try again later. If this problem persists, please contact the developer.</string>
@@ -53,4 +56,21 @@
     <string name="contact_title">Contact Developer</string>
     <string name="contact_summary">If you are having problems, click here to contact the developer</string>
     <string name="version">Version</string>
+
+    <string name="done">Done</string>
+    <string name="next">Next</string>
+    <string name="finish">Finish</string>
+    <string name="incorrect_authentication">The password you entered was incorrect, please try again.</string>
+    <string name="passwords_did_not_match">The passwords did not match, please try again.</string>
+    <string name="enter_pin">Enter your current pin</string>
+    <string name="reenter_pin">Re-enter your pin</string>
+    <string name="choose_pin">Choose your pin</string>
+    <string name="enter_password">Enter your current password</string>
+    <string name="reenter_password">Re-enter your password</string>
+    <string name="choose_password">Choose your password</string>
+    <string name="pin_minimum">Pin must be at least 4 digits</string>
+    <string name="pin_maximum">Pin must be less than 17 digits</string>
+    <string name="bad_pin">Pin must contain only numbers</string>
+    <string name="password_minimum">Password must be more than 4 characters</string>
+    <string name="password_maximum">Password must be less than 17 characters</string>
 </resources>

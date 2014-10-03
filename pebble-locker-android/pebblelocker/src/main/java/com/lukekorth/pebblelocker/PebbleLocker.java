@@ -1,7 +1,6 @@
 package com.lukekorth.pebblelocker;
 
 import android.annotation.SuppressLint;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
@@ -12,24 +11,21 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceManager;
-import android.text.InputType;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.EditText;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.lukekorth.pebblelocker.events.ActivityResumedEvent;
+import com.lukekorth.pebblelocker.events.AuthenticationActivityResultEvent;
+import com.lukekorth.pebblelocker.events.AuthenticationRequestEvent;
 import com.lukekorth.pebblelocker.events.RequirePurchaseEvent;
 import com.lukekorth.pebblelocker.helpers.CustomDeviceAdminReceiver;
 import com.lukekorth.pebblelocker.receivers.BaseBroadcastReceiver;
 import com.lukekorth.pebblelocker.services.AndroidWearDetectionService;
-import com.lukekorth.pebblelocker.services.LockingIntentService;
+import com.lukekorth.pebblelocker.views.ScreenLockTypePreference;
 import com.squareup.otto.Subscribe;
 
 import org.slf4j.LoggerFactory;
@@ -37,37 +33,32 @@ import org.slf4j.LoggerFactory;
 import fr.nicolaspomepuy.discreetapprate.AppRate;
 import fr.nicolaspomepuy.discreetapprate.RetryPolicy;
 
-public class PebbleLocker extends PremiumFeaturesActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class PebbleLocker extends PremiumFeaturesActivity
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
     private static final int REQUEST_GOOGLE_PLAY_SERVICES = 2;
-	
-	private DevicePolicyManager mDPM;
-	private ComponentName mDeviceAdmin;
+    public static final int AUTHENTICATION_REQUEST = 3;
 
-	private CheckBoxPreference mAdmin;
-	private EditTextPreference mPassword;
-	private CheckBoxPreference mEnable;
-	private CheckBoxPreference mForceLock;
+    private CheckBoxPreference mAdmin;
+    private ScreenLockTypePreference mLockType;
 
-	private SharedPreferences mPrefs;
+    private DevicePolicyManager mDPM;
+    private ComponentName mDeviceAdmin;
+    private SharedPreferences mPrefs;
+    private long mTimeStamp;
 
-	private AlertDialog requirePassword;
-	private long timeStamp;
-	
-	public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.layout.main);
 
-		mAdmin     = (CheckBoxPreference) findPreference("key_enable_admin");
-		mPassword  = (EditTextPreference) findPreference("key_password");
-		mEnable    = (CheckBoxPreference) findPreference("key_enable_locker");
-		mForceLock = (CheckBoxPreference) findPreference("key_force_lock");
+        mAdmin = (CheckBoxPreference) findPreference("key_enable_admin");
+        mLockType = (ScreenLockTypePreference) findPreference("key_screen_lock_type");
 
 		mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 		mDeviceAdmin = new ComponentName(this, CustomDeviceAdminReceiver.class);
 
-		mAdmin.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+        mAdmin.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 if ((Boolean) newValue) {
@@ -82,49 +73,22 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
                 } else {
                     mDPM.removeActiveAdmin(mDeviceAdmin);
                     PebbleLocker.this.enableOptions(false);
-                    mEnable.setChecked(false);
-                    removePassword();
+                    ScreenLockType.changeToSlide(PebbleLocker.this);
 
                     return true;
                 }
             }
         });
-		
-		mPassword.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                doResetPassword((String) newValue);
-                return true;
-            }
-        });
-		
-		mEnable.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				if(Boolean.parseBoolean(newValue.toString())) {
-                    enableLockOptions(true);
-                    showAlert(R.string.pebble_locker_enabled);
-                } else {
-                    enableLockOptions(false);
-                    removePassword();
-                    showAlert(R.string.pebble_locker_disabled);
-                }
-				
-				return true;
-			}
-		});
 
-		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         PebbleLockerApplication.getBus().register(this);
+        startService(new Intent(this, AndroidWearDetectionService.class));
 
         AppRate.with(this)
                 .text("Rate Pebble Locker")
                 .initialLaunchCount(3)
                 .retryPolicy(RetryPolicy.EXPONENTIAL)
                 .checkAndShow();
-
-        startService(new Intent(this, AndroidWearDetectionService.class));
 	}
 
     @Subscribe
@@ -132,25 +96,31 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
         requirePurchase();
     }
 
+    @Subscribe
+    public void onAuthenticationRequestEvent(AuthenticationRequestEvent event) {
+        startActivityForResult(event.params, AUTHENTICATION_REQUEST);
+    }
+
 	public void onResume() {
 		super.onResume();
-
         mPrefs.registerOnSharedPreferenceChangeListener(this);
-
         PebbleLockerApplication.getBus().post(new ActivityResumedEvent());
 
 		checkForRequiredPasswordByOtherApps();
 		checkForActiveAdmin();
 
-		if(!mPrefs.getString("key_password", "").equals("") &&
-                timeStamp < (System.currentTimeMillis() - 60000) &&
+		if(!TextUtils.isEmpty(mPrefs.getString("key_password", "")) &&
+                ScreenLockType.getCurrent(this) != ScreenLockType.SLIDE &&
+                mTimeStamp < (System.currentTimeMillis() - 60000) &&
 				mPrefs.getBoolean(BaseBroadcastReceiver.LOCKED, true)) {
-            requestPassword();
+            Intent intent = new Intent(this, AuthenticationActivity.class)
+                    .putExtra(AuthenticationActivity.AUTHENTICATION_TYPE_KEY, AuthenticationActivity.AUTHENTICATE);
+            startActivityForResult(intent, AUTHENTICATION_REQUEST);
         } else {
             int response = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
             if (response != ConnectionResult.SUCCESS) {
                 GooglePlayServicesUtil.getErrorDialog(response, this, REQUEST_GOOGLE_PLAY_SERVICES)
-                    .show();
+                        .show();
             }
         }
 	}
@@ -166,74 +136,38 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
         super.onDestroy();
         PebbleLockerApplication.getBus().unregister(this);
     }
-	
-	/**
-     * This is dangerous, so we prevent automated tests from doing it, and we
-     * remind the user after we do it.
-     */
-    private void doResetPassword(String newPassword) {
-        if (alertIfMonkey()) {
-            return;
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == AUTHENTICATION_REQUEST) {
+            PebbleLockerApplication.getBus().post(new AuthenticationActivityResultEvent(resultCode, data));
+            if (resultCode == RESULT_OK) {
+                mTimeStamp = System.currentTimeMillis();
+            }
         }
-
-        // hack because we need the new password to be
-        // set in shared prefs before this method returns
-        mPrefs.edit().putString("key_password", newPassword).apply();
-
-        if(newPassword.length() == 0) {
-            LoggerFactory.getLogger("User").debug("Password was set to empty");
-            mEnable.setChecked(false);
-            showAlert(R.string.password_cleared);
-        } else {
-            new AlertDialog.Builder(this)
-                    .setCancelable(false)
-                    .setMessage(getString(R.string.reset_password_warning, newPassword))
-                    .setPositiveButton("Don't Forget It!", null)
-                    .show();
-        }
-
-        startService(new Intent(
-                this, LockingIntentService.class).putExtra(LockingIntentService.LOCK, true));
-    }
-
-    private void removePassword() {
-        mPassword.setText("");
     }
 
     private void checkForActiveAdmin() {
         if(mDPM.isAdminActive(mDeviceAdmin)) {
             mAdmin.setChecked(true);
-            enableOptions(true);
-
-            if (mPrefs.getBoolean("key_enable_locker", false)) {
-                enableLockOptions(true);
-            } else {
-                enableLockOptions(false);
-            }
         } else {
             mAdmin.setChecked(false);
-            enableOptions(false);
         }
     }
 
     private void enableOptions(boolean enabled) {
-		mEnable.setEnabled(enabled);
-        enableLockOptions(enabled);
-	}
-
-    private void enableLockOptions(boolean enabled) {
-        mPassword.setEnabled(enabled);
-        mForceLock.setEnabled(enabled);
+        mLockType.setEnabled(enabled);
     }
-	
+
 	@SuppressLint("NewApi")
 	private void checkForRequiredPasswordByOtherApps() {
 		int encryptionStatus = mDPM.getStorageEncryptionStatus();
+
 		boolean encryptionEnabled = (
                 encryptionStatus == DevicePolicyManager.ENCRYPTION_STATUS_ACTIVATING ||
 				encryptionStatus == DevicePolicyManager.ENCRYPTION_STATUS_ACTIVE
         );
-		
+
 		if((mDPM.getPasswordMinimumLength(null) > 0 || encryptionEnabled) && !mPrefs.getBoolean("ignore_warning", false)) {
             new AlertDialog.Builder(this)
                     .setMessage(R.string.incompatable_warning)
@@ -253,43 +187,6 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
                     .show();
 		}
 	}
-	
-	private void requestPassword() {
-		if(requirePassword == null || !requirePassword.isShowing()) {
-			LayoutInflater factory = LayoutInflater.from(this);
-	        View textEntryView = factory.inflate(R.layout.password_prompt, null);
-	        final EditText passwordEditText = (EditText) textEntryView.findViewById(R.id.password_edit);
-	        if(mPrefs.getString("key_password", "").matches("[0-9]+")) {
-                passwordEditText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
-            }
-	        
-	        requirePassword = new AlertDialog.Builder(PebbleLocker.this)
-	            .setTitle("Enter your pin/password to continue")
-	            .setView(textEntryView)
-	            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-	                public void onClick(DialogInterface dialog, int whichButton) {
-                        String password = passwordEditText.getText().toString();
-	                	
-	                	dialog.cancel();
-	                	
-	                	if(!mPrefs.getString("key_password", "").equals(password))
-	                		requestPassword();
-	                	else
-	                		timeStamp = System.currentTimeMillis();
-	                }
-	            })
-	            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-	                public void onClick(DialogInterface dialog, int whichButton) {
-	                	dialog.cancel();
-	                	requestPassword();
-	                }
-	            })
-	            .setCancelable(false)
-	            .create();
-	        
-	        requirePassword.show();
-		}
-	}
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -305,19 +202,6 @@ public class PebbleLocker extends PremiumFeaturesActivity implements SharedPrefe
         }
 
         LoggerFactory.getLogger("Settings_Changed").debug(message);
-    }
-
-	/**
-     * If the "user" is a monkey, post an alert and notify the caller.  This prevents automated
-     * test frameworks from stumbling into annoying or dangerous operations.
-     */
-    private boolean alertIfMonkey() {
-        if (ActivityManager.isUserAMonkey()) {
-            showAlert(R.string.monkey);
-            return true;
-        } else {
-            return false;
-        }
     }
 
 }
