@@ -85,6 +85,17 @@ public class BluetoothDevices extends Model {
         persistedDevice.save();
     }
 
+    public static void setAllDevicesDisconnected() {
+        List<BluetoothDevices> devices = new Select()
+                .from(BluetoothDevices.class)
+                .execute();
+
+        for (BluetoothDevices device : devices) {
+            device.connected = false;
+            device.save();
+        }
+    }
+
     public static String getConnectionStatus() {
         String status = "";
         if(BluetoothDevices.isTrustedDeviceConnected()) {
