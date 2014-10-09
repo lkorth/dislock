@@ -105,9 +105,9 @@ public class Locker {
 				passwordChanged = mDPM.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
 				mPrefs.edit().putBoolean(BaseBroadcastReceiver.LOCKED, false).apply();
 			} catch (IllegalArgumentException e) {
-                boolean passwordReset = mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
-                mPrefs.edit().putBoolean(BaseBroadcastReceiver.LOCKED, true).apply();
-                mLogger.error("There was an exception when setting the password to blank, setting it back. Successfully reset: " + passwordReset + " " + Log.getStackTraceString(e));
+                handleUnlockException(e);
+            } catch (RuntimeException e) {
+                handleUnlockException(e);
             }
 
             if(!screen && mDeviceHelper.isScreenOn() && passwordChanged && !needToTurnOffScreen) {
@@ -130,6 +130,13 @@ public class Locker {
 
         mDeviceHelper.sendLockStatusChangedEvent();
 	}
+
+    private void handleUnlockException(Throwable throwable) {
+        boolean passwordReset = mDPM.resetPassword(mPrefs.getString("key_password", ""), DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+        mPrefs.edit().putBoolean(BaseBroadcastReceiver.LOCKED, true).apply();
+        mLogger.error("There was an exception when setting the password to blank, setting it back. Successfully reset: " + passwordReset);
+        mLogger.error("Error: " + Log.getStackTraceString(throwable));
+    }
 
 	public boolean enabled() {
 		boolean activeAdmin = mDPM.isAdminActive(new ComponentName(mContext, CustomDeviceAdminReceiver.class));
