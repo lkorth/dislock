@@ -41,6 +41,13 @@ public class AndroidWearDevices extends Model {
                 .exists();
     }
 
+    public static int countTrustedDevices() {
+        return new Select()
+                .from(AndroidWearDevices.class)
+                .where("trusted = ?", true)
+                .count();
+    }
+
     public static void setDeviceConnected(Node node, boolean connected) {
         AndroidWearDevices persistedDevice = new Select()
                 .from(AndroidWearDevices.class)

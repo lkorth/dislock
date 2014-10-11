@@ -86,15 +86,15 @@ public class WifiHelper {
         return "";
     }
 
+    public static String base64Encode(String input) {
+        return Base64.encodeToString(input.getBytes(), Base64.DEFAULT).trim();
+    }
+
     private String stripQuotes(String input) {
         if (input != null && input.startsWith("\"") && input.endsWith("\""))
             return input.substring(1, input.length() - 1);
         else
             return input;
-    }
-
-    private String base64Encode(String input) {
-        return Base64.encodeToString(input.getBytes(), Base64.DEFAULT).trim();
     }
 
 }

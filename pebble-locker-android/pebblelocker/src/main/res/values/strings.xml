@@ -32,7 +32,7 @@
     <string name="require_password_title">Require Unlock on Reconnect</string>
     <string name="require_password_summary">Requires you to enter your pin or password once after a trusted device or WiFi network has connected</string>
 
-    <string name="purchase_required">This option requires the premium version of the app, press Ok to purchase</string>
+    <string name="purchase_required">Only one trusted device can be set at a time. To use more than one, a one time purchase is required. Press Ok to purchase</string>
     <string name="iab_setting_up">In app purchases are still loading, please try again in a minute. If this problem persists, please contact the developer</string>
     <string name="iab_setup_error">In app purchases are not possible at this time, please try again later. If this problem persists, please contact the developer.</string>
     <string name="iab_error">There was an error completing your purchase, please try again later. If this problem persists, please contact the developer.</string>

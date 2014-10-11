@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
@@ -18,7 +17,7 @@ import com.lukekorth.pebblelocker.services.LockingIntentService;
 import java.util.List;
 import java.util.Set;
 
-public class DevicesActivity extends PreferenceActivity {
+public class DevicesActivity extends PremiumFeaturesActivity {
 
     private PreferenceScreen mPreferenceScreen;
 
@@ -65,7 +64,7 @@ public class DevicesActivity extends PreferenceActivity {
                 return true;
             }
         });
-        pref.setChecked(PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pebble", true));
+        pref.setChecked(PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pebble", false));
         pebble.addPreference(pref);
     }
 
@@ -120,37 +119,45 @@ public class DevicesActivity extends PreferenceActivity {
     Preference.OnPreferenceChangeListener bluetoothPreferenceListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            BluetoothDevices device = new Select()
-                    .from(BluetoothDevices.class)
-                    .where("address = ?", preference.getKey())
-                    .executeSingle();
+            boolean trusted = Boolean.parseBoolean(newValue.toString());
+            if (!trusted || !isPurchaseRequired()) {
+                BluetoothDevices device = new Select()
+                        .from(BluetoothDevices.class)
+                        .where("address = ?", preference.getKey())
+                        .executeSingle();
 
-            if (device == null) {
-                device = new BluetoothDevices();
-                device.name = preference.getTitle().toString();
-                device.address = preference.getKey();
-                device.connected = false;
+                if (device == null) {
+                    device = new BluetoothDevices();
+                    device.name = preference.getTitle().toString();
+                    device.address = preference.getKey();
+                    device.connected = false;
+                }
+
+                device.trusted = trusted;
+                device.save();
+                handleLocking();
+                return true;
             }
-
-            device.trusted = Boolean.parseBoolean(newValue.toString());
-            device.save();
-            handleLocking();
-            return true;
+            return false;
         }
     };
 
     Preference.OnPreferenceChangeListener androidWearPreferenceListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            AndroidWearDevices device = new Select()
-                    .from(AndroidWearDevices.class)
-                    .where("deviceId = ?", preference.getKey())
-                    .executeSingle();
+            boolean trusted = Boolean.parseBoolean(newValue.toString());
+            if (!trusted || !isPurchaseRequired()) {
+                AndroidWearDevices device = new Select()
+                        .from(AndroidWearDevices.class)
+                        .where("deviceId = ?", preference.getKey())
+                        .executeSingle();
 
-            device.trusted = Boolean.parseBoolean(newValue.toString());
-            device.save();
-            handleLocking();
-            return true;
+                device.trusted = trusted;
+                device.save();
+                handleLocking();
+                return true;
+            }
+            return false;
         }
     };
 

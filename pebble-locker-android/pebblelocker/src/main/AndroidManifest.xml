@@ -18,9 +18,9 @@
         android:theme="@android:style/Theme.Holo.Light.DarkActionBar">
 
         <meta-data android:name="AA_DB_NAME" android:value="pebble_locker.db" />
-        <meta-data android:name="AA_DB_VERSION" android:value="2" />
+        <meta-data android:name="AA_DB_VERSION" android:value="3" />
         <meta-data android:name="AA_MODELS"
-            android:value="com.lukekorth.pebblelocker.models.AndroidWearDevices, com.lukekorth.pebblelocker.models.BluetoothDevices" />
+            android:value="com.lukekorth.pebblelocker.models.AndroidWearDevices, com.lukekorth.pebblelocker.models.BluetoothDevices, com.lukekorth.pebblelocker.models.WifiNetworks" />
         <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
 
         <activity android:name=".PebbleLocker"

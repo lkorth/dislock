@@ -68,6 +68,13 @@ public class BluetoothDevices extends Model {
                 .execute();
     }
 
+    public static int countTrustedDevices() {
+        return new Select()
+                .from(BluetoothDevices.class)
+                .where("trusted = ?", true)
+                .count();
+    }
+
     public static void setDeviceConnected(BluetoothDevice device, boolean connected) {
         BluetoothDevices persistedDevice = new Select()
                 .from(BluetoothDevices.class)

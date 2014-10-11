@@ -14,6 +14,10 @@ import com.lukekorth.pebblelocker.billing.IabHelper.OnIabSetupFinishedListener;
 import com.lukekorth.pebblelocker.billing.IabResult;
 import com.lukekorth.pebblelocker.billing.Inventory;
 import com.lukekorth.pebblelocker.billing.Purchase;
+import com.lukekorth.pebblelocker.helpers.PebbleHelper;
+import com.lukekorth.pebblelocker.models.AndroidWearDevices;
+import com.lukekorth.pebblelocker.models.BluetoothDevices;
+import com.lukekorth.pebblelocker.models.WifiNetworks;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +26,7 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
     IabHelper.OnIabPurchaseFinishedListener, IabHelper.QueryInventoryFinishedListener {
 
     private static final String BILLING_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmKCACsyFRONCbAFoNV+e1h+o9AXUTgiEZPDV24aaWyhTAixwK+sEHtcjlmElYHSO/9a6HBXa03JCsSNWc9Ngqpj3fTiZ+IZQ9HRLUt4mDWVh0/fKSiTfS9bEjGx8oHnteHTe+BvsTkkM5OR00n0zG+++a+948P8pv1B6f/QvJ1y9mgGyy5LR0CXVEnZrQJonqofPxBDaPvbNYNTGFkNSEepDk5xRfIfDpbftvgnDBtJya1BWc1aGksJURUyFZntj7fin3i05PbIiTztGWOKCGubegcJt+HIl304nvBZCbUVZpiSaOqWDQZO6kmloMoy5vC1GP1/WaN554XKNcDZ0rwIDAQAB";
+    private static final String TAG = "Premium_Features";
 
     private static enum IAB_STATUS {
         SETTING_UP, SET_UP, FAILED
@@ -32,14 +37,18 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
     private IAB_STATUS mIabStatus;
     private boolean mIabOperationInProgress;
 
+    private int mEnabledDevices;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mLogger = LoggerFactory.getLogger("Premium_Features");
+        mLogger = LoggerFactory.getLogger(TAG);
         mIabHelper = new IabHelper(this, BILLING_PUBLIC_KEY);
         mIabHelper.startSetup(this);
         mIabStatus = IAB_STATUS.SETTING_UP;
+
+        getEnabledDevices();
     }
 
     @Override
@@ -48,13 +57,29 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
         mIabHelper.dispose();
     }
 
+    private void getEnabledDevices() {
+        mEnabledDevices = 0;
+
+        if (new PebbleHelper(this, TAG).isEnabled()) {
+            mEnabledDevices++;
+        }
+
+        mEnabledDevices += BluetoothDevices.countTrustedDevices();
+        mEnabledDevices += AndroidWearDevices.countTrustedDevices();
+        mEnabledDevices += WifiNetworks.countTrustedDevices();
+    }
+
     public static boolean hasPurchased(Context context) {
         return BuildConfig.DEBUG ||
                 PreferenceManager.getDefaultSharedPreferences(context).getBoolean("donated", false);
     }
 
-    public boolean hasPurchased() {
-        return PremiumFeaturesActivity.hasPurchased(this);
+    public boolean isPurchaseRequired() {
+        if (!hasPurchased(this) && mEnabledDevices >= 1) {
+            requirePurchase();
+            return true;
+        }
+        return false;
     }
 
     public void requirePurchase() {

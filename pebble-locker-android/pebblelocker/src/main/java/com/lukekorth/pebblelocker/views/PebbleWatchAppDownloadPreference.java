@@ -3,6 +3,7 @@ package com.lukekorth.pebblelocker.views;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.preference.Preference;
 import android.util.AttributeSet;
 
 import com.lukekorth.pebblelocker.PebbleLockerApplication;
@@ -10,7 +11,7 @@ import com.lukekorth.pebblelocker.events.ActivityResumedEvent;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.squareup.otto.Subscribe;
 
-public class PebbleWatchAppDownloadPreference extends PremiumFeaturesPreference {
+public class PebbleWatchAppDownloadPreference extends Preference implements Preference.OnPreferenceClickListener {
 
     public PebbleWatchAppDownloadPreference(Context context) {
         super(context);
@@ -30,6 +31,7 @@ public class PebbleWatchAppDownloadPreference extends PremiumFeaturesPreference 
     private void init() {
         PebbleLockerApplication.getBus().register(this);
         refresh(new ActivityResumedEvent());
+        setOnPreferenceClickListener(this);
     }
 
     @Subscribe
@@ -43,9 +45,9 @@ public class PebbleWatchAppDownloadPreference extends PremiumFeaturesPreference 
     }
 
     @Override
-    public Intent getActionIntent() {
-        return new Intent(Intent.ACTION_VIEW,
-                Uri.parse("pebble://appstore/5386a0646189a1be8200007a"));
+    public boolean onPreferenceClick(Preference preference) {
+        getContext().startActivity(new Intent(Intent.ACTION_VIEW,
+                Uri.parse("pebble://appstore/5386a0646189a1be8200007a")));
+        return true;
     }
-
 }

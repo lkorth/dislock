@@ -22,7 +22,7 @@ public class PebbleHelper {
     }
 
     public boolean isEnabled() {
-        return PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(ENABLED_KEY, true);
+        return PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(ENABLED_KEY, false);
     }
 
     public boolean isConnected() {

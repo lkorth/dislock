@@ -4,29 +4,30 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.wifi.WifiConfiguration;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.provider.Settings;
 
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
+import com.lukekorth.pebblelocker.models.WifiNetworks;
 import com.lukekorth.pebblelocker.services.LockingIntentService;
 
 import java.util.List;
 import java.util.Map;
 
-public class WiFiNetworks extends PreferenceActivity implements Preference.OnPreferenceChangeListener {
+public class WiFiNetworks extends PremiumFeaturesActivity implements Preference.OnPreferenceChangeListener {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         PreferenceScreen root = getPreferenceManager().createPreferenceScreen(this);
 
-        // Inline preferences
         PreferenceCategory inlinePrefCat = new PreferenceCategory(this);
         inlinePrefCat.setTitle("WiFi Networks");
         root.addPreference(inlinePrefCat);
@@ -44,7 +45,7 @@ public class WiFiNetworks extends PreferenceActivity implements Preference.OnPre
                         startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
                     }
                 })
-                .setNegativeButton("Cancel", new OnClickListener() {
+                .setNegativeButton(android.R.string.cancel, new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         WiFiNetworks.this.finish();
@@ -52,6 +53,8 @@ public class WiFiNetworks extends PreferenceActivity implements Preference.OnPre
                 })
                 .show();
         } else {
+            migrateNetworks();
+
             Map<String, String> printableNetworks = wifiHelper.getPrintableNetworks();
             for (Map.Entry<String, String> entry : printableNetworks.entrySet()) {
                 // Checkbox preference
@@ -66,9 +69,32 @@ public class WiFiNetworks extends PreferenceActivity implements Preference.OnPre
         }
     }
 
+    private void migrateNetworks() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (!prefs.getBoolean("migratedWifi", false)) {
+            WifiHelper wifiHelper = new WifiHelper(this, "WifiNetworks");
+            List<WifiConfiguration> networks = wifiHelper.getStoredNetworks();
+
+            WifiNetworks networkModel;
+            for (WifiConfiguration network : networks) {
+                networkModel = new WifiNetworks();
+                networkModel.ssid = network.SSID;
+                networkModel.trusted = prefs.getBoolean(WifiHelper.base64Encode(network.SSID), false);
+            }
+            prefs.edit().putBoolean("migratedWifi", true).apply();
+        }
+    }
+
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        startService(new Intent(this, LockingIntentService.class));
-        return true;
+        boolean trusted = Boolean.parseBoolean(newValue.toString());
+        if (!trusted || !isPurchaseRequired()) {
+            WifiNetworks.setNetworkTrusted(preference.getTitle().toString(), trusted);
+
+            startService(new Intent(this, LockingIntentService.class));
+            return true;
+        }
+        return false;
     }
 }

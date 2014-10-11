@@ -57,15 +57,19 @@
             android:title="@string/pebble_watch_app_title"
             android:summary="@string/pebble_watch_app_summary" />
 
-    	<com.lukekorth.pebblelocker.views.BluetoothPreference
-            android:key="bluetooth_preference"
+    	<Preference
             android:title="@string/bluetooth_preference_title"
-            android:summary="@string/bluetooth_preference_summary" />
+            android:summary="@string/bluetooth_preference_summary">
+            <intent android:targetPackage="com.lukekorth.pebblelocker"
+                android:targetClass="com.lukekorth.pebblelocker.DevicesActivity" />
+        </Preference>
 
-    	<com.lukekorth.pebblelocker.views.WifiPreference
-            android:key="wifi_preference"
+    	<Preference
             android:title="@string/wifi_preference_title"
-            android:summary="@string/wifi_preference_summary" />
+            android:summary="@string/wifi_preference_summary">
+            <intent android:targetPackage="com.lukekorth.pebblelocker"
+                android:targetClass="com.lukekorth.pebblelocker.WiFiNetworks" />
+        </Preference>
     </PreferenceCategory>
     
     <PreferenceCategory android:title="@string/help">
