@@ -57,7 +57,7 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
         mIabHelper.dispose();
     }
 
-    private void getEnabledDevices() {
+    protected void getEnabledDevices() {
         mEnabledDevices = 0;
 
         if (new PebbleHelper(this, TAG).isEnabled()) {

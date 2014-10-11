@@ -93,6 +93,7 @@ public class WiFiNetworks extends PremiumFeaturesActivity implements Preference.
             WifiNetworks.setNetworkTrusted(preference.getTitle().toString(), trusted);
 
             startService(new Intent(this, LockingIntentService.class));
+            getEnabledDevices();
             return true;
         }
         return false;

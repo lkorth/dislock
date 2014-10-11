@@ -60,8 +60,13 @@ public class DevicesActivity extends PremiumFeaturesActivity {
         pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                handleLocking();
-                return true;
+                boolean trusted = Boolean.parseBoolean(newValue.toString());
+                if (!trusted || !isPurchaseRequired()) {
+                    handleLocking();
+                    getEnabledDevices();
+                    return true;
+                }
+                return false;
             }
         });
         pref.setChecked(PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pebble", false));
@@ -136,6 +141,7 @@ public class DevicesActivity extends PremiumFeaturesActivity {
                 device.trusted = trusted;
                 device.save();
                 handleLocking();
+                getEnabledDevices();
                 return true;
             }
             return false;
@@ -155,6 +161,7 @@ public class DevicesActivity extends PremiumFeaturesActivity {
                 device.trusted = trusted;
                 device.save();
                 handleLocking();
+                getEnabledDevices();
                 return true;
             }
             return false;
