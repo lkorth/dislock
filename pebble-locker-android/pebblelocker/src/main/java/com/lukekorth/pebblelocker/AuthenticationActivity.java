@@ -176,7 +176,10 @@ public class AuthenticationActivity extends Activity
     private void authenticationSuccessful() {
         switch (mRequestType) {
             case AUTHENTICATE:
+                finishSuccessfully();
+                break;
             case CHANGE_TO_SLIDE:
+                changePassword("");
                 finishSuccessfully();
                 break;
             case CHANGE_TO_PIN:
@@ -274,17 +277,20 @@ public class AuthenticationActivity extends Activity
 
         switch (mRequestType) {
             case CHANGE_TO_SLIDE:
+                mLogger.debug("Action was successful, removing pin/password and changing to slide");
                 ScreenLockType.changeToSlide(this);
                 startService(new Intent(
                         this, LockingIntentService.class).putExtra(LockingIntentService.UNLOCK, true));
                 break;
             case CHANGE_TO_PIN:
+                mLogger.debug("Action was successful, changing to pin");
                 ScreenLockType.setCurrent(this, ScreenLockType.PIN);
                 mPrefs.edit().putString("key_password", newPassword).apply();
                 startService(new Intent(
                         this, LockingIntentService.class).putExtra(LockingIntentService.LOCK, true));
                 break;
             case CHANGE_TO_PASSWORD:
+                mLogger.debug("Action was successful, changing to password");
                 ScreenLockType.setCurrent(this, ScreenLockType.PASSWORD);
                 mPrefs.edit().putString("key_password", newPassword).apply();
                 startService(new Intent(

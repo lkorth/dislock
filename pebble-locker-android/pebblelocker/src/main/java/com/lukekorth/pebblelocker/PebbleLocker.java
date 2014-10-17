@@ -198,7 +198,7 @@ public class PebbleLocker extends PremiumFeaturesActivity
                 message = "User changed their password";
             }
         } else {
-            message = "User changed " + key;
+            message = "User changed " + key + " to " + sharedPreferences.getAll().get(key);
         }
 
         LoggerFactory.getLogger("Settings_Changed").debug(message);
