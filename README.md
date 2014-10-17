@@ -3,7 +3,7 @@ Dislock
 
 [![Travis Build Status](https://travis-ci.org/lkorth/pebble-locker.svg?branch=master)](https://travis-ci.org/lkorth/pebble-locker)
 
-Dislock makes use of the [Device Administration API](http://developer.android.com/guide/topics/admin/device-admin.html) to control Android's lock screen.
+Dislock (formerly Pebble Locker) makes use of the [Device Administration API](http://developer.android.com/guide/topics/admin/device-admin.html) to control Android's lock screen.
 Enjoy the use of your Android without a lock screen when your Pebble watch, selected Bluetooth devices or Wifi networks are connected and the security 
 of a lock screen when you walk away causing your Pebble, other Bluetooth devices or Wifi networks to disconnect.
 
