@@ -1,5 +1,6 @@
 <resources>
-    <string name="app_name">Pebble Locker</string>
+    <string name="app_name">Dislock</string>
+    <string name="rate">Rake Dislock</string>
 
     <string name="screen_lock_type_title">Screen Lock Type</string>
     <string name="slide">Slide</string>
@@ -11,16 +12,12 @@
 
     <string name="do_not_use">Do Not Use</string>
     <string name="use_anyway">Use Anyway</string>
-    <string name="incompatable_warning">Your device is encrypted or there are other apps installed that require a password or pin to be set. Pebble Locker does not work on encrypted devices or with other apps that require a pin or password. If you wish to use Pebble Locker you will need to decrypt your device, disabled or uninstall any apps that require a pin or password or try to use it anyway. WARNING: Trying to use Pebble Locker in spite of this warning may cause you to lose all data on your device, you have been warned.</string>
+    <string name="incompatable_warning">Your device is encrypted or there are other apps installed that require a password or pin to be set. Dislock does not work on encrypted devices or with other apps that require a pin or password. If you wish to use Dislock you will need to decrypt your device, disabled or uninstall any apps that require a pin or password or try to use it anyway. WARNING: Trying to use Dislock in spite of this warning may cause you to lose all data on your device, you have been warned.</string>
 
     <string name="status">Status</string>
     <string name="grace_period_title">Grace Period</string>
 
     <string name="monkey">You can\'t reset my password, you are a monkey!</string>
-
-    <string name="pebble_locker_enabled">Pebble Locker has been enabled, you must now set a password</string>
-    <string name="pebble_locker_disabled">Pebble Locker has been disabled, your password has been cleared</string>
-    <string name="password_cleared">Your password has been removed and Pebble Locker has been disabled</string>
 
     <string name="click_to_change">Click to change</string>
     <string name="please_wait">Please wait...</string>

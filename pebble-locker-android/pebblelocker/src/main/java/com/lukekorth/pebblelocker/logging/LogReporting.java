@@ -73,7 +73,7 @@ public class LogReporting {
             message.append("Minimum numeric in password: " + dpm.getPasswordMinimumNumeric(null) + "\n");
             message.append("Minimum symbols in password: " + dpm.getPasswordMinimumSymbols(null) + "\n");
             message.append("Minimum upper case letters in password: " + dpm.getPasswordMinimumUpperCase(null) + "\n");
-            message.append("Pebble Locker password length: " + prefs.getString("key_password", "").length() + "\n");
+            message.append("Dislock password length: " + prefs.getString("key_password", "").length() + "\n");
 			message.append("Encryption status: " + dpm.getStorageEncryptionStatus() + "\n");
             message.append("Device rooted: " + isDeviceRooted() + "\n");
             message.append("Debug: " + BuildConfig.DEBUG + "\n");
@@ -189,7 +189,7 @@ public class LogReporting {
         private File getFile() {
             File emailableLogsDir  = new File(mContext.getFilesDir(), "emailable_logs");
             emailableLogsDir.mkdir();
-            return new File(emailableLogsDir, "pebble-locker.log.gz");
+            return new File(emailableLogsDir, "dislock.log.gz");
         }
 
         private void buildEmailIntent(File file) {
@@ -197,8 +197,8 @@ public class LogReporting {
 
             mEmailIntent = new Intent(Intent.ACTION_SEND);
 		    mEmailIntent.setType("text/plain");
-            mEmailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{ "pebble-locker@lukekorth.com" });
-            mEmailIntent.putExtra(Intent.EXTRA_SUBJECT, "Pebble Locker Debug Log");
+            mEmailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{ "dislock@lukekorth.com" });
+            mEmailIntent.putExtra(Intent.EXTRA_SUBJECT, "Dislock Debug Log");
 		    mEmailIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
 
             // grant permissions for all apps that can handle given intent

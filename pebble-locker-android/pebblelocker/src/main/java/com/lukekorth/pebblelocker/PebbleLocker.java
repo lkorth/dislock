@@ -85,7 +85,7 @@ public class PebbleLocker extends PremiumFeaturesActivity
         startService(new Intent(this, AndroidWearDetectionService.class));
 
         AppRate.with(this)
-                .text("Rate Pebble Locker")
+                .text(R.string.rate)
                 .initialLaunchCount(3)
                 .retryPolicy(RetryPolicy.EXPONENTIAL)
                 .checkAndShow();

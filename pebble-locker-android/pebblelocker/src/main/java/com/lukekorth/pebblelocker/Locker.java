@@ -118,7 +118,7 @@ public class Locker {
             if (needToTurnOffScreen) {
                 mLogger.debug("Waking screen because it was on when unlock started");
                 PowerManager.WakeLock wakeLock = ((PowerManager) mContext.getSystemService(Context.POWER_SERVICE))
-                        .newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "PebbleLocker-Locker");
+                        .newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "Dislock-Locker");
                 wakeLock.acquire();
                 wakeLock.release();
             }

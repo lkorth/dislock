@@ -20,7 +20,7 @@
         <CheckBoxPreference
             android:key="key_enable_admin"
             android:title="Enable Device Administrator"
-            android:summary="Must be enabled for Pebble Locker to function" />
+            android:summary="Must be enabled for Dislock to function" />
     </PreferenceCategory>
     
     <PreferenceCategory
