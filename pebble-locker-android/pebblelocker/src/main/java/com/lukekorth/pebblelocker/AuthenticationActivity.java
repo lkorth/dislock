@@ -74,6 +74,9 @@ public class AuthenticationActivity extends Activity
             }
         }
 
+        mLogger.debug("Authentication request is " + mRequestType);
+        mLogger.debug("Current lock type is " + mCurrentType);
+
         requestCurrentAuthentication();
     }
 
