@@ -24,25 +24,23 @@
     </PreferenceCategory>
     
     <PreferenceCategory
-        android:title="Options" >
-
-        <com.lukekorth.pebblelocker.views.ScreenLockTypePreference
-            android:key="key_screen_lock_type"
-            android:title="@string/screen_lock_type_title"
-            android:entries="@array/screen_lock_type_entries"
-            android:entryValues="@array/screen_lock_type_entry_values" />
+        android:key="options_category"
+        android:title="Options">
 
         <CheckBoxPreference
+            android:order="1"
             android:key="key_force_lock"
             android:title="Turn off screen on disconnect"
             android:summary="Turn off the screen when your device disconnects from a trusted watch, bluetooth device or WiFi network" />
 
         <CheckBoxPreference
+            android:order="2"
             android:key="key_require_password_on_reconnect"
             android:title="@string/require_password_title"
             android:summary="@string/require_password_summary" />
 
         <com.lukekorth.pebblelocker.views.GracePeriod
+            android:order="3"
             android:key="key_grace_period"
             android:title="@string/grace_period_title"
             android:entries="@array/grace_period_entries"

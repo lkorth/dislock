@@ -8,9 +8,7 @@ import android.util.AttributeSet;
 import com.lukekorth.pebblelocker.AuthenticationActivity;
 import com.lukekorth.pebblelocker.PebbleLockerApplication;
 import com.lukekorth.pebblelocker.ScreenLockType;
-import com.lukekorth.pebblelocker.events.ActivityResumedEvent;
 import com.lukekorth.pebblelocker.events.AuthenticationRequestEvent;
-import com.squareup.otto.Subscribe;
 
 public class ScreenLockTypePreference extends ListPreference {
 
@@ -27,20 +25,8 @@ public class ScreenLockTypePreference extends ListPreference {
     }
 
     private void init() {
-        PebbleLockerApplication.getBus().register(this);
-        update(new ActivityResumedEvent());
-    }
-
-    @Override
-    public void onPrepareForRemoval() {
-        PebbleLockerApplication.getBus().unregister(this);
-    }
-
-    @Subscribe
-    public void update(ActivityResumedEvent event) {
         mCurrentType = ScreenLockType.getCurrent(getContext());
         setSummary(mCurrentType.getDescription());
-        notifyChanged();
     }
 
     @Override

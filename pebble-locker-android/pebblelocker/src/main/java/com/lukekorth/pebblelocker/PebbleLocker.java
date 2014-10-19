@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
@@ -42,6 +43,7 @@ public class PebbleLocker extends PremiumFeaturesActivity
 
     private CheckBoxPreference mAdmin;
     private ScreenLockTypePreference mLockType;
+    private PreferenceCategory mOptionsCategory;
 
     private DevicePolicyManager mDPM;
     private ComponentName mDeviceAdmin;
@@ -53,7 +55,8 @@ public class PebbleLocker extends PremiumFeaturesActivity
 		addPreferencesFromResource(R.layout.main);
 
         mAdmin = (CheckBoxPreference) findPreference("key_enable_admin");
-        mLockType = (ScreenLockTypePreference) findPreference("key_screen_lock_type");
+        mOptionsCategory = (PreferenceCategory) findPreference("options_category");
+        mOptionsCategory.setOrderingAsAdded(false);
 
 		mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 		mDeviceAdmin = new ComponentName(this, CustomDeviceAdminReceiver.class);
@@ -106,6 +109,12 @@ public class PebbleLocker extends PremiumFeaturesActivity
         mPrefs.registerOnSharedPreferenceChangeListener(this);
         PebbleLockerApplication.getBus().post(new ActivityResumedEvent());
 
+        if (mLockType != null) {
+            mOptionsCategory.removePreference(mLockType);
+        }
+        mOptionsCategory.addPreference(getScreenLockTypePreference());
+        mLockType = (ScreenLockTypePreference) findPreference("key_screen_lock_type");
+
 		checkForRequiredPasswordByOtherApps();
 		checkForActiveAdmin();
 
@@ -147,11 +156,23 @@ public class PebbleLocker extends PremiumFeaturesActivity
         }
     }
 
+    private Preference getScreenLockTypePreference() {
+        ScreenLockTypePreference screenLockTypePreference = new ScreenLockTypePreference(this);
+        screenLockTypePreference.setKey("key_screen_lock_type");
+        screenLockTypePreference.setTitle(R.string.screen_lock_type_title);
+        screenLockTypePreference.setEntries(R.array.screen_lock_type_entries);
+        screenLockTypePreference.setEntryValues(R.array.screen_lock_type_entry_values);
+        screenLockTypePreference.setOrder(0);
+        return screenLockTypePreference;
+    }
+
     private void checkForActiveAdmin() {
         if(mDPM.isAdminActive(mDeviceAdmin)) {
             mAdmin.setChecked(true);
+            enableOptions(true);
         } else {
             mAdmin.setChecked(false);
+            enableOptions(false);
         }
     }
 
