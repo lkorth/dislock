@@ -34,7 +34,7 @@
     <string name="iab_setup_error">In app purchases are not possible at this time, please try again later. If this problem persists, please contact the developer.</string>
     <string name="iab_error">There was an error completing your purchase, please try again later. If this problem persists, please contact the developer.</string>
 
-    <string name="advanced_options">Advanced Options</string>
+    <string name="trusted_devices">Trusted Devices</string>
 
     <string name="pebble_watch_app_title">Download Pebble Watch App</string>
     <string name="pebble_watch_app_summary">Control the lock state from your Pebble watch. Options include automatic, locked and unlocked</string>

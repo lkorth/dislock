@@ -48,7 +48,7 @@
     </PreferenceCategory>
     
     <PreferenceCategory
-        android:title="@string/advanced_options">
+        android:title="@string/trusted_devices">
 
         <com.lukekorth.pebblelocker.views.PebbleWatchAppDownloadPreference
             android:key="pebble_watch_app_download"
