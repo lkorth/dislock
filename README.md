@@ -1,6 +1,8 @@
 Dislock
 =============
 
+![Dislock Banner][images/dislock-banner.png]
+
 [![Travis Build Status](https://travis-ci.org/lkorth/pebble-locker.svg?branch=master)](https://travis-ci.org/lkorth/pebble-locker)
 
 Dislock (formerly Pebble Locker) makes use of the [Device Administration API](http://developer.android.com/guide/topics/admin/device-admin.html) to control Android's lock screen.
