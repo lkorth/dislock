@@ -62,6 +62,10 @@ public class DevicesActivity extends PremiumFeaturesActivity {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean trusted = Boolean.parseBoolean(newValue.toString());
                 if (!trusted || !isPurchaseRequired()) {
+                    PreferenceManager.getDefaultSharedPreferences(DevicesActivity.this)
+                            .edit()
+                            .putBoolean("pebble", trusted)
+                            .apply();
                     handleLocking();
                     getEnabledDevices();
                     return true;
