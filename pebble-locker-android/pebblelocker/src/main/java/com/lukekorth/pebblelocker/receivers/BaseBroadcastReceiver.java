@@ -74,7 +74,7 @@ public abstract class BaseBroadcastReceiver extends BroadcastReceiver {
             logger.debug("No delay, handling locking now");
             BaseBroadcastReceiver.handleLocking(context, tag);
         } else {
-            logger.debug("Delay of " + delay + "seconds, setting alarm");
+            logger.debug("Delay of " + delay + " seconds, setting alarm");
             setDelayedLockAlarm(context, (delay * 1000));
         }
     }
