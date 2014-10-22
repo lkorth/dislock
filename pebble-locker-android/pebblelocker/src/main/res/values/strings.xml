@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Dislock</string>
-    <string name="rate">Rake Dislock</string>
+    <string name="rate">Rate Dislock</string>
 
     <string name="screen_lock_type_title">Screen Lock Type</string>
     <string name="slide">Slide</string>
