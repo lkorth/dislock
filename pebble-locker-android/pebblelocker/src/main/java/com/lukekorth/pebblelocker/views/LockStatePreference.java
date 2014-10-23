@@ -10,6 +10,8 @@ import android.util.AttributeSet;
 import com.lukekorth.pebblelocker.LockState;
 import com.lukekorth.pebblelocker.PebbleLockerApplication;
 import com.lukekorth.pebblelocker.R;
+import com.lukekorth.pebblelocker.ScreenLockType;
+import com.lukekorth.pebblelocker.events.ActivityResumedEvent;
 import com.lukekorth.pebblelocker.events.StatusChangedEvent;
 import com.lukekorth.pebblelocker.receivers.BaseBroadcastReceiver;
 import com.lukekorth.pebblelocker.services.LockStateIntentService;
@@ -22,6 +24,7 @@ public class LockStatePreference extends Preference implements Preference.OnPref
 
     private static final String TAG = "Lock_State_Preference";
 
+    private boolean mDisabled;
     private Logger mLogger;
 
     public LockStatePreference(Context context) {
@@ -42,7 +45,7 @@ public class LockStatePreference extends Preference implements Preference.OnPref
     private void init() {
         mLogger = LoggerFactory.getLogger(TAG);
         PebbleLockerApplication.getBus().register(this);
-        update(new StatusChangedEvent());
+        update();
         setOnPreferenceClickListener(this);
     }
 
@@ -52,35 +55,58 @@ public class LockStatePreference extends Preference implements Preference.OnPref
     }
 
     @Subscribe
-    public void update(StatusChangedEvent event) {
+    public void onResume(ActivityResumedEvent event) {
+        update();
+    }
+
+    @Subscribe
+    public void onStatusChanged(StatusChangedEvent event) {
+        update();
+    }
+
+    private void update() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        LockState lockState = LockState.getCurrentState(getContext());
-        String title = "";
 
-        if (lockState == LockState.AUTO) {
-            if (prefs.getBoolean(BaseBroadcastReceiver.LOCKED, false)) {
-                title = "Locked (Automatic)";
-            } else {
-                title = "Unlocked (Automatic)";
-            }
+        if (ScreenLockType.getCurrent(getContext()) == ScreenLockType.SLIDE ||
+                prefs.getString("key_password", "").equals("")) {
+            mDisabled = true;
+            mLogger.debug("Lock is set to slide or password is empty, showing not configured message");
+            setTitle(R.string.no_pin_or_password_set);
+            setSummary(R.string.no_pin_or_password_set_summary);
         } else {
-            title = lockState.getDisplayName();
+            mDisabled = false;
+
+            LockState lockState = LockState.getCurrentState(getContext());
+            String title = "";
+
+            if (lockState == LockState.AUTO) {
+                if (prefs.getBoolean(BaseBroadcastReceiver.LOCKED, false)) {
+                    title = "Locked (Automatic)";
+                } else {
+                    title = "Unlocked (Automatic)";
+                }
+            } else {
+                title = lockState.getDisplayName();
+            }
+
+            setTitle(title);
+            setSummary(R.string.click_to_change);
+
+            mLogger.debug("Updating status to " + title);
         }
-
-        setTitle(title);
-        setSummary(R.string.click_to_change);
-
-        mLogger.debug("Updating status to " + title);
     }
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
-        getContext().startService(new Intent(getContext(), LockStateIntentService.class));
+        if (!mDisabled) {
+            getContext().startService(new Intent(getContext(), LockStateIntentService.class));
 
-        setTitle(R.string.please_wait);
-        setSummary("");
+            setTitle(R.string.please_wait);
+            setSummary("");
 
-        return true;
+            return true;
+        }
+        return false;
     }
 
 }

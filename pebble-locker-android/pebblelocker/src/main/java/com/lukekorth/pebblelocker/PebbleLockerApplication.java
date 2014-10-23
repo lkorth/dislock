@@ -81,8 +81,6 @@ public class PebbleLockerApplication extends com.activeandroid.app.Application i
         if (previousVersion < BuildConfig.VERSION_CODE) {
             // update old version prefs
             if (previousVersion <= 35) {
-                editor.remove("key_enable_locker");
-
                 String password = prefs.getString("key_password", "");
                 if (TextUtils.isEmpty(password)) {
                     editor.putString(ScreenLockType.SCREEN_LOCK_TYPE_KEY, ScreenLockType.SLIDE.getType());
@@ -91,6 +89,7 @@ public class PebbleLockerApplication extends com.activeandroid.app.Application i
                 } else {
                     editor.putString(ScreenLockType.SCREEN_LOCK_TYPE_KEY, ScreenLockType.PASSWORD.getType());
                 }
+                editor.remove("key_enable_locker");
             }
 
             String now = new Date().toString();

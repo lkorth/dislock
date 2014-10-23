@@ -7,12 +7,16 @@ import android.util.AttributeSet;
 
 import com.lukekorth.pebblelocker.PebbleLockerApplication;
 import com.lukekorth.pebblelocker.PremiumFeaturesActivity;
+import com.lukekorth.pebblelocker.R;
 import com.lukekorth.pebblelocker.events.StatusChangedEvent;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
 import com.lukekorth.pebblelocker.models.AndroidWearDevices;
 import com.lukekorth.pebblelocker.models.BluetoothDevices;
+import com.lukekorth.pebblelocker.models.WifiNetworks;
 import com.squareup.otto.Subscribe;
+
+import org.slf4j.LoggerFactory;
 
 public class Status extends Preference {
 
@@ -45,25 +49,37 @@ public class Status extends Preference {
 
     @Subscribe
     public void update(StatusChangedEvent event) {
-        String connectedDevices = "";
+        if (hasTrustedDevices()) {
+            String connectedDevices = "";
 
-        connectedDevices = conditionallyAddNewLine(connectedDevices,
-                new PebbleHelper(getContext(), TAG).getConnectionStatus());
+            connectedDevices = conditionallyAddNewLine(connectedDevices,
+                    new PebbleHelper(getContext(), TAG).getConnectionStatus());
 
-        if (PremiumFeaturesActivity.hasPurchased(getContext())) {
-            connectedDevices = conditionallyAddNewLine(connectedDevices,
-                    new WifiHelper(getContext(), TAG).getConnectionStatus());
-            connectedDevices = conditionallyAddNewLine(connectedDevices,
-                    AndroidWearDevices.getConnectionStatus());
-            connectedDevices = conditionallyAddNewLine(connectedDevices,
-                    BluetoothDevices.getConnectionStatus());
+            if (PremiumFeaturesActivity.hasPurchased(getContext())) {
+                connectedDevices = conditionallyAddNewLine(connectedDevices,
+                        new WifiHelper(getContext(), TAG).getConnectionStatus());
+                connectedDevices = conditionallyAddNewLine(connectedDevices,
+                        AndroidWearDevices.getConnectionStatus());
+                connectedDevices = conditionallyAddNewLine(connectedDevices,
+                        BluetoothDevices.getConnectionStatus());
+            }
+
+            if (TextUtils.isEmpty(connectedDevices)) {
+                connectedDevices = "No trusted devices connected";
+            }
+
+            setSummary(connectedDevices);
+        } else {
+            LoggerFactory.getLogger(TAG).debug("No trusted devices configured");
+            setSummary(R.string.no_trusted_devices_configured);
         }
+    }
 
-        if (TextUtils.isEmpty(connectedDevices)) {
-            connectedDevices = "No trusted devices connected";
-        }
-
-        setSummary(connectedDevices);
+    private boolean hasTrustedDevices() {
+        return (new PebbleHelper(getContext(), TAG).isEnabled() ||
+                BluetoothDevices.countTrustedDevices() > 0 ||
+                AndroidWearDevices.countTrustedDevices() > 0 ||
+                WifiNetworks.countTrustedDevices() > 0);
     }
 
     private String conditionallyAddNewLine(String base, String addition) {
