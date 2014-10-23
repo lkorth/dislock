@@ -1,7 +1,7 @@
 Dislock
 =============
 
-![Dislock Banner][images/dislock-banner.png]
+![Dislock Banner](images/dislock-banner.png)
 
 [![Travis Build Status](https://travis-ci.org/lkorth/pebble-locker.svg?branch=master)](https://travis-ci.org/lkorth/pebble-locker)
 
