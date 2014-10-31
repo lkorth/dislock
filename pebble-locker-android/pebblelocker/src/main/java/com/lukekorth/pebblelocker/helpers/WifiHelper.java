@@ -87,7 +87,10 @@ public class WifiHelper {
     }
 
     public static String base64Encode(String input) {
-        return Base64.encodeToString(input.getBytes(), Base64.DEFAULT).trim();
+        if (input == null)
+            return "";
+        else
+            return Base64.encodeToString(input.getBytes(), Base64.DEFAULT).trim();
     }
 
     private String stripQuotes(String input) {
