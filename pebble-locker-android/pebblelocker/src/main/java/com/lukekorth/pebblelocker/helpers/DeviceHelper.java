@@ -35,10 +35,10 @@ public class DeviceHelper {
     }
 
     public boolean isScreenOn() {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             int screen = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE))
                     .getDefaultDisplay().getState();
-            if (screen == Display.STATE_ON || screen == Display.STATE_DOZING) {
+            if (screen == Display.STATE_ON || screen == Display.STATE_DOZE) {
                 mLogger.debug("Screen is on or dozing. " + screen);
                 return true;
             } else {
