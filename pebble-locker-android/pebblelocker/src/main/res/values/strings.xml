@@ -3,10 +3,10 @@
     <string name="rate">Rate Dislock</string>
 
     <string name="no_pin_or_password_set">No Pin or Password Set</string>
-    <string name="no_pin_or_password_set_summary">Dislock requires a pin or password, set one using the Screen Lock Type option</string>
+    <string name="no_pin_or_password_set_summary">Dislock requires a pin or password, set one using the password type option</string>
     <string name="no_trusted_devices_configured">No trusted devices are configured, add one below</string>
 
-    <string name="screen_lock_type_title">Screen Lock Type</string>
+    <string name="screen_lock_type_title">Password Type</string>
     <string name="slide">Slide</string>
     <string name="pin">Pin</string>
     <string name="password">Password</string>
@@ -26,9 +26,6 @@
     <string name="click_to_change">Click to change</string>
     <string name="please_wait">Please wait...</string>
     <string name="connected_trusted_devices">Connected Trusted Devices</string>
-
-    <string name="reset_password_warning">
-        You have just reset your lock screen password to \"%1$s\""</string>
 
     <string name="require_password_title">Require Unlock on Reconnect</string>
     <string name="require_password_summary">Requires you to enter your pin or password once after a trusted device or WiFi network has connected</string>
