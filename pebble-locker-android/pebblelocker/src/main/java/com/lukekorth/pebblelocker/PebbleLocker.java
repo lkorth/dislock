@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -115,21 +116,33 @@ public class PebbleLocker extends PremiumFeaturesActivity
         mOptionsCategory.addPreference(getScreenLockTypePreference());
         mLockType = (ScreenLockTypePreference) findPreference("key_screen_lock_type");
 
-		checkForRequiredPasswordByOtherApps();
-		checkForActiveAdmin();
-
-		if(!TextUtils.isEmpty(mPrefs.getString("key_password", "")) &&
-                ScreenLockType.getCurrent(this) != ScreenLockType.SLIDE &&
-                mTimeStamp < (System.currentTimeMillis() - 60000) &&
-				mPrefs.getBoolean(BaseBroadcastReceiver.LOCKED, true)) {
-            Intent intent = new Intent(this, AuthenticationActivity.class)
-                    .putExtra(AuthenticationActivity.AUTHENTICATION_TYPE_KEY, AuthenticationActivity.AUTHENTICATE);
-            startActivityForResult(intent, AUTHENTICATION_REQUEST);
+        if (Build.VERSION.SDK_INT >= 21) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Not compatible")
+                    .setMessage("A change made in Android 5.0 Lollipop broke the way Dislock removes " +
+                            "pins and passwords. Dislock is not compatible with Android 5.0 or " +
+                            "higher, please uninstall. If you have enabled Dislock as a device " +
+                            "administrator you will need to remove it before you can uninstall " +
+                            "by going to your device's security settings.")
+                    .setCancelable(false)
+                    .show();
         } else {
-            int response = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-            if (response != ConnectionResult.SUCCESS) {
-                GooglePlayServicesUtil.getErrorDialog(response, this, REQUEST_GOOGLE_PLAY_SERVICES)
-                        .show();
+            checkForRequiredPasswordByOtherApps();
+            checkForActiveAdmin();
+
+            if (!TextUtils.isEmpty(mPrefs.getString("key_password", "")) &&
+                    ScreenLockType.getCurrent(this) != ScreenLockType.SLIDE &&
+                    mTimeStamp < (System.currentTimeMillis() - 60000) &&
+                    mPrefs.getBoolean(BaseBroadcastReceiver.LOCKED, true)) {
+                Intent intent = new Intent(this, AuthenticationActivity.class)
+                        .putExtra(AuthenticationActivity.AUTHENTICATION_TYPE_KEY, AuthenticationActivity.AUTHENTICATE);
+                startActivityForResult(intent, AUTHENTICATION_REQUEST);
+            } else {
+                int response = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+                if (response != ConnectionResult.SUCCESS) {
+                    GooglePlayServicesUtil.getErrorDialog(response, this, REQUEST_GOOGLE_PLAY_SERVICES)
+                            .show();
+                }
             }
         }
 	}
