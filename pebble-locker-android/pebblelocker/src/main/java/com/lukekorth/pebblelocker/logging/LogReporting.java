@@ -7,33 +7,23 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.support.v4.content.FileProvider;
 
+import com.lukekorth.mailable_log.MailableLog;
 import com.lukekorth.pebblelocker.BuildConfig;
-import com.lukekorth.pebblelocker.PebbleLockerApplication;
 
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.GZIPOutputStream;
 
 public class LogReporting {
 
@@ -95,21 +85,14 @@ public class LogReporting {
 			}
 			message.append("---------------------------");
             message.append("\n");
-			message.append(getLog());
 
-            File file = getFile();
-			try {
-				file.createNewFile();
-				
-				GZIPOutputStream gos = new GZIPOutputStream(new BufferedOutputStream(new PrintStream(file)));
-				gos.write(message.toString().getBytes());
-				gos.close();
-			} catch (IOException e) {
+            try {
+                mEmailIntent = MailableLog.buildEmailIntent(mContext, "dislock@lukekorth.com",
+                        "Dislock Debug Log", "dislock.log", message.toString());
+            } catch (IOException e) {
                 LoggerFactory.getLogger("LogBuilder").warn("IOException while building emailable log file. "
                         + e.getMessage());
             }
-
-            buildEmailIntent(file);
 
             // Ensure we show the spinner and don't just flash the screen
             SystemClock.sleep(1000);
@@ -149,70 +132,9 @@ public class LogReporting {
             return Boolean.toString(check1 || check2 || check3);
         }
 
-        private String getLog() {
-            StringBuilder response = new StringBuilder();
-            InputStream in = null;
-            try {
-                in = new FileInputStream(
-                        ((PebbleLockerApplication) mContext.getApplicationContext()).getLogFilePath());
-                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-
-                String line = reader.readLine();
-                String currentTag;
-                String lastTag = null;
-                while(line != null) {
-                    try {
-                        currentTag = line.substring(line.indexOf("["), line.indexOf("]") + 1);
-                        if (!currentTag.equals(lastTag)) {
-                            lastTag = currentTag;
-                            response.append("\n");
-                        }
-                    } catch (StringIndexOutOfBoundsException e) {
-                    }
-
-                    response.append(line + "\n");
-                    line = reader.readLine();
-                }
-
-                return response.toString();
-            } catch (FileNotFoundException e) {
-                return "FileNotFoundException: " + e.toString();
-            } catch (IOException e) {
-                return "IOException: " + e.toString();
-            } finally {
-                if (in != null) {
-                    try { in.close(); } catch (IOException e) {}
-                }
-            }
-        }
-
-        private File getFile() {
-            File emailableLogsDir  = new File(mContext.getFilesDir(), "emailable_logs");
-            emailableLogsDir.mkdir();
-            return new File(emailableLogsDir, "dislock.log.gz");
-        }
-
-        private void buildEmailIntent(File file) {
-            Uri fileUri = FileProvider.getUriForFile(mContext, "com.lukekorth.pebblelocker.fileprovider", file);
-
-            mEmailIntent = new Intent(Intent.ACTION_SEND);
-		    mEmailIntent.setType("text/plain");
-            mEmailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{ "dislock@lukekorth.com" });
-            mEmailIntent.putExtra(Intent.EXTRA_SUBJECT, "Dislock Debug Log");
-		    mEmailIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
-
-            // grant permissions for all apps that can handle given intent
-            List<ResolveInfo> infoList = mContext.getPackageManager()
-                    .queryIntentActivities(mEmailIntent, PackageManager.MATCH_DEFAULT_ONLY);
-            for (ResolveInfo resolveInfo : infoList) {
-                mContext.grantUriPermission(resolveInfo.activityInfo.packageName, fileUri,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            }
-        }
-
         @Override
 		protected void onPostExecute(Void args) {
-            mContext.startActivity(Intent.createChooser(mEmailIntent, "Send email via"));
+            mContext.startActivity(mEmailIntent);
 			if(mLoading != null && mLoading.isShowing()) {
                 mLoading.cancel();
             }

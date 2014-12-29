@@ -4,21 +4,15 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
+import com.lukekorth.mailable_log.MailableLog;
 import com.lukekorth.pebblelocker.helpers.ThreadBus;
 import com.squareup.otto.Bus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.util.Date;
 import java.util.UUID;
-
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.android.LogcatAppender;
-import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.FileAppender;
 
 public class PebbleLockerApplication extends com.activeandroid.app.Application implements Thread.UncaughtExceptionHandler {
 
@@ -35,42 +29,8 @@ public class PebbleLockerApplication extends com.activeandroid.app.Application i
         Thread.setDefaultUncaughtExceptionHandler(this);
 
         migrate();
-        initLogger();
+        MailableLog.init(this, BuildConfig.DEBUG);
         sBus = new ThreadBus();
-    }
-
-    public String getLogFilePath() {
-        return getFileStreamPath("debug.log").getAbsolutePath();
-    }
-
-    private void initLogger() {
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        loggerContext.reset();
-
-        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-        encoder.setContext(loggerContext);
-        encoder.setPattern("%date{MMM dd | HH:mm:ss.SSS} %highlight(%-5level) %-25([%logger{36}]) %msg%n");
-        encoder.start();
-
-        FileAppender<ILoggingEvent> fileAppender = new FileAppender<ILoggingEvent>();
-        fileAppender.setContext(loggerContext);
-        fileAppender.setFile(getLogFilePath());
-        fileAppender.setAppend(true);
-        fileAppender.setEncoder(encoder);
-        fileAppender.start();
-
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger)
-                LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        root.addAppender(fileAppender);
-
-        if (BuildConfig.DEBUG) {
-            LogcatAppender logcatAppender = new LogcatAppender();
-            logcatAppender.setContext(loggerContext);
-            logcatAppender.setEncoder(encoder);
-            logcatAppender.start();
-
-            root.addAppender(logcatAppender);
-        }
     }
 
     private void migrate() {
@@ -101,7 +61,7 @@ public class PebbleLockerApplication extends com.activeandroid.app.Application i
             editor.putInt(VERSION, BuildConfig.VERSION_CODE);
             editor.apply();
 
-            new File(getLogFilePath()).delete();
+            MailableLog.clearLog(this);
         }
     }
 
