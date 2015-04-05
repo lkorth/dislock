@@ -29,8 +29,9 @@ android {
 }
 
 dependencies {
-    compile project(':libraries:ActiveAndroid')
     compile project(':libraries:PebbleKit')
+
+    compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
     compile 'com.google.android.gms:play-services:7.0.0'
     compile 'fr.nicolaspomepuy:discreetapprate:2.0@aar'
     compile 'com.squareup:otto:1.3.5'
