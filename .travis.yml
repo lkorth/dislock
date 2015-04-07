@@ -1,7 +1,10 @@
 language: android
 jdk: oraclejdk7
 sudo: false
-cache: false
+cache:
+  directories:
+      - ${TRAVIS_BUILD_DIR}/pebble-locker-android/gradle/caches/
+      - ${TRAVIS_BUILD_DIR}/pebble-locker-android/gradle/wrapper/dists/
 android:
   components:
     - extra-android-support
