@@ -17,11 +17,11 @@ env:
 before_script:
     - cd pebble-locker-android
     - chmod +x gradlew
+    - ./gradlew assembleDebug || true
+    - ./gradlew assembleDebug || true
+    - ./gradlew assembleDebug || true
     - echo no | android create avd --force -n pebbleLockerTest -t $ANDROID_TARGET --abi $ANDROID_ABI
     - emulator -avd pebbleLockerTest -no-skin -no-audio -no-window &
-    - ./gradlew assembleDebug || true
-    - ./gradlew assembleDebug || true
-    - ./gradlew assembleDebug || true
     - adb wait-for-device
     - while [[ `adb shell pm path android` == 'Error'* ]]; do sleep 2; done
     - adb shell input keyevent 82 &
