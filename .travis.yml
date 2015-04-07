@@ -1,4 +1,7 @@
 language: android
+jdk: oraclejdk7
+sudo: false
+cache: false
 android:
   components:
     - extra-android-support
@@ -6,6 +9,7 @@ android:
 env:
     global:
     - TERM=dumb
+    - ADB_INSTALL_TIMEOUT=8
     matrix:
     - ANDROID_SDKS=android-21 ANDROID_TARGET=android-21 ANDROID_ABI=armeabi-v7a
     - ANDROID_SDKS=android-19 ANDROID_TARGET=android-19 ANDROID_ABI=armeabi-v7a
@@ -13,7 +17,6 @@ env:
     - ANDROID_SDKS=android-17 ANDROID_TARGET=android-17 ANDROID_ABI=armeabi-v7a
     - ANDROID_SDKS=android-16 ANDROID_TARGET=android-16 ANDROID_ABI=armeabi-v7a
     - ANDROID_SDKS=android-15 ANDROID_TARGET=android-15 ANDROID_ABI=armeabi-v7a
-
 before_script:
     - cd pebble-locker-android
     - chmod +x gradlew
