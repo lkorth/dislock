@@ -31,7 +31,7 @@ android {
 dependencies {
     compile 'com.getpebble:pebblekit:3.0.0@aar'
     compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
-    compile 'com.google.android.gms:play-services:7.5.0'
+    compile 'com.google.android.gms:play-services-wearable:7.5.0'
     compile 'fr.nicolaspomepuy:discreetapprate:2.0@aar'
     compile 'com.squareup:otto:1.3.5'
     compile 'com.lukekorth:mailable_log:0.1.3'
