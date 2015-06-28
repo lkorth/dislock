@@ -12,7 +12,6 @@ android:
 env:
     global:
     - TERM=dumb
-    - ADB_INSTALL_TIMEOUT=8
     matrix:
     - ANDROID_SDKS=android-21 ANDROID_TARGET=android-21 ANDROID_ABI=armeabi-v7a
     - ANDROID_SDKS=android-19 ANDROID_TARGET=android-19 ANDROID_ABI=armeabi-v7a
@@ -30,5 +29,6 @@ before_script:
     - emulator -avd pebbleLockerTest -no-skin -no-audio -no-window &
     - adb wait-for-device
     - while [[ `adb shell pm path android` == 'Error'* ]]; do sleep 2; done
+    - sleep 300 # wait an additional 5 mintues for emulator to finish startup
     - adb shell input keyevent 82 &
 script: ./gradlew --info :pebblelocker:connectedAndroidTest

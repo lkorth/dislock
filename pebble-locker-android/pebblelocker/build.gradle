@@ -12,6 +12,11 @@ android {
         versionName "3.1.1"
     }
 
+    // required to fix build failures on travis
+    adbOptions {
+      timeOutInMs 30000 // 30 seconds
+    }
+
     signingConfigs {
         release {
             storeFile System.getenv().containsKey('ANDROID_KEYSTORE') ? file(System.getenv('ANDROID_KEYSTORE')) : file(".")
