@@ -6,10 +6,10 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import com.lukekorth.pebblelocker.PebbleLockerApplication;
-import com.lukekorth.pebblelocker.PremiumFeaturesActivity;
 import com.lukekorth.pebblelocker.R;
 import com.lukekorth.pebblelocker.events.StatusChangedEvent;
 import com.lukekorth.pebblelocker.helpers.PebbleHelper;
+import com.lukekorth.pebblelocker.helpers.Settings;
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
 import com.lukekorth.pebblelocker.models.AndroidWearDevices;
 import com.lukekorth.pebblelocker.models.BluetoothDevices;
@@ -53,19 +53,16 @@ public class Status extends Preference {
             String connectedDevices = "";
 
             connectedDevices = conditionallyAddNewLine(connectedDevices,
-                    new PebbleHelper(getContext(), TAG).getConnectionStatus());
-
-            if (PremiumFeaturesActivity.hasPurchased(getContext())) {
-                connectedDevices = conditionallyAddNewLine(connectedDevices,
-                        new WifiHelper(getContext(), TAG).getConnectionStatus());
-                connectedDevices = conditionallyAddNewLine(connectedDevices,
-                        AndroidWearDevices.getConnectionStatus());
-                connectedDevices = conditionallyAddNewLine(connectedDevices,
-                        BluetoothDevices.getConnectionStatus());
-            }
+                    new PebbleHelper(getContext()).getConnectionStatus());
+            connectedDevices = conditionallyAddNewLine(connectedDevices,
+                    new WifiHelper(getContext()).getConnectionStatus());
+            connectedDevices = conditionallyAddNewLine(connectedDevices,
+                    AndroidWearDevices.getConnectionStatus());
+            connectedDevices = conditionallyAddNewLine(connectedDevices,
+                    BluetoothDevices.getConnectionStatus());
 
             if (TextUtils.isEmpty(connectedDevices)) {
-                connectedDevices = "No trusted devices connected";
+                connectedDevices = getContext().getString(R.string.no_trusted_devices_connected);
             }
 
             setSummary(connectedDevices);
@@ -76,7 +73,7 @@ public class Status extends Preference {
     }
 
     private boolean hasTrustedDevices() {
-        return (new PebbleHelper(getContext(), TAG).isEnabled() ||
+        return (Settings.isPebbleEnabled(getContext()) ||
                 BluetoothDevices.countTrustedDevices() > 0 ||
                 AndroidWearDevices.countTrustedDevices() > 0 ||
                 WifiNetworks.countTrustedDevices() > 0);
@@ -91,5 +88,4 @@ public class Status extends Preference {
             return addition;
         }
     }
-
 }

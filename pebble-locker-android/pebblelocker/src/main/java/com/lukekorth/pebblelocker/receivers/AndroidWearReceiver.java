@@ -16,7 +16,7 @@ public class AndroidWearReceiver extends WearableListenerService {
         LoggerFactory.getLogger(tag).debug("Android Wear " + peer.getDisplayName() + " : " + peer.getId() + " connected");
         AndroidWearDevices.setDeviceConnected(peer, true);
 
-        BaseBroadcastReceiver.handleLocking(this, tag);
+        BaseBroadcastReceiver.handleLocking(this);
         PebbleLockerApplication.getBus().post(new StatusChangedEvent());
     }
 
@@ -29,5 +29,4 @@ public class AndroidWearReceiver extends WearableListenerService {
         BaseBroadcastReceiver.lockWithDelay(this, tag);
         PebbleLockerApplication.getBus().post(new StatusChangedEvent());
     }
-
 }

@@ -23,6 +23,7 @@ public class BaseApplicationTestCase extends ApplicationTestCase<PebbleLockerApp
         super.setUp();
         System.setProperty("dexmaker.dexcache", getContext().getCacheDir().getPath());
         MockitoAnnotations.initMocks(this);
+        PebbleLockerApplication.sIsRunningInTestHarness = true;
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         createApplication();
     }

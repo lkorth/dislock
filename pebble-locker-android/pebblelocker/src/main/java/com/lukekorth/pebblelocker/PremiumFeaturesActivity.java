@@ -1,20 +1,18 @@
 package com.lukekorth.pebblelocker;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 
 import com.lukekorth.pebblelocker.billing.IabHelper;
 import com.lukekorth.pebblelocker.billing.IabHelper.OnIabSetupFinishedListener;
 import com.lukekorth.pebblelocker.billing.IabResult;
 import com.lukekorth.pebblelocker.billing.Inventory;
 import com.lukekorth.pebblelocker.billing.Purchase;
-import com.lukekorth.pebblelocker.helpers.PebbleHelper;
+import com.lukekorth.pebblelocker.helpers.Settings;
 import com.lukekorth.pebblelocker.models.AndroidWearDevices;
 import com.lukekorth.pebblelocker.models.BluetoothDevices;
 import com.lukekorth.pebblelocker.models.WifiNetworks;
@@ -28,7 +26,7 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
     private static final String BILLING_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmKCACsyFRONCbAFoNV+e1h+o9AXUTgiEZPDV24aaWyhTAixwK+sEHtcjlmElYHSO/9a6HBXa03JCsSNWc9Ngqpj3fTiZ+IZQ9HRLUt4mDWVh0/fKSiTfS9bEjGx8oHnteHTe+BvsTkkM5OR00n0zG+++a+948P8pv1B6f/QvJ1y9mgGyy5LR0CXVEnZrQJonqofPxBDaPvbNYNTGFkNSEepDk5xRfIfDpbftvgnDBtJya1BWc1aGksJURUyFZntj7fin3i05PbIiTztGWOKCGubegcJt+HIl304nvBZCbUVZpiSaOqWDQZO6kmloMoy5vC1GP1/WaN554XKNcDZ0rwIDAQAB";
     private static final String TAG = "Premium_Features";
 
-    private static enum IAB_STATUS {
+    private enum IAB_STATUS {
         SETTING_UP, SET_UP, FAILED
     }
 
@@ -36,7 +34,6 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
     private IabHelper mIabHelper;
     private IAB_STATUS mIabStatus;
     private boolean mIabOperationInProgress;
-
     private int mEnabledDevices;
 
     @Override
@@ -51,16 +48,10 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
         getEnabledDevices();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mIabHelper.dispose();
-    }
-
     protected void getEnabledDevices() {
         mEnabledDevices = 0;
 
-        if (new PebbleHelper(this, TAG).isEnabled()) {
+        if (Settings.isPebbleEnabled(this)) {
             mEnabledDevices++;
         }
 
@@ -69,13 +60,14 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
         mEnabledDevices += WifiNetworks.countTrustedDevices();
     }
 
-    public static boolean hasPurchased(Context context) {
-        return BuildConfig.DEBUG ||
-                PreferenceManager.getDefaultSharedPreferences(context).getBoolean("donated", false);
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mIabHelper.dispose();
     }
 
     public boolean isPurchaseRequired() {
-        if (!hasPurchased(this) && mEnabledDevices >= 1) {
+        if (!Settings.hasPurchased(this) && mEnabledDevices >= 1) {
             requirePurchase();
             return true;
         }
@@ -129,10 +121,10 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
                     inv.hasPurchase("pebblelocker.donation.5") ||
                     inv.hasPurchase("pebblelocker.donation.10") ||
                     inv.hasPurchase("pebblelocker.premium")) {
-                setPurchased(true);
+                Settings.setPurchased(this, true);
             } else {
                 mLogger.debug("User has not purchased any of the qualifying items");
-                setPurchased(false);
+                Settings.setPurchased(this, false);
             }
         }
     }
@@ -145,7 +137,7 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
 
         if (result.isSuccess()) {
             if (info.getSku().equals("pebblelocker.premium")) {
-                setPurchased(true);
+                Settings.setPurchased(this, true);
             }
         } else {
             showAlert(R.string.iab_error);
@@ -171,9 +163,6 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
         }
     }
 
-    private void setPurchased(boolean purchased) {
-		PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("donated", purchased).apply();
-	}
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -191,5 +180,4 @@ public class PremiumFeaturesActivity extends PreferenceActivity implements OnIab
             .setPositiveButton("Ok", onClickListener)
             .show();
 	}
-
 }

@@ -4,25 +4,15 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lukekorth.pebblelocker.R;
 
 public class PebbleHelper {
 
-    public static final String ENABLED_KEY = "pebble";
-
     private Context mContext;
-    private Logger mLogger;
 
-    public PebbleHelper(Context context, String tag) {
+    public PebbleHelper(Context context) {
         mContext = context;
-        mLogger = LoggerFactory.getLogger(tag);
-    }
-
-    public boolean isEnabled() {
-        return PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(ENABLED_KEY, false);
     }
 
     public boolean isConnected() {
@@ -31,8 +21,7 @@ public class PebbleHelper {
             c = mContext.getApplicationContext().getContentResolver()
                     .query(Uri.parse("content://com.getpebble.android.provider/state"), null, null, null, null);
         } catch (Exception e) {
-            mLogger.error("Exception getting Pebble connection status " + e.getClass() + ": " +
-                e.getMessage());
+            return false;
         }
 
         if (c == null) {
@@ -50,29 +39,24 @@ public class PebbleHelper {
     }
 
     public boolean isEnabledAndConnected() {
-        if (isEnabled()) {
-            return isConnected();
-        } else {
-            mLogger.debug("Unlock via any Pebble is not enabled");
-            return false;
-        }
+        return (Settings.isPebbleEnabled(mContext) && isConnected());
     }
 
-    public boolean isPebbleAppInstalled() {
-        PackageManager packageManager = mContext.getPackageManager();
+    public String getConnectionStatus() {
+        if (PebbleHelper.isPebbleAppInstalled(mContext) && isEnabledAndConnected()) {
+            return mContext.getString(R.string.pebble_watch_connected);
+        }
+
+        return null;
+    }
+
+    public static boolean isPebbleAppInstalled(Context context) {
+        PackageManager packageManager = context.getPackageManager();
         try {
             packageManager.getPackageInfo("com.getpebble.android", PackageManager.GET_ACTIVITIES);
             return true;
         } catch (PackageManager.NameNotFoundException e) {
             return false;
         }
-    }
-
-    public String getConnectionStatus() {
-        if (isPebbleAppInstalled() && isEnabled() && isConnected()) {
-            return "Pebble watch connected";
-        }
-
-        return null;
     }
 }

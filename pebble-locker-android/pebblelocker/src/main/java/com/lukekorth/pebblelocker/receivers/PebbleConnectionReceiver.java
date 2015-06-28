@@ -1,6 +1,6 @@
 package com.lukekorth.pebblelocker.receivers;
 
-import com.lukekorth.pebblelocker.helpers.PebbleHelper;
+import com.lukekorth.pebblelocker.helpers.Settings;
 
 public class PebbleConnectionReceiver extends BaseBroadcastReceiver {
 
@@ -9,7 +9,7 @@ public class PebbleConnectionReceiver extends BaseBroadcastReceiver {
 
     @Override
     protected void handle() {
-        if (new PebbleHelper(mContext, mTag).isEnabled()) {
+        if (Settings.isPebbleEnabled(mContext)) {
             if (mAction.equals(PEBBLE_CONNECTED)) {
                 mLogger.debug("Pebble connected, attempting unlock");
                 handleLocking();
@@ -19,5 +19,4 @@ public class PebbleConnectionReceiver extends BaseBroadcastReceiver {
             }
         }
     }
-
 }

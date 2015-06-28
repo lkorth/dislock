@@ -79,6 +79,12 @@ public class AndroidWearDevicesTest extends BaseApplicationTestCase {
         public String getDisplayName() {
             return mName;
         }
+
+        @Override
+        public boolean isNearby() {
+            return false;
+        }
+
         @Override
         public String getId() {
             return mId;

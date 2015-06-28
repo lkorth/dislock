@@ -3,7 +3,6 @@ package com.lukekorth.pebblelocker.logging;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,10 +10,10 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 
 import com.lukekorth.mailable_log.MailableLog;
 import com.lukekorth.pebblelocker.BuildConfig;
+import com.lukekorth.pebblelocker.helpers.Settings;
 
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +21,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 import java.util.Map;
 
 public class LogReporting {
@@ -45,7 +43,7 @@ public class LogReporting {
 		@SuppressLint("NewApi")
 		@Override
 		protected Void doInBackground(Void... args) {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+            SharedPreferences prefs = Settings.getPreferences(mContext);
             DevicePolicyManager dpm = ((DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE));
 
 			StringBuilder message = new StringBuilder();
@@ -56,26 +54,9 @@ public class LogReporting {
             message.append("Device product: " + Build.PRODUCT + "\n");
 			message.append("App version: " + getAppVersion(mContext.getPackageName())+ "\n");
 			message.append("Pebble app version: " + getAppVersion("com.getpebble.android") + "\n");
-			message.append("Minimum password length: " + dpm.getPasswordMinimumLength(null) + "\n");
-            message.append("Minimum letters in password: " + dpm.getPasswordMinimumLetters(null) + "\n");
-            message.append("Minimum lower case letters in password: " + dpm.getPasswordMinimumLowerCase(null) + "\n");
-            message.append("Minimum non-letters in password: " + dpm.getPasswordMinimumNonLetter(null) + "\n");
-            message.append("Minimum numeric in password: " + dpm.getPasswordMinimumNumeric(null) + "\n");
-            message.append("Minimum symbols in password: " + dpm.getPasswordMinimumSymbols(null) + "\n");
-            message.append("Minimum upper case letters in password: " + dpm.getPasswordMinimumUpperCase(null) + "\n");
-            message.append("Dislock password length: " + prefs.getString("key_password", "").length() + "\n");
 			message.append("Encryption status: " + dpm.getStorageEncryptionStatus() + "\n");
             message.append("Device rooted: " + isDeviceRooted() + "\n");
             message.append("Debug: " + BuildConfig.DEBUG + "\n");
-
-            List<ComponentName> admins = dpm.getActiveAdmins();
-            if (admins != null) {
-                for (ComponentName componentName : dpm.getActiveAdmins()) {
-                    message.append("Active Admin: " + componentName.getClassName() + "\n");
-                }
-            } else {
-                message.append("No active admins");
-            }
 
 			Map<String,?> keys = prefs.getAll();
 			for(Map.Entry<String,?> entry : keys.entrySet()) {

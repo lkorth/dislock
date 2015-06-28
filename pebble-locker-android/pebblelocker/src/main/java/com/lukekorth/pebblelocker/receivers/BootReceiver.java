@@ -3,7 +3,6 @@ package com.lukekorth.pebblelocker.receivers;
 public class BootReceiver extends BaseBroadcastReceiver {
 
     private static final String BOOT_ACTION = "android.intent.action.boot_completed";
-    private static final String ACTION_SHUTDOWN = "android.intent.action.action_shutdown";
 
     @Override
     protected void handle() {
@@ -12,5 +11,4 @@ public class BootReceiver extends BaseBroadcastReceiver {
             setDelayedLockAlarm(mContext, 10000);
         }
     }
-
 }

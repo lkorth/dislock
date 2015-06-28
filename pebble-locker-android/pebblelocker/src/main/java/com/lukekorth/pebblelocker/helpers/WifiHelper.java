@@ -8,9 +8,6 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,11 +15,9 @@ import java.util.Map;
 public class WifiHelper {
 
     private Context mContext;
-    private Logger mLogger;
 
-    public WifiHelper(Context context, String tag) {
+    public WifiHelper(Context context) {
         mContext = context;
-        mLogger = LoggerFactory.getLogger(tag);
     }
 
     /**
@@ -54,13 +49,7 @@ public class WifiHelper {
         String ssid = getConnectedNetworkSsid();
         String encodedSsid = base64Encode(ssid);
 
-        mLogger.debug("Wifi network " + ssid + " is connected: " + encodedSsid);
-
-        if (PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(encodedSsid, false)) {
-            return true;
-        }
-
-        return false;
+        return PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(encodedSsid, false);
     }
 
     public String getConnectionStatus() {
@@ -76,11 +65,7 @@ public class WifiHelper {
         if (wifiInfo != null) {
             if (wifiInfo.getSSID() != null) {
                 return stripQuotes(wifiInfo.getSSID());
-            } else {
-                mLogger.debug("wifiInfo.getSSID is null");
             }
-        } else {
-            mLogger.debug("wifiInfo is null");
         }
 
         return "";
@@ -99,5 +84,4 @@ public class WifiHelper {
         else
             return input;
     }
-
 }

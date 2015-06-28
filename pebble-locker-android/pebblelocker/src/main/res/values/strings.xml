@@ -2,9 +2,11 @@
     <string name="app_name">Dislock</string>
     <string name="rate">Rate Dislock</string>
 
-    <string name="no_pin_or_password_set">No Pin or Password Set</string>
-    <string name="no_pin_or_password_set_summary">Dislock requires a pin or password, set one using the password type option</string>
+    <string name="no_trusted_devices_connected">No trusted devices connected</string>
     <string name="no_trusted_devices_configured">No trusted devices are configured, add one below</string>
+
+    <string name="set_a_password">Set a Password</string>
+    <string name="set_a_password_summary">Select the lock type for your device</string>
 
     <string name="screen_lock_type_title">Password Type</string>
     <string name="slide">Slide</string>
@@ -14,17 +16,14 @@
     <string name="bluetooth_devices">Select Devices</string>
     <string name="wifi_networks">Select WiFi Networks</string>
 
-    <string name="do_not_use">Do Not Use</string>
-    <string name="use_anyway">Use Anyway</string>
-    <string name="incompatable_warning">Your device is encrypted or there are other apps installed that require a password or pin to be set. Dislock does not work on encrypted devices or with other apps that require a pin or password. If you wish to use Dislock you will need to decrypt your device, disabled or uninstall any apps that require a pin or password or try to use it anyway. WARNING: Trying to use Dislock in spite of this warning may cause you to lose all data on your device, you have been warned.</string>
-
     <string name="status">Status</string>
+    <string name="automatically_locked">Automatically Locked</string>
+    <string name="automatically_unlocked">Automatically Unlocked</string>
+    <string name="manually_locked">Manually Locked</string>
+    <string name="manually_unlocked">Manually Unlocked</string>
     <string name="grace_period_title">Grace Period</string>
 
-    <string name="monkey">You can\'t reset my password, you are a monkey!</string>
-
     <string name="click_to_change">Click to change</string>
-    <string name="please_wait">Please wait...</string>
     <string name="connected_trusted_devices">Connected Trusted Devices</string>
 
     <string name="require_password_title">Require Unlock on Reconnect</string>
@@ -35,15 +34,18 @@
     <string name="iab_setup_error">In app purchases are not possible at this time, please try again later. If this problem persists, please contact the developer.</string>
     <string name="iab_error">There was an error completing your purchase, please try again later. If this problem persists, please contact the developer.</string>
 
+    <string name="device_admin_explanation">Dislock requires device admin access to turn off your screen when all trusted devices have disconnected.</string>
+    <string name="device_admin_switch">Dislock requires device admin access to turn off your screen when all trusted devices have disconnected.\n\nYou will now be taken to your device\'s settings to enable Dislock as a device admin.\n\nIf you ever wish to uninstall Dislock you will need to disable this option before uninstalling.</string>
+
     <string name="trusted_devices">Trusted Devices</string>
 
     <string name="pebble_watch_app_title">Download Pebble Watch App</string>
     <string name="pebble_watch_app_summary">Control the lock state from your Pebble watch. Options include automatic, locked and unlocked</string>
+    <string name="pebble_watch_connected">Pebble watch connected</string>
 
     <string name="bluetooth_preference_title">Bluetooth Devices</string>
     <string name="bluetooth_preference_summary">Select bluetooth devices such as Android Wear, cars and headsets that will unlock your device</string>
     <string name="pebble">Pebble</string>
-    <string name="any_pebble">Allow any Pebble to unlock</string>
     <string name="android_wear">Android Wear</string>
     <string name="bluetooth_devices_preference_category">Bluetooth Devices</string>
 

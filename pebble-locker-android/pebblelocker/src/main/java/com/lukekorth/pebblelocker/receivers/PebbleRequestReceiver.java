@@ -7,9 +7,8 @@ import android.content.Intent;
 import com.getpebble.android.kit.Constants;
 import com.getpebble.android.kit.PebbleKit;
 import com.getpebble.android.kit.util.PebbleDictionary;
-import com.lukekorth.pebblelocker.LockState;
-import com.lukekorth.pebblelocker.Locker;
 import com.lukekorth.pebblelocker.PebbleLockerApplication;
+import com.lukekorth.pebblelocker.models.LockState;
 
 import org.json.JSONException;
 import org.slf4j.Logger;
@@ -52,16 +51,14 @@ public class PebbleRequestReceiver extends BroadcastReceiver {
                 PebbleDictionary pebbleDictionary = PebbleDictionary.fromJson(data);
                 PebbleDictionary responseDictionary = new PebbleDictionary();
 
-                if (!new Locker(context, tag).enabled()) {
-                    responseDictionary.addInt32(SET_STATE, 3);
-                } else if (pebbleDictionary.getInteger(GET_STATE) != null) {
+                if (pebbleDictionary.getInteger(GET_STATE) != null) {
                     LockState state = LockState.getCurrentState(context);
-                    logger.debug("Getting current lock state: " + state.getDisplayName());
+                    logger.debug("Getting current lock state: " + context.getString(state.getDisplayName(context)));
                     responseDictionary.addInt32(SET_STATE, state.getState());
                 } else if (pebbleDictionary.getInteger(SET_STATE) != null) {
                     int state = (int) ((long) pebbleDictionary.getInteger(SET_STATE));
                     responseDictionary.addInt32(SET_STATE,
-                            LockState.setCurrentState(context, tag, true, state).getState());
+                            LockState.setCurrentState(context, LockState.getInstance(state)).getState());
                 }
 
                 if (responseDictionary.size() > 0) {
@@ -73,5 +70,4 @@ public class PebbleRequestReceiver extends BroadcastReceiver {
             }
         }
 	}
-
 }

@@ -1,1 +1,0 @@
-ALTER TABLE AndroidWearDevices ADD COLUMN connected INTEGER;

@@ -22,5 +22,4 @@ public class Version extends Preference {
         super(context, attrs, defStyle);
         setSummary(BuildConfig.VERSION_NAME);
     }
-
 }

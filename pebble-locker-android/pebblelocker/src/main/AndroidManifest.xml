@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
 
     <application
         android:name=".PebbleLockerApplication"
@@ -32,23 +33,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".AuthenticationActivity" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".DevicesActivity" android:label="@string/bluetooth_devices" />
         <activity android:name=".WiFiNetworks" android:label="@string/wifi_networks" />
 
         <service android:name=".services.AndroidWearDetectionService" />
-        <service android:name=".services.LockStateIntentService" />
-        <service android:name=".services.LockingIntentService" />
-
-        <receiver android:name=".helpers.CustomDeviceAdminReceiver"
-                android:label="@string/app_name"
-                android:permission="android.permission.BIND_DEVICE_ADMIN">
-            <meta-data android:name="android.app.device_admin"
-                       android:resource="@xml/device_admin" />
-            <intent-filter>
-                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
-            </intent-filter>
-        </receiver>
+        <service android:name=".services.LockerService" />
 
         <receiver android:name=".receivers.PebbleConnectionReceiver" android:exported="true"
             tools:ignore="ExportedReceiver">
@@ -107,6 +96,16 @@
           <intent-filter>
             <action android:name="com.getpebble.action.app.RECEIVE" />
           </intent-filter>
+        </receiver>
+
+        <receiver android:name=".receivers.DislockDeviceAdminReciever"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_DEVICE_ADMIN">
+            <meta-data android:name="android.app.device_admin"
+                android:resource="@xml/device_admin" />
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
         </receiver>
 
         <provider

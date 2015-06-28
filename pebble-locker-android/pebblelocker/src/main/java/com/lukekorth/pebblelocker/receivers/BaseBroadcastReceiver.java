@@ -5,27 +5,24 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
-import android.preference.PreferenceManager;
 
-import com.lukekorth.pebblelocker.LockState;
-import com.lukekorth.pebblelocker.Locker;
 import com.lukekorth.pebblelocker.PebbleLockerApplication;
-import com.lukekorth.pebblelocker.helpers.DeviceHelper;
+import com.lukekorth.pebblelocker.events.StatusChangedEvent;
+import com.lukekorth.pebblelocker.helpers.Settings;
+import com.lukekorth.pebblelocker.models.LockState;
+import com.lukekorth.pebblelocker.services.LockerService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class BaseBroadcastReceiver extends BroadcastReceiver {
 
-    public static final String LOCKED = "locked";
     protected static final int DELAYED_LOCK_REQUEST_CODE = 3439393;
 
     protected Context mContext;
     protected String mTag;
     protected Logger mLogger;
-    protected DeviceHelper mDeviceHelper;
     protected String mAction;
     protected Intent mIntent;
 
@@ -34,13 +31,10 @@ public abstract class BaseBroadcastReceiver extends BroadcastReceiver {
         mContext = context;
         mTag = PebbleLockerApplication.getUniqueTag();
         mLogger = LoggerFactory.getLogger(mTag);
-        mDeviceHelper = new DeviceHelper(context, mTag);
         mAction = intent.getAction().toLowerCase();
         mIntent = intent;
 
         mLogger.debug("BroadcastReceiver action: " + mAction);
-
-        checkForMalformedPassword();
 
         onReceive();
 
@@ -48,17 +42,26 @@ public abstract class BaseBroadcastReceiver extends BroadcastReceiver {
         if (lockState == LockState.AUTO) {
             handle();
         } else {
-            mLogger.debug("Lock state was manually set to " + lockState.getDisplayName());
+            mLogger.debug("Lock state was manually set to " +
+                    mContext.getString(lockState.getDisplayName(mContext)));
         }
-        mDeviceHelper.sendLockStatusChangedEvent();
+
+        PebbleLockerApplication.getBus().post(new StatusChangedEvent());
     }
 
     protected void handleLocking() {
-        BaseBroadcastReceiver.handleLocking(mContext, mTag);
+        BaseBroadcastReceiver.handleLocking(mContext);
     }
 
-    protected static void handleLocking(Context context, String tag) {
-        new Locker(context, tag).handleLocking(true);
+    protected static void handleLocking(Context context) {
+        if (Settings.isLocked(context) && Settings.isReauthenticationRequired(context) &&
+                !Settings.isUnlockNeeded(context)) {
+            Settings.setNeedToUnlock(context, true);
+            LoggerFactory.getLogger("BaseBroadcastReceiver")
+                    .debug("Reauthentication required, waiting until next unlock before unlocking");
+        } else {
+            context.startService(new Intent(context, LockerService.class));
+        }
     }
 
     protected void lockWithDelay() {
@@ -67,15 +70,14 @@ public abstract class BaseBroadcastReceiver extends BroadcastReceiver {
 
     protected static void lockWithDelay(Context context, String tag) {
         Logger logger = LoggerFactory.getLogger(tag);
-        int delay = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(context)
-                .getString("key_grace_period", "2"));
 
+        int delay = Integer.parseInt(Settings.getGracePeriod(context));
         if (delay == 0) {
             logger.debug("No delay, handling locking now");
-            BaseBroadcastReceiver.handleLocking(context, tag);
+            BaseBroadcastReceiver.handleLocking(context);
         } else {
             logger.debug("Delay of " + delay + " seconds, setting alarm");
-            setDelayedLockAlarm(context, (delay * 1000));
+            BaseBroadcastReceiver.setDelayedLockAlarm(context, (delay * 1000));
         }
     }
 
@@ -91,16 +93,6 @@ public abstract class BaseBroadcastReceiver extends BroadcastReceiver {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, wakeupIntent);
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, wakeupTime, wakeupIntent);
-        }
-    }
-
-    private void checkForMalformedPassword() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        String originalPassword = prefs.getString("key_password", "");
-        String trimmedPassword = originalPassword.trim();
-        if (!originalPassword.equals(trimmedPassword)) {
-            prefs.edit().putString("key_password", trimmedPassword).apply();
-            new Locker(mContext, "Malformed-Password").lock(false);
         }
     }
 

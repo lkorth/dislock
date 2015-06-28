@@ -16,7 +16,7 @@ import android.provider.Settings;
 
 import com.lukekorth.pebblelocker.helpers.WifiHelper;
 import com.lukekorth.pebblelocker.models.WifiNetworks;
-import com.lukekorth.pebblelocker.services.LockingIntentService;
+import com.lukekorth.pebblelocker.services.LockerService;
 
 import java.util.List;
 import java.util.Map;
@@ -32,7 +32,7 @@ public class WiFiNetworks extends PremiumFeaturesActivity implements Preference.
         inlinePrefCat.setTitle("WiFi Networks");
         root.addPreference(inlinePrefCat);
 
-        WifiHelper wifiHelper = new WifiHelper(this, "Wifi_Networks");
+        WifiHelper wifiHelper = new WifiHelper(this);
 
         List<WifiConfiguration> networks = wifiHelper.getStoredNetworks();
         if (networks == null) {
@@ -73,7 +73,7 @@ public class WiFiNetworks extends PremiumFeaturesActivity implements Preference.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         if (!prefs.getBoolean("migratedWifi", false)) {
-            WifiHelper wifiHelper = new WifiHelper(this, "WifiNetworks");
+            WifiHelper wifiHelper = new WifiHelper(this);
             List<WifiConfiguration> networks = wifiHelper.getStoredNetworks();
 
             WifiNetworks networkModel;
@@ -92,7 +92,9 @@ public class WiFiNetworks extends PremiumFeaturesActivity implements Preference.
         if (!trusted || !isPurchaseRequired()) {
             WifiNetworks.setNetworkTrusted(preference.getTitle().toString(), trusted);
 
-            startService(new Intent(this, LockingIntentService.class));
+            Intent intent = new Intent(this, LockerService.class)
+                    .putExtra(LockerService.EXTRA_FORCE_LOCK, false);
+            startService(intent);
             getEnabledDevices();
             return true;
         }

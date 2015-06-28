@@ -32,5 +32,4 @@ public class Contact extends Preference implements Preference.OnPreferenceClickL
         new LogReporting(getContext()).collectAndSendLogs();
         return true;
     }
-
 }

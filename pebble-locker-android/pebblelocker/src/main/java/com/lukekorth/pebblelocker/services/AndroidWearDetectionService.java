@@ -25,7 +25,7 @@ public class AndroidWearDetectionService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         GoogleApiClient client = new GoogleApiClient.Builder(this).addApi(Wearable.API).build();
-        client.connect();
+        client.blockingConnect();
         NodeApi.GetConnectedNodesResult connectedNodes = Wearable.NodeApi.getConnectedNodes(client)
                 .await();
 

@@ -2,11 +2,9 @@ package com.lukekorth.pebblelocker;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 
 import com.lukekorth.mailable_log.MailableLog;
 import com.lukekorth.pebblelocker.helpers.ThreadBus;
-import com.squareup.otto.Bus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +15,8 @@ import java.util.UUID;
 public class PebbleLockerApplication extends com.activeandroid.app.Application implements Thread.UncaughtExceptionHandler {
 
     private static final String VERSION = "version";
+
+    public static boolean sIsRunningInTestHarness = false;
 
     private static ThreadBus sBus;
 
@@ -39,17 +39,9 @@ public class PebbleLockerApplication extends com.activeandroid.app.Application i
 
         int previousVersion = prefs.getInt(VERSION, 0);
         if (previousVersion < BuildConfig.VERSION_CODE) {
-            // update old version prefs
-            if (previousVersion <= 35) {
-                String password = prefs.getString("key_password", "");
-                if (TextUtils.isEmpty(password)) {
-                    editor.putString(ScreenLockType.SCREEN_LOCK_TYPE_KEY, ScreenLockType.SLIDE.getType());
-                } else if (password.matches("[0-9]+")) {
-                    editor.putString(ScreenLockType.SCREEN_LOCK_TYPE_KEY, ScreenLockType.PIN.getType());
-                } else {
-                    editor.putString(ScreenLockType.SCREEN_LOCK_TYPE_KEY, ScreenLockType.PASSWORD.getType());
-                }
-                editor.remove("key_enable_locker");
+            if (previousVersion <= 38 && !sIsRunningInTestHarness) {
+                prefs.edit().clear().apply();
+                deleteDatabase("pebble_locker.db");
             }
 
             String now = new Date().toString();
@@ -65,7 +57,7 @@ public class PebbleLockerApplication extends com.activeandroid.app.Application i
         }
     }
 
-    public static Bus getBus() {
+    public static ThreadBus getBus() {
         return sBus;
     }
 
@@ -95,5 +87,4 @@ public class PebbleLockerApplication extends com.activeandroid.app.Application i
 
         mExceptionHandler.uncaughtException(thread, ex);
     }
-
 }

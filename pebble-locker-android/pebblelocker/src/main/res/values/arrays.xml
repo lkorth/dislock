@@ -1,15 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="screen_lock_type_entries">
-        <item>@string/slide</item>
-        <item>@string/pin</item>
-        <item>@string/password</item>
-    </string-array>
-    <string-array name="screen_lock_type_entry_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-    </string-array>
     <string-array name="grace_period_entries">
         <item>0 seconds</item>
         <item>2 seconds</item>

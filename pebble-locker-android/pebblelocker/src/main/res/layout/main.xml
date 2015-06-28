@@ -15,32 +15,28 @@
     </PreferenceCategory>
     
     <PreferenceCategory
-        android:title="Device Administrator" >
-
-        <CheckBoxPreference
-            android:key="key_enable_admin"
-            android:title="Enable Device Administrator"
-            android:summary="Must be enabled for Dislock to function" />
-    </PreferenceCategory>
-    
-    <PreferenceCategory
         android:key="options_category"
         android:title="Options">
 
+        <Preference
+            android:key="key_set_password"
+            android:title="@string/set_a_password"
+            android:summary="@string/set_a_password_summary">
+            <intent
+                android:action="android.settings.SECURITY_SETTINGS" />
+        </Preference>
+
         <CheckBoxPreference
-            android:order="1"
             android:key="key_force_lock"
             android:title="Turn off screen on disconnect"
             android:summary="Turn off the screen when your device disconnects from a trusted watch, bluetooth device or WiFi network" />
 
         <CheckBoxPreference
-            android:order="2"
             android:key="key_require_password_on_reconnect"
             android:title="@string/require_password_title"
             android:summary="@string/require_password_summary" />
 
         <com.lukekorth.pebblelocker.views.GracePeriod
-            android:order="3"
             android:key="key_grace_period"
             android:title="@string/grace_period_title"
             android:entries="@array/grace_period_entries"

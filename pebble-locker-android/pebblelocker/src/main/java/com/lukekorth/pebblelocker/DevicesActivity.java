@@ -10,9 +10,10 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 
 import com.activeandroid.query.Select;
+import com.lukekorth.pebblelocker.helpers.Settings;
 import com.lukekorth.pebblelocker.models.AndroidWearDevices;
 import com.lukekorth.pebblelocker.models.BluetoothDevices;
-import com.lukekorth.pebblelocker.services.LockingIntentService;
+import com.lukekorth.pebblelocker.services.LockerService;
 
 import java.util.List;
 import java.util.Set;
@@ -55,17 +56,14 @@ public class DevicesActivity extends PremiumFeaturesActivity {
         pebble.setTitle(R.string.pebble);
         mPreferenceScreen.addPreference(pebble);
         CheckBoxPreference pref = new CheckBoxPreference(this);
-        pref.setKey("pebble");
-        pref.setTitle(R.string.any_pebble);
+        pref.setKey(Settings.PEBBLE_ENABLED);
+        pref.setTitle(R.string.pebble);
         pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean trusted = Boolean.parseBoolean(newValue.toString());
                 if (!trusted || !isPurchaseRequired()) {
-                    PreferenceManager.getDefaultSharedPreferences(DevicesActivity.this)
-                            .edit()
-                            .putBoolean("pebble", trusted)
-                            .apply();
+                    Settings.setPebbleEnabled(DevicesActivity.this, trusted);
                     handleLocking();
                     getEnabledDevices();
                     return true;
@@ -93,11 +91,13 @@ public class DevicesActivity extends PremiumFeaturesActivity {
             mBluetooth.addPreference(mBluetoothStatus);
         } else {
             for (BluetoothDevice device : pairedDevices) {
-                CheckBoxPreference pref = new CheckBoxPreference(this);
-                pref.setKey(device.getAddress());
-                pref.setTitle(device.getName());
-                pref.setOnPreferenceChangeListener(bluetoothPreferenceListener);
-                mBluetooth.addPreference(pref);
+                if (!device.getName().contains("Pebble")) {
+                    CheckBoxPreference pref = new CheckBoxPreference(this);
+                    pref.setKey(device.getAddress());
+                    pref.setTitle(device.getName());
+                    pref.setOnPreferenceChangeListener(bluetoothPreferenceListener);
+                    mBluetooth.addPreference(pref);
+                }
             }
         }
     }
@@ -173,7 +173,8 @@ public class DevicesActivity extends PremiumFeaturesActivity {
     };
 
     private void handleLocking() {
-        startService(new Intent(this, LockingIntentService.class));
+        Intent intent = new Intent(this, LockerService.class)
+                .putExtra(LockerService.EXTRA_FORCE_LOCK, false);
+        startService(intent);
     }
-
 }

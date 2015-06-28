@@ -3,13 +3,11 @@ package com.lukekorth.pebblelocker.views;
 import android.content.Context;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 
-public class GracePeriod extends ListPreference implements Preference.OnPreferenceChangeListener {
+import com.lukekorth.pebblelocker.helpers.Settings;
 
-    private static final String KEY = "key_grace_period";
-    private static final String DEFAULT = "2";
+public class GracePeriod extends ListPreference implements Preference.OnPreferenceChangeListener {
 
     public GracePeriod(Context context) {
         super(context);
@@ -22,7 +20,7 @@ public class GracePeriod extends ListPreference implements Preference.OnPreferen
     }
 
     private void init() {
-        setCustomSummary(PreferenceManager.getDefaultSharedPreferences(getContext()).getString(KEY, DEFAULT));
+        setCustomSummary(Settings.getGracePeriod(getContext()));
         setOnPreferenceChangeListener(this);
     }
 
@@ -42,5 +40,4 @@ public class GracePeriod extends ListPreference implements Preference.OnPreferen
 
         setSummary("Lock " + time + " after disconnection");
     }
-
 }

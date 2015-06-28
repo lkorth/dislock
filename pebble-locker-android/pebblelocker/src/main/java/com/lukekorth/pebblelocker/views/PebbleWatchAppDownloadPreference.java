@@ -30,13 +30,13 @@ public class PebbleWatchAppDownloadPreference extends Preference implements Pref
 
     private void init() {
         PebbleLockerApplication.getBus().register(this);
-        refresh(new ActivityResumedEvent());
+        refresh(null);
         setOnPreferenceClickListener(this);
     }
 
     @Subscribe
     public void refresh(ActivityResumedEvent event) {
-        setEnabled(new PebbleHelper(getContext(), "Pebble_Watch_Download").isPebbleAppInstalled());
+        setEnabled(PebbleHelper.isPebbleAppInstalled(getContext()));
     }
 
     @Override

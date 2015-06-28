@@ -11,5 +11,4 @@ public class DelayedLockReceiver extends BaseBroadcastReceiver {
             handleLocking();
         }
     }
-
 }
