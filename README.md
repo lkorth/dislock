@@ -19,8 +19,6 @@ Dislock supports:
 * Bluetooth devices that maintain a constant connection and show up in your list of paired devices
 * Android Wear
 * Wifi networks (by SSID, multiple APs with the same SSID will be detected as a single network)
-* Android devices using the built in VPN client
-* Android devices that are encrypted or have other apps that require a pin or password to be set
 * Pattern lock
 
 Dislock *does not* support:
