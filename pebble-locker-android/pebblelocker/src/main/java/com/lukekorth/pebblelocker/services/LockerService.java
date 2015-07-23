@@ -31,6 +31,7 @@ public class LockerService extends Service {
     private ThreadBus mBus;
     private KeyguardManager.KeyguardLock mKeyguardLock;
     private boolean mForceLock;
+    private boolean mTriggeringLock = false;
 
     @SuppressWarnings("deprecation")
     @Override
@@ -73,10 +74,12 @@ public class LockerService extends Service {
                 if (hasTrustedConnection()) {
                     unlock();
                 } else {
+                    mTriggeringLock = true;
                     stopSelf(); // triggers onDestroy which calls lock()
                 }
                 break;
             case MANUAL_LOCKED:
+                mTriggeringLock = true;
                 stopSelf(); // triggers onDestroy which calls lock()
                 break;
             case MANUAL_UNLOCKED:
@@ -92,7 +95,7 @@ public class LockerService extends Service {
 
         mLogger.debug("Locked");
 
-        if (mForceLock) {
+        if (mForceLock && mTriggeringLock) {
             DevicePolicyManager devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
             ComponentName deviceAdmin = new ComponentName(this, DislockDeviceAdminReciever.class);
             if (devicePolicyManager.isAdminActive(deviceAdmin)) {
