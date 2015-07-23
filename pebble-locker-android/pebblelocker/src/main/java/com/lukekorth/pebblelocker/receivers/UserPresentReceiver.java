@@ -12,13 +12,14 @@ public class UserPresentReceiver extends BaseBroadcastReceiver {
 
     @Override
     protected void handle() {
-        if (mAction.equals(USER_PRESENT) && Settings.isUnlockNeeded(mContext)) {
-            mLogger.debug("User present and need to unlock, handling locking");
-            handleLocking();
-        } else if (mAction.equals(USER_PRESENT) && !Settings.isLocked(mContext) &&
-                !isLockerServiceRunning()) {
-            mLogger.debug("State is unlocked and service is not running, handling locking");
-            handleLocking();
+        if (mAction.equals(USER_PRESENT)) {
+            if (Settings.isUnlockNeeded(mContext)) {
+                mLogger.debug("User present and need to unlock, handling locking");
+                handleLocking();
+            } else if (!Settings.isLocked(mContext) && !isLockerServiceRunning()) {
+                mLogger.debug("State is unlocked and service is not running, handling locking");
+                handleLocking();
+            }
         }
     }
 

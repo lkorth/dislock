@@ -91,6 +91,7 @@ public class LockerService extends Service {
     private void lock() {
         mKeyguardLock.reenableKeyguard();
         Settings.setLocked(this, true);
+        Settings.setNeedToUnlock(this, hasTrustedConnection());
         mBus.post(new StatusChangedEvent());
 
         mLogger.debug("Locked");
