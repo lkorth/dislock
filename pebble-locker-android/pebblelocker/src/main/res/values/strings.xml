@@ -22,6 +22,8 @@
     <string name="manually_locked">Manually Locked</string>
     <string name="manually_unlocked">Manually Unlocked</string>
     <string name="grace_period_title">Grace Period</string>
+    <string name="notification_title">Notification When Unlocked</string>
+    <string name="notification_summary">Show an ongoing notification when unlocked. May prevent erroneous locking.</string>
 
     <string name="click_to_change">Click to change</string>
     <string name="connected_trusted_devices">Connected Trusted Devices</string>

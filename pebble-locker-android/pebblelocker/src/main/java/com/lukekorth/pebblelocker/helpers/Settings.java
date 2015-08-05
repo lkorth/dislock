@@ -15,6 +15,7 @@ public class Settings {
     public static final String NEED_TO_UNLOCK = "need_to_unlock";
     public static final String LOCK_STATE = "lock_state";
     public static final String GRACE_PERIOD = "grace_period";
+    public static final String ONGOING_NOTIFICATION = "key_notification";
     public static final String PEBBLE_ENABLED = "pebble_enabled";
 
     private static SharedPreferences sPrefs;
@@ -57,6 +58,10 @@ public class Settings {
 
     public static String getGracePeriod(Context context) {
         return getPreferences(context).getString(GRACE_PERIOD, "2");
+    }
+
+    public static boolean getOngoingNotification(Context context) {
+        return getPreferences(context).getBoolean(ONGOING_NOTIFICATION, true);
     }
 
     public static boolean isPebbleEnabled(Context context) {

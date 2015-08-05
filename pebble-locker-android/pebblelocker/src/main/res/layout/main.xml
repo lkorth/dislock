@@ -41,6 +41,12 @@
             android:title="@string/grace_period_title"
             android:entries="@array/grace_period_entries"
             android:entryValues="@array/grace_period_entry_values" />
+
+        <CheckBoxPreference
+            android:key="key_notification"
+            android:title="@string/notification_title"
+            android:summary="@string/notification_summary"
+            android:defaultValue="true" />
     </PreferenceCategory>
     
     <PreferenceCategory
