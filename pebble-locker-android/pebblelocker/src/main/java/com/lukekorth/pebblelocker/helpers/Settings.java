@@ -14,7 +14,7 @@ public class Settings {
     public static final String LOCKED = "locked";
     public static final String NEED_TO_UNLOCK = "need_to_unlock";
     public static final String LOCK_STATE = "lock_state";
-    public static final String GRACE_PERIOD = "grace_period";
+    public static final String GRACE_PERIOD = "key_grace_period";
     public static final String ONGOING_NOTIFICATION = "key_notification";
     public static final String PEBBLE_ENABLED = "pebble_enabled";
 
